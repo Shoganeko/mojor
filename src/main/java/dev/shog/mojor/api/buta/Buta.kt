@@ -45,8 +45,6 @@ fun Routing.butaPages() {
         val id = call.parameters["id"]?.toLongOrNull() ?: -1L
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
 
-        println(ButaObjectHandler.OBJECTS)
-
         ButaObjectHandler.getObject(id, type)
                 .doOnNext { launch { call.respond(it) } }
                 .switchIfEmpty(ButaObject.getEmpty().toMono())
