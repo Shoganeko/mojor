@@ -3,29 +3,28 @@ package dev.shog.mojor.servers
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.Health
 import dev.shog.mojor.api.RandomEmote
-import dev.shog.mojor.api.app.setAppPages
-import dev.shog.mojor.auth.AuthHandler
-import dev.shog.mojor.auth.Permissions
-import dev.shog.mojor.auth.hasPermissions
+import dev.shog.mojor.api.buta.butaPages
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.auth.*
 import io.ktor.features.*
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.jackson.JacksonConverter
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
-import io.ktor.request.header
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import io.ktor.serialization.DefaultJsonConfiguration
+import io.ktor.serialization.serialization
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.toMap
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
 import java.text.DateFormat
 
@@ -38,6 +37,13 @@ private fun Application.mainModule() {
         jackson {
             dateFormat = DateFormat.getDateInstance()
         }
+
+        register(ContentType.Application.Json, JacksonConverter())
+
+        serialization(
+                contentType = ContentType.Application.Json,
+                json = Json(DefaultJsonConfiguration)
+        )
     }
 
     install(CallLogging) {
@@ -69,7 +75,6 @@ private fun Application.mainModule() {
 
     routing {
         root()
-        setAppPages()
     }
 }
 
@@ -82,24 +87,17 @@ private fun Routing.root() {
         call.respond(mapOf("response" to Mojor.VERSION))
     }
 
+    butaPages()
+
     get("/health") {
-        // make better :D
-        val token = AuthHandler.getTokenByString(call.request.parseAuthorizationHeader()?.render()?.removePrefix("token ")
-                ?: "")
-
-        if (token != null && token.hasPermissions(Permissions.APP_MANAGER)) {
-            Health.getCurrentHealth()
-                    .collectList()
-                    .map { list -> list.toMap() }
-                    .doOnNext { map ->
-                        launch {
-                            call.respond(map)
-                        }
+        Health.getCurrentHealth()
+                .collectList()
+                .map { list -> list.toMap() }
+                .doOnNext { map ->
+                    launch {
+                        call.respond(map)
                     }
-                    .subscribe()
-            return@get
-        }
-
-        call.respond(HttpStatusCode.Unauthorized)
+                }
+                .subscribe()
     }
 }

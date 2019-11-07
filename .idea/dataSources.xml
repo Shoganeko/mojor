@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="Amazon RDS" uuid="3ef78581-d072-4b21-a026-bbeb92db75f2">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://shog-dev.clygxxgfxolj.us-east-2.rds.amazonaws.com:5432/postgres</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="Amazon RDS Buta" uuid="eeea8a0b-0b65-4093-8a45-92a333cbbf2f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://shog-dev.clygxxgfxolj.us-east-2.rds.amazonaws.com:5432/buta</jdbc-url>
+    </data-source>
+  </component>
+</project>

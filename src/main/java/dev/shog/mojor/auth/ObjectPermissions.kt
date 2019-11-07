@@ -1,8 +1,7 @@
 package dev.shog.mojor.auth
 
-import dev.shog.mojor.toArrayList
-import org.json.JSONArray
 import dev.shog.mojor.auth.user.User
+import org.json.JSONArray
 
 /**
  * An object's permissions.
@@ -35,7 +34,7 @@ class ObjectPermissions internal constructor(val permissions: ArrayList<Permissi
         /**
          * Create [ObjectPermissions] from a [JSONArray].
          */
-        fun fromJsonArray(jsonArray: JSONArray) = ObjectPermissions(jsonArray.toArrayList())
+        fun fromJsonArray(jsonArray: JSONArray): ArrayList<Any> = TODO()
 
         /**
          * Create [ObjectPermissions] from a [ArrayList]

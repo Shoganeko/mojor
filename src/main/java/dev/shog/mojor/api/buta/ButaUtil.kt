@@ -1,0 +1,1 @@
+package dev.shog.mojor.api.buta

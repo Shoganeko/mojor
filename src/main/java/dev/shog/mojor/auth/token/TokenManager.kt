@@ -1,6 +1,5 @@
 package dev.shog.mojor.auth.token
 
-import dev.shog.mojor.auth.AuthHandler
 import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.Permissions
 import kotlin.collections.ArrayList
@@ -50,21 +49,21 @@ object TokenManager {
     }
 
     /**
-     * Create a unused token identifier
+     * Disable the [token].
      */
-    fun createTokenIdentifier(): String {
-        val token = DigestUtils.sha512Hex(UUID.randomUUID().toString().toByteArray(Charsets.UTF_8))
+    fun disableToken(token: Token) {
 
-        // TODO check if token already exists
-
-        return token
     }
 
     /**
-     * Disable [token].
+     * Create a unused token identifier
      */
-    fun disableToken(token: Token) {
-        // TODO disable the token
+    private fun createTokenIdentifier(): String {
+        val token = DigestUtils.sha512Hex(UUID.randomUUID().toString().toByteArray(Charsets.UTF_8))
+
+        // TODO check exists
+
+        return token
     }
 
     /**
@@ -73,7 +72,7 @@ object TokenManager {
     fun createToken(): Token {
         val token = Token(createTokenIdentifier(), ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS), System.currentTimeMillis())
 
-        AuthHandler.TOKENS.put(token.token, token)
+        TokenHolder.TOKENS[token.token] = token
         // TODO upload token
 
         return token

@@ -67,7 +67,6 @@ dependencies {
     compile "ch.qos.logback:logback-classic:1.2.3"
     compile group: "org.json", name: "json", version: "20090211"
     compile "com.googlecode.json-simple:json-simple:1.1"
-    compile "com.mashape.unirest:unirest-java:1.4.9"
     compile 'com.atlassian.commonmark:commonmark:0.12.1'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
     compile 'com.amazonaws:aws-java-sdk:1.11.524'
@@ -85,4 +84,6 @@ dependencies {
     compile "io.ktor:ktor-metrics-micrometer:$ktor_version"
     compile "io.ktor:ktor-auth:$ktor_version"
     compile "io.ktor:ktor-client-auth-jvm:$ktor_version"
+    compile "io.ktor:ktor-serialization:$ktor_version"
+    compile 'com.konghq:unirest-java:3.1.02'
 }

@@ -2,12 +2,12 @@ package dev.shog.mojor
 
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.application.call
+import io.ktor.http.Parameters
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import kotlinx.html.TagConsumer
 import kotlinx.html.dom.createHTMLDocument
-import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Document
 
@@ -84,7 +84,13 @@ fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
 }
 
 /**
- * Convert a [JSONArray] into an [ArrayList] with [T]
+ * If a map contains [args].
  */
-fun <T : Any?> JSONArray.toArrayList(): ArrayList<T> =
-        toArrayList()
+fun Parameters.containsKeys(vararg args: String): Boolean {
+    args.forEach { key ->
+        if (!this.contains(key))
+            return false
+    }
+
+    return true
+}
