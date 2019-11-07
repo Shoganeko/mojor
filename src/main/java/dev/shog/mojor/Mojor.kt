@@ -22,6 +22,12 @@ object Mojor {
     val LOGGER = LoggerFactory.getLogger("MOJOR")
 
     internal fun main(args: Array<String>) = runBlocking<Unit> {
+        val ah = ArgsHandler()
+        ah.addHook("--smile") {
+            LOGGER.debug("Remember to smile!")
+        }
+        ah.initWith(args)
+
         ButaObjectHandler.init().subscribe()
         FileManager
 
