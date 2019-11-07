@@ -10,7 +10,7 @@ object FileManager {
     /**
      * The directory where the configuration file is stored.
      */
-    private val BUTA_DIR = File(when {
+    private val MOJOR_DIR = File(when {
         SystemUtils.IS_OS_WINDOWS -> "${System.getenv("appdata")}\\mojor"
         SystemUtils.IS_OS_LINUX -> "/etc/mojor"
         else -> {
@@ -22,11 +22,11 @@ object FileManager {
     /**
      * The configuration file.
      */
-    private val CFG_FILE = File(BUTA_DIR.path + File.separator + "cfg.json")
+    private val CFG_FILE = File(MOJOR_DIR.path + File.separator + "cfg.json")
 
     init {
-        if (!BUTA_DIR.exists() && !BUTA_DIR.mkdir()) {
-            LOGGER.error("There was an issue creating the Buta folder.")
+        if (!MOJOR_DIR.exists() && !MOJOR_DIR.mkdir()) {
+            LOGGER.error("There was an issue creating the Mojor folder.")
             exitProcess(-1)
         }
 
