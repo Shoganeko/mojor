@@ -32,14 +32,20 @@ object Mojor {
     internal fun main(args: Array<String>) = runBlocking<Unit> {
         val ah = ArgsHandler()
 
-        // Set Mojor to production mode
-        ah.addHook("--prod") {
+        // Mojor Dev and Prod modes
+        ah.addHooks("--prod", {
             API = "http://api.shog.dev"
             CDN = "http://cdn.shog.dev"
             MAIN = "http://shog.dev"
+            ButaObjectHandler.init().subscribe()
 
             LOGGER.debug("Production mode enabled")
-        }
+        }, {
+            ButaObjectHandler.devInit().subscribe()
+            Hooks.onOperatorDebug()
+
+            LOGGER.debug("Dev mode enabled")
+        })
 
         // Delete the configuration file then initiate FileManager to rewrite it.
         ah.addHook("--force-write-cfg") {
@@ -61,10 +67,6 @@ object Mojor {
         ah.initWith(args)
 
         FileManager
-        Hooks.onOperatorDebug()
-
-
-        ButaObjectHandler.init().subscribe()
 
         apiServer.start()
         cdnServer.start()

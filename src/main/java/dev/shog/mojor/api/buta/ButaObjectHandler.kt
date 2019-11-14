@@ -11,13 +11,22 @@ import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
 object ButaObjectHandler {
-    val OBJECTS = ConcurrentHashMap<Long, ButaObject>()
+    private val OBJECTS = ConcurrentHashMap<Long, ButaObject>()
 
     /**
      * Initialize [OBJECTS] by adding all from the database.
      */
     fun init(): Mono<Void> =
             Database.getAllObjects()
+                    .doOnNext { obj -> OBJECTS[obj.id] = obj }
+                    .collectList()
+                    .then()
+
+    /**
+     * Initialize [OBJECTS] by adding fake objects to cut down on database interaction.
+     */
+    fun devInit(): Mono<Void> =
+            Flux.just(Guild(), User())
                     .doOnNext { obj -> OBJECTS[obj.id] = obj }
                     .collectList()
                     .then()
