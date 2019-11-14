@@ -1,7 +1,6 @@
 package dev.shog.mojor
 
 import dev.shog.mojor.api.buta.ButaObjectHandler
-import dev.shog.mojor.auth.user.UserIdGenerator
 import dev.shog.mojor.file.FileManager
 import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
@@ -64,7 +63,6 @@ object Mojor {
         FileManager
         Hooks.onOperatorDebug()
 
-        println(UserIdGenerator.getId().block())
 
         ButaObjectHandler.init().subscribe()
 

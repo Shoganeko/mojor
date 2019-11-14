@@ -19,6 +19,9 @@ class Config {
         var url: String = ""
     }
 
+    /** The secret for the Captcha */
+    var captchaSecret: String = ""
+
     companion object {
         /**
          * The instance of the config, filled in with the proper values.
