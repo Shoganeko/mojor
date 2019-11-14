@@ -8,7 +8,10 @@ import io.ktor.features.*
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.*
+import io.ktor.http.content.CachingOptions
+import io.ktor.http.content.defaultResource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.response.respond
@@ -17,7 +20,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.event.Level
 import java.io.FileNotFoundException
-import java.lang.Exception
 
 val cdnServer = embeddedServer(Netty, port = 8070, module = Application::mainModule)
 
@@ -31,6 +33,13 @@ private fun Application.mainModule() {
             when (outgoingContent.contentType?.withoutParameters()) {
                 ContentType.Text.CSS -> def
                 ContentType.Text.JavaScript -> def
+                ContentType.Text.Html -> def
+                ContentType.Text.Xml -> def
+                ContentType.Image.PNG -> def
+                ContentType.Image.JPEG -> def
+                ContentType.Application.Json -> def
+                ContentType.Application.JavaScript -> def
+                ContentType.Image.XIcon -> def
                 else -> null
             }
         }

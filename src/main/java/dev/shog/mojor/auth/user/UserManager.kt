@@ -2,11 +2,9 @@ package dev.shog.mojor.auth.user
 
 import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.Permissions
-import kotlin.collections.ArrayList
-import java.util.UUID
-import org.apache.commons.codec.digest.DigestUtils
+import dev.shog.mojor.db.PostgreSql
+import reactor.core.publisher.Mono
 import kotlin.random.Random
-
 
 /**
  * Manages users.
@@ -27,36 +25,41 @@ object UserManager {
     }
 
     /**
-     * Create a unused identifier for a user.
-     */
-    fun createUserId(): Long {
-        var id = ""
-        (0..17).forEach { i ->
-            id += Random.nextInt(10)
-        }
-
-        val finalId = id.toLong()
-
-        // TODO check if token already exists
-
-        return finalId
-    }
-
-    /**
      * Delete the [user].
      */
-    fun deleteUser(user: User) {
-        // TODO delete user
+    fun deleteUser(user: Long): Mono<Void> {
+        return if (UserHolder.hasUser(user)) {
+            UserHolder.removeUser(user)
+
+            PostgreSql.monoConnection()
+                    .map { sql -> sql.prepareStatement("DELETE FROM users.users WHERE id = ?") }
+                    .doOnNext { pre -> pre.setLong(1, user) }
+                    .map { pre -> pre.executeUpdate() }
+                    .then()
+        } else Mono.error(Exception("Tried deleting a user that doesn't exist!"))
     }
 
     /**
      * Create a new user.
      */
-    fun createUser(username: String, hashedPassword: String): User {
-        val user = User(username, hashedPassword, createUserId(), ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS), System.currentTimeMillis())
-
-        // TODO upload user
-
-        return user
+    fun createUser(username: String, hashedPassword: String): Mono<User> {
+        return UserIdGenerator.getId()
+                .map { User(username, hashedPassword, it, ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS), System.currentTimeMillis()) }
+                .doOnNext { user -> UserHolder.insertUser(user.id, user) }
+                .flatMap { user -> uploadUser(user).map { user } }
     }
+
+    /**
+     * Upload a user to the database.
+     */
+    private fun uploadUser(user: User): Mono<Void> =
+            PostgreSql.monoConnection()
+                    .map { sql -> sql.prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)") }
+                    .doOnNext { pre -> pre.setLong(1, user.id) }
+                    .doOnNext { pre -> pre.setString(2, user.username) }
+                    .doOnNext { pre -> pre.setString(3, user.hashedPassword) }
+                    .doOnNext { pre -> pre.setString(4, user.permissions.jsonArray.toString()) }
+                    .doOnNext { pre -> pre.setLong(5, user.createdOn) }
+                    .map { pre -> pre.executeUpdate() }
+                    .then()
 }

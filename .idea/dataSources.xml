@@ -5,13 +5,7 @@
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://shog-dev.clygxxgfxolj.us-east-2.rds.amazonaws.com:5432/postgres</jdbc-url>
-    </data-source>
-    <data-source source="LOCAL" name="Amazon RDS Buta" uuid="eeea8a0b-0b65-4093-8a45-92a333cbbf2f">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://shog-dev.clygxxgfxolj.us-east-2.rds.amazonaws.com:5432/buta</jdbc-url>
+      <jdbc-url>jdbc:postgresql://shog-dev.clygxxgfxolj.us-east-2.rds.amazonaws.com:5432/shogdev</jdbc-url>
     </data-source>
   </component>
 </project>

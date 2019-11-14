@@ -1,0 +1,31 @@
+body {
+    background-color: #212121;
+}
+
+p, h1, h2, a {
+    color: white;
+}
+
+#main {
+    margin-top: 200px;
+    text-align: center;
+}
+
+#subtitle {
+    font-family: 'Roboto', sans-serif;
+}
+
+#result {
+    margin-top: 20px;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+}
+
+#ip {
+    font-family: 'Roboto Mono', sans-serif;
+}
+
+#title {
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: -2px
+}

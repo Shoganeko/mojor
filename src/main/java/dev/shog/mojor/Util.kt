@@ -1,13 +1,17 @@
 package dev.shog.mojor
 
+import dev.shog.mojor.pages.obj.HtmlCallPage
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.application.call
 import io.ktor.http.Parameters
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import kotlinx.html.HEAD
 import kotlinx.html.TagConsumer
 import kotlinx.html.dom.createHTMLDocument
+import kotlinx.html.link
+import kotlinx.html.meta
 import org.json.JSONObject
 import org.w3c.dom.Document
 
@@ -68,8 +72,17 @@ fun html(html: TagConsumer<Document>.() -> Document): Document = html.invoke(cre
 fun Routing.add(vararg pages: HtmlPage) {
     for (page in pages)
         get(page.url) {
-            call.respond(page.html)
+            call.respond(io.ktor.html.HtmlContent(page.statusCode, page.html))
         }
+}
+
+
+fun Routing.addWithCall(vararg pages: HtmlCallPage) {
+    for (page in pages) {
+        get(page.url) {
+            call.respond(io.ktor.html.HtmlContent(page.statusCode, page.html(call)))
+        }
+    }
 }
 
 /**
@@ -93,4 +106,14 @@ fun Parameters.containsKeys(vararg args: String): Boolean {
     }
 
     return true
+}
+
+fun Boolean.success(): String =
+        if (this) "successful" else "unsuccessful"
+
+fun HEAD.applyMeta() {
+    meta("description", "welcome to shog.dev!")
+    link("${Mojor.CDN}/favicon.png", "icon", "image/png")
+    meta("author", "shoganeko")
+    meta("keywords", "shog,kotlin,java,shoganeko,dev")
 }

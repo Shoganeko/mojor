@@ -2,9 +2,12 @@ package dev.shog.mojor.auth.token
 
 import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.user.User
+import dev.shog.mojor.db.PostgreSql
 import kotlin.collections.ArrayList
 import java.util.UUID
 import org.apache.commons.codec.digest.DigestUtils
+import reactor.core.publisher.Mono
 
 
 /**
@@ -56,25 +59,49 @@ object TokenManager {
     }
 
     /**
-     * Create a unused token identifier
+     * Create a unused token identifier.
      */
-    private fun createTokenIdentifier(): String {
-        val token = DigestUtils.sha512Hex(UUID.randomUUID().toString().toByteArray(Charsets.UTF_8))
+    private fun createTokenString(): Mono<String> {
+        val postgre = Mono.justOrEmpty(PostgreSql.createConnection())
+        val id = DigestUtils.sha512Hex(UUID.randomUUID().toString().toByteArray(Charsets.UTF_8))
 
-        // TODO check exists
-
-        return token
+        return postgre
+                .map { sql -> sql!!.prepareStatement("SELECT * FROM token.tokens WHERE token = ?") }
+                .doOnNext { pre -> pre.setString(1, id) }
+                .map { pre -> pre.executeQuery() }
+                .filter { rs -> !rs.next() }
+                .map { id }
     }
 
     /**
-     * Create a unique [Token].
+     * Create token
      */
-    fun createToken(): Token {
-        val token = Token(createTokenIdentifier(), ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS), System.currentTimeMillis())
+    fun createTokenIdentifier(): Mono<String> =
+            createTokenString()
+                    .switchIfEmpty(createTokenString())
 
-        TokenHolder.TOKENS[token.token] = token
-        // TODO upload token
-
-        return token
-    }
+    /**
+     * Create a unique [Token] with [user] as the owner.
+     */
+    fun createToken(user: User): Mono<Token> =
+            createTokenIdentifier()
+                    .map { tokenIdentifier ->
+                        Token(
+                                tokenIdentifier,
+                                user.id,
+                                ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS),
+                                System.currentTimeMillis()
+                        )
+                    }
+                    .doOnNext { token -> TokenHolder.insertToken(token.token, token) }
+                    .zipWhen { token ->
+                        PostgreSql.monoConnection()
+                                .map { sql -> sql.prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)") }
+                                .doOnNext { pre -> pre.setString(1, token.token) }
+                                .doOnNext { pre -> pre.setLong(2, token.owner) }
+                                .doOnNext { pre -> pre.setLong(3, token.createdOn) }
+                                .doOnNext { pre -> pre.setString(4, token.permissions.jsonArray.toString()) }
+                                .map { pre -> pre.execute() }
+                    }
+                    .map { token -> token.t1 }
 }

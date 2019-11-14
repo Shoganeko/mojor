@@ -34,7 +34,19 @@ class ObjectPermissions internal constructor(val permissions: ArrayList<Permissi
         /**
          * Create [ObjectPermissions] from a [JSONArray].
          */
-        fun fromJsonArray(jsonArray: JSONArray): ArrayList<Any> = TODO()
+        fun fromJsonArray(jsonArray: JSONArray): ObjectPermissions {
+            val ar = ArrayList<Permissions>()
+
+            if (jsonArray.length() == 0)
+                return empty()
+
+            (0..jsonArray.length())
+                    .asSequence()
+                    .map { jsonArray[it].toString() }
+                    .mapNotNullTo(ar) { Permissions.parse(it) }
+
+            return ObjectPermissions(ar)
+        }
 
         /**
          * Create [ObjectPermissions] from a [ArrayList]

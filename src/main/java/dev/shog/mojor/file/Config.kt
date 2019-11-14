@@ -1,0 +1,28 @@
+package dev.shog.mojor.file
+
+import dev.shog.mojor.Mojor
+
+/**
+ * The configuration file for Mojor.
+ */
+class Config {
+    /** The version this configuration file was intended for */
+    var intendedVersion: Float = Mojor.VERSION
+
+    /** The PostgreSQL configuration */
+    var postgre = DatabaseCredentials()
+
+    /** Credentials for Postgre */
+    class DatabaseCredentials {
+        var username: String = ""
+        var password: String = ""
+        var url: String = ""
+    }
+
+    companion object {
+        /**
+         * The instance of the config, filled in with the proper values.
+         */
+        lateinit var INSTANCE: Config
+    }
+}

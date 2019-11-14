@@ -10,6 +10,7 @@ import dev.shog.mojor.auth.ObjectPermissions
  */
 data class Token(
         val token: String,
+        val owner: Long,
         val permissions: ObjectPermissions,
         val createdOn: Long
 )

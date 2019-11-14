@@ -1,6 +1,7 @@
 package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
@@ -10,6 +11,10 @@ object Homepage : HtmlPage {
     override val html: HTML.() -> Unit = {
         head {
             title("shog.dev")
+
+            link("${Mojor.CDN}/pages/homepage/homepage.css", "stylesheet", "text/css")
+
+            applyMeta()
         }
 
         body {
@@ -29,6 +34,20 @@ object Homepage : HtmlPage {
                 }
 
                 br
+
+                div("topic") {
+                    h1("topic-header") {
+                        id = "secondary-topic-header"
+
+                        +"motd"
+                    }
+
+                    div("topic-info") {
+                        id = "motd"
+
+                        +"don't do drugs"
+                    }
+                }
 
                 div("topic") {
                     h1("topic-header") {
@@ -64,18 +83,6 @@ object Homepage : HtmlPage {
                     h1("topic-header") {
                         id = "secondary-topic-header"
 
-                        +"news"
-                    }
-
-                    div("topic-info") {
-                        +"news pog champ!"
-                    }
-                }
-
-                div("topic") {
-                    h1("topic-header") {
-                        id = "secondary-topic-header"
-
                         +"utility"
                     }
 
@@ -83,7 +90,7 @@ object Homepage : HtmlPage {
                         ul {
                             li {
                                 p("list-entry") {
-                                    a("https://shog.dev/strlen") {
+                                    a("${Mojor.MAIN}/strlen") {
                                         +"String Length Calculator"
                                     }
 
@@ -91,7 +98,7 @@ object Homepage : HtmlPage {
                                 }
 
                                 p("list-entry") {
-                                    a("https://shog.dev/clock") {
+                                    a("${Mojor.MAIN}/clock") {
                                         +"Clock"
                                     }
 
@@ -99,7 +106,7 @@ object Homepage : HtmlPage {
                                 }
 
                                 p("list-entry") {
-                                    a("https://shog.dev/ip") {
+                                    a("${Mojor.MAIN}/ip") {
                                         +"IP Finder"
                                     }
 

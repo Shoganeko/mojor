@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto|Roboto+Mono|Lexend+Deca|Lexend+Exa');
+
+body {
+    background-color: #212121;
+}
+
+p, h1, h2 {
+    color: white;
+}
+
+a {
+    color: white;
+}
+
+#motd {
+    font-family: 'Roboto', sans-serif;
+    color: white;
+}
+
+ul {
+    list-style-type: none;
+}
+
+/* Makes the entries closer together */
+.list-entry {
+    margin-top: -1rem;
+}
+
+#title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 72px;
+    background: linear-gradient(to right, #30CFD0 35%, #0000FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation-delay: 1s;
+}
+
+#head {
+    text-align: center;
+    margin-top: 2rem;
+    animation-duration: 3s;
+}
+
+#version {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 16px;
+    margin: -4rem auto 1rem 16rem;
+}
+
+/* topic stuff */
+.topic {
+    margin-top: 4rem;
+}
+
+.topic-header {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 42px;
+}
+
+.topic-info {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    margin-top: -1rem;
+}
+
+#main-topic-header {
+    margin-top: -2rem;
+    background: linear-gradient(to right, #2f7cd0 35%, #9323ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#secondary-topic-header {
+    background: linear-gradient(to right, #7677d0 35%, #080aff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.link {
+    text-decoration: underline;
+    color: white;
+}
+
+.text-icon {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.nav {
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    margin-top: 4rem;
+}
+
+.continue-link {
+    cursor: pointer;
+    color: white;
+}

@@ -1,12 +1,13 @@
 package dev.shog.mojor.pages.obj
 
+import io.ktor.application.ApplicationCall
 import io.ktor.http.HttpStatusCode
 import kotlinx.html.HTML
 
 /**
- * A HTML page.
+ * An HTML page with access to the [ApplicationCall].
  */
-interface HtmlPage {
+interface HtmlCallPage {
     /**
      * The status code of the page.
      */
@@ -15,7 +16,7 @@ interface HtmlPage {
     /**
      * The HTML of the page.
      */
-    val html: HTML.() -> Unit
+    fun html(call: ApplicationCall): HTML.() -> Unit
 
     /**
      * The URL of the page.
