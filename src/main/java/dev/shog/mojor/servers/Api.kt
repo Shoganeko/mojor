@@ -80,7 +80,13 @@ private fun Application.mainModule() {
 
 private fun Routing.root() {
     get("/") {
-        call.respond(mapOf("response" to RandomEmote.getEmote()))
+        RandomEmote.getEmote()
+                .doOnNext { emote ->
+                    launch {
+                        call.respond(mapOf("response" to emote))
+                    }
+                }
+                .subscribe()
     }
 
     get("/version") {
