@@ -62,7 +62,7 @@ private fun Application.mainModule() {
     install(Locations)
 
     install(DefaultHeaders) {
-        header("Server", "Mojor/${Mojor.VERSION}")
+        header("X-Server", "Mojor/${Mojor.VERSION}")
     }
 
     routing {
