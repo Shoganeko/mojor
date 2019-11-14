@@ -6,10 +6,10 @@ import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
 import dev.shog.mojor.servers.mainServer
 import kotlinx.coroutines.runBlocking
-import org.apache.commons.lang3.SystemUtils
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Hooks
-import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Mojor
@@ -30,6 +30,8 @@ object Mojor {
     val LOGGER = LoggerFactory.getLogger("MOJOR")
 
     internal fun main(args: Array<String>) = runBlocking<Unit> {
+        FileManager
+
         val ah = ArgsHandler()
 
         // Mojor Dev and Prod modes
@@ -38,35 +40,21 @@ object Mojor {
             CDN = "http://cdn.shog.dev"
             MAIN = "http://shog.dev"
             ButaObjectHandler.init().subscribe()
+            Hooks.onErrorDropped { DiscordWebhookHandler.sendMessage("**ERROR** (@everyone): ${it.message}").subscribe() }
+            DiscordWebhookHandler.init()
+            DiscordWebhookHandler.sendMessage("Started at ${SimpleDateFormat().format(Date())}! <:PogU:644404760752947210>").subscribe()
 
             LOGGER.debug("Production mode enabled")
         }, {
             ButaObjectHandler.devInit().subscribe()
             Hooks.onOperatorDebug()
+            Hooks.onErrorDropped { DiscordWebhookHandler.sendMessage("**ERROR**: ${it.message}") }
+            DiscordWebhookHandler.devInit()
 
             LOGGER.debug("Dev mode enabled")
         })
 
-        // Delete the configuration file then initiate FileManager to rewrite it.
-        ah.addHook("--force-write-cfg") {
-            LOGGER.debug("Rewriting configuration file to $VERSION...")
-
-            when {
-                SystemUtils.IS_OS_WINDOWS ->
-                    File(System.getenv("appdata") + "\\mojor\\config.yml")
-                            .delete()
-
-                SystemUtils.IS_OS_LINUX ->
-                    File("/etc/mojor/config.yml")
-                            .delete()
-            }
-
-            FileManager
-        }
-
         ah.initWith(args)
-
-        FileManager
 
         apiServer.start()
         cdnServer.start()

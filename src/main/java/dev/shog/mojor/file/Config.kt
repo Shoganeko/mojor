@@ -22,6 +22,9 @@ class Config {
     /** The secret for the Captcha */
     var captchaSecret: String = ""
 
+    /** The URL for the Discord web-hook */
+    var discordUrl: String = ""
+
     companion object {
         /**
          * The instance of the config, filled in with the proper values.
