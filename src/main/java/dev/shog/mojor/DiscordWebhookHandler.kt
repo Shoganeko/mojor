@@ -10,42 +10,34 @@ import kotlin.system.exitProcess
 
 /**
  * The Discord Webhook Handler
+ *
+ * @param iDiscordWebhookUser The webhook user to use.
  */
-object DiscordWebhookHandler {
-    /**
-     * The default user for the webhooks
-     */
-    internal object DefaultUser {
-        var username = "mojor"
-        var avatarUrl = "https://cdn.discordapp.com/attachments/521062156024938498/636701089424605185/IMG_20191023_180024.jpg"
+class DiscordWebhookHandler(private val iDiscordWebhookUser: IDiscordWebhookUser = DefaultUser) {
+    /** a Discord Webhook User */
+    interface IDiscordWebhookUser {
+        /** The username of the Discord Webhook User */
+        val username: String
+
+        /** The avatar of the Discord Webhook User */
+        val avatar: String
+
+        /** The prefix this Discord Webhook User should have in their messages */
+        val prefix: String
     }
 
     /**
      * The webhook URL
      */
-    private lateinit var URL: String
+    private var webHookUrl: String
 
-    /**
-     * Initialize!
-     */
-    fun init() {
+    init {
         val url = Config.INSTANCE.discordUrl
 
         if (url == "")
             exitProcess(-1)
 
-        URL = url
-    }
-
-    fun devInit() {
-        val url = Config.INSTANCE.discordUrl
-
-        DefaultUser.username = "mojor-dev"
-
-        if (url == "")
-            exitProcess(-1)
-
-        URL = url
+        webHookUrl = url
     }
 
     /**
@@ -66,7 +58,7 @@ object DiscordWebhookHandler {
             JSONObject()
                     .toMono()
                     .doOnNext { js -> js.put("username", DefaultUser.username) }
-                    .doOnNext { js -> js.put("avatar_url", DefaultUser.avatarUrl) }
+                    .doOnNext { js -> js.put("avatar_url", DefaultUser.avatar) }
                     .doOnNext { js -> js.put("tts", false) }
 
     /**
@@ -75,7 +67,7 @@ object DiscordWebhookHandler {
      * If it's null, then the request is unsuccessful.
      */
     private fun parseResponse(resp: HttpResponse<String>): String? {
-        return if (resp.status == 204)
+        return if (resp.isSuccess)
             null
         else {
             return try {
@@ -90,9 +82,25 @@ object DiscordWebhookHandler {
      * Creates the request.
      */
     private fun makeRequest(jsonObject: JSONObject): Mono<HttpResponse<String>> =
-            Unirest.post(URL)
+            Unirest.post(webHookUrl)
                     .header("Content-Type", "application/json")
                     .body(jsonObject.toString())
                     .asStringAsync()
                     .toMono()
+
+    companion object {
+        /** The default user for the webhooks */
+        object DefaultUser : IDiscordWebhookUser {
+            override val avatar: String = "https://cdn.discordapp.com/attachments/521062156024938498/636701089424605185/IMG_20191023_180024.jpg"
+            override val prefix: String = ""
+            override val username: String = "Mojor"
+        }
+
+        /** The default user for dev instances. */
+        object DefaultDeveloperUser : IDiscordWebhookUser {
+            override val avatar: String = "https://cdn.discordapp.com/attachments/521062156024938498/636701089424605185/IMG_20191023_180024.jpg"
+            override val prefix: String = ""
+            override val username: String = "Mojor"
+        }
+    }
 }

@@ -14,6 +14,9 @@ import kotlinx.html.link
 import kotlinx.html.meta
 import org.json.JSONObject
 import org.w3c.dom.Document
+import java.lang.management.ManagementFactory
+import kotlin.math.ln
+import kotlin.math.pow
 
 /**
  * Turns ms into a seconds, day and hours format
@@ -117,3 +120,28 @@ fun HEAD.applyMeta() {
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev")
 }
+
+/** Get system statistics */
+fun getStatisticsOfSystem(): String {
+    val bean = ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
+
+    return "Available Processor Cores: ${Runtime.getRuntime().availableProcessors()}" +
+            "\nFree Memory: ${readableBytes(Runtime.getRuntime().freeMemory())}" +
+            "\nUsed Memory: ${readableBytes(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())}" +
+            "\nCpu Load: ${bean.processCpuLoad.asPercentage()}" +
+            "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}"
+}
+
+/** Turn [bytes] into kib, mb etc. */
+fun readableBytes(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val exp = (ln(bytes.toDouble()) / ln(1024.toDouble())).toInt()
+    val pre = ("KMGTPE")[exp - 1] + "i"
+    return String.format("%.1f %sB", bytes / 1024.toDouble().pow(exp.toDouble()), pre)
+}
+
+/** Turn a double into a percentage. */
+fun Double.asPercentage(): String =
+        this.toString()
+                .substring(0..3) +
+                "%"
