@@ -6,6 +6,7 @@ import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
 import dev.shog.mojor.servers.mainServer
 import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import reactor.core.publisher.Hooks
 import java.text.SimpleDateFormat
@@ -25,7 +26,7 @@ object Mojor {
     var MAIN: String = "http://localhost:8090"
 
     /** The logger of Mojor */
-    val LOGGER = LoggerFactory.getLogger("MOJOR")
+    val LOGGER: Logger = LoggerFactory.getLogger("MOJOR")
 
     /** The default Discord Webhook Handler */
     lateinit var WEBHOOK: DiscordWebhookHandler

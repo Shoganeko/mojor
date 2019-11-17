@@ -51,12 +51,13 @@ private fun Application.mainModule() {
 
     install(StatusPages) {
         exception<Throwable> {
+            val errorString = it.message ?: "Error"
+
+            Mojor.WEBHOOK
+                    .sendMessage("There has been an error on the CDN server!\n$errorString")
+                    .subscribe()
+
             call.respond(HttpStatusCode.InternalServerError)
-        }
-
-        exception<Exception> {
-
-            call.respond(HttpStatusCode.NotFound, mapOf("error" to "Not Found!"))
         }
 
         exception<FileNotFoundException> {

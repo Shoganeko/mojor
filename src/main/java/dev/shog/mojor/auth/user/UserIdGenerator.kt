@@ -3,7 +3,6 @@ package dev.shog.mojor.auth.user
 import dev.shog.mojor.db.PostgreSql
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import reactor.kotlin.extra.bool.not
 import kotlin.random.Random
 
 /**

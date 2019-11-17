@@ -1,9 +1,6 @@
 package dev.shog.mojor.auth.token
 
-import dev.shog.mojor.Mojor
 import dev.shog.mojor.auth.ObjectPermissions
-import dev.shog.mojor.auth.user.User
-import dev.shog.mojor.auth.user.UserHolder.insertUser
 import dev.shog.mojor.db.PostgreSql
 import org.json.JSONArray
 import java.util.concurrent.ConcurrentHashMap
@@ -12,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Manages tokens.
  */
 object TokenHolder {
-     val TOKENS = ConcurrentHashMap<String, Token>()
+    val TOKENS = ConcurrentHashMap<String, Token>()
 
     /**
      * Get all tokens from the database and insert it into the map.

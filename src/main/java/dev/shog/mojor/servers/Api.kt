@@ -37,6 +37,9 @@ import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
 import java.text.DateFormat
 
+/**
+ * The API server
+ */
 val apiServer = embeddedServer(Netty, port = 8080, module = Application::mainModule)
 
 @KtorExperimentalAPI
@@ -65,7 +68,12 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
-            it.printStackTrace()
+            val errorString = it.message ?: "Error"
+
+            Mojor.WEBHOOK
+                    .sendMessage("There has been an error on the API server!\n$errorString")
+                    .subscribe()
+
             call.respond(HttpStatusCode.InternalServerError)
         }
 
@@ -91,6 +99,9 @@ private fun Application.mainModule() {
     }
 }
 
+/**
+ * The main routing.
+ */
 private fun Routing.root() {
     get("/") {
         RandomEmote.getEmote()
@@ -125,10 +136,7 @@ private fun Routing.root() {
             return@post
         }
 
-        Motd
-                .insertMotd(Motd.MotdClass(text, owner, date))
-                .subscribe()
-
+        Motd.insertMotd(Motd.MotdClass(text, owner, date)).subscribe()
         call.respond(HttpStatusCode.OK)
     }
 

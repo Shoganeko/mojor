@@ -3,6 +3,7 @@ package dev.shog.mojor
 import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.pages.obj.HtmlCallPage
 import dev.shog.mojor.pages.obj.HtmlPage
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.Parameters
 import io.ktor.response.respond

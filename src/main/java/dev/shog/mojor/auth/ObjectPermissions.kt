@@ -1,6 +1,7 @@
 package dev.shog.mojor.auth
 
 import dev.shog.mojor.auth.user.User
+import dev.shog.mojor.auth.token.Token
 import org.json.JSONArray
 
 /**

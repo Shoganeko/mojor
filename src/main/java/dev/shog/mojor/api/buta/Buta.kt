@@ -198,7 +198,7 @@ internal object ButaStatusPage {
             /** The presences page. */
             var presences = object {
                 /** The time report of the last refresh time. */
-                var lastRefresed = TimeReport(ButaPresencesPage.lastRefresh)
+                var lastRefreshed = TimeReport(ButaPresencesPage.lastRefresh)
 
                 /** The amount of presences on the page. */
                 var amount = ButaPresencesPage.builtJson.length()
