@@ -93,14 +93,13 @@ private fun Application.mainModule() {
 
 private fun Routing.root() {
     get("/") {
-        val result = RandomEmote.getEmote()
+        RandomEmote.getEmote()
                 .doOnNext { emote ->
                     launch {
                         call.respond(mapOf("response" to emote))
                     }
                 }
-
-        call.isAuthorized(result, Permissions.APP_MANAGER)
+                .subscribe()
     }
 
     get("/version") {
