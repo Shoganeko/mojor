@@ -2,11 +2,17 @@ package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
+import dev.shog.mojor.auth.user.UserHolder
+import dev.shog.mojor.motd.Motd
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.*
 
 object Homepage : HtmlPage {
+    private val formatter = SimpleDateFormat("EEEE, MMMM d, yyyy")
     override val url: String = "/"
     override val html: HTML.() -> Unit = {
         head {
@@ -45,7 +51,18 @@ object Homepage : HtmlPage {
                     div("topic-info") {
                         id = "motd"
 
-                        +"don't do drugs"
+                        val motd = Motd.getMostRecentMotd()
+                        val user = UserHolder.getUser(motd.owner)?.username
+
+                        +motd.data
+
+                        br
+
+                        span {
+                            id = "data"
+
+                            +"${formatter.format(Date.from(Instant.ofEpochMilli(motd.date)))} by $user"
+                        }
                     }
                 }
 

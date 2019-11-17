@@ -10,6 +10,7 @@ import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.auth.AuthenticationException
 import dev.shog.mojor.auth.Permissions
 import dev.shog.mojor.auth.isAuthorized
+import dev.shog.mojor.motd.Motd
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -20,9 +21,11 @@ import io.ktor.jackson.JacksonConverter
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.serialization
@@ -108,6 +111,27 @@ private fun Routing.root() {
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()
+
+    post("/motd") {
+        call.isAuthorized(Permissions.MOTD_MANAGER)
+
+        val params = call.receiveParameters()
+
+        val owner = params["owner"]?.toLongOrNull()
+        val text = params["text"]
+        val date = System.currentTimeMillis()
+
+        if (text == null || owner == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@post
+        }
+
+        Motd
+                .insertMotd(Motd.MotdClass(text, owner, date))
+                .subscribe()
+
+        call.respond(HttpStatusCode.OK)
+    }
 
     get("/health") {
         Health.getCurrentHealth()

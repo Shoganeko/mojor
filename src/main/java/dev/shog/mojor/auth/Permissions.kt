@@ -4,7 +4,7 @@ package dev.shog.mojor.auth
  * Permissions a token or user has.
  */
 enum class Permissions {
-    APP_MANAGER, BUTA_MANAGER, USER_MANAGER;
+    APP_MANAGER, BUTA_MANAGER, USER_MANAGER, MOTD_MANAGER;
 
     companion object {
         /**

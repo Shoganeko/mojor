@@ -17,6 +17,12 @@ a {
     color: white;
 }
 
+#data {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: gray;
+}
+
 ul {
     list-style-type: none;
 }
