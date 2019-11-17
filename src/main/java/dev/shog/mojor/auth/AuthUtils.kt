@@ -1,28 +1,79 @@
 package dev.shog.mojor.auth
 
 import dev.shog.mojor.auth.token.Token
-import dev.shog.mojor.auth.token.TokenManager
-import dev.shog.mojor.auth.user.User
-import dev.shog.mojor.auth.user.UserManager
+import dev.shog.mojor.auth.token.TokenHolder
+import dev.shog.mojor.auth.token.isExpired
+import io.ktor.application.ApplicationCall
+import io.ktor.auth.parseAuthorizationHeader
+import reactor.core.publisher.Mono
 
-fun Token.isExpired() = TokenManager.isTokenExpired(this)
+/** Get a [Token] from an [ApplicationCall] */
+fun ApplicationCall.getTokenFromCall(): Token? {
+    val header = getHeader(this)
 
-fun Token.hasPermissions(permissions: ArrayList<Permissions>) = TokenManager.hasPermissions(this, permissions)
+    when (header?.first?.toLowerCase()) {
+        "token" -> {
+            return TokenHolder.getToken(header.second)
+                    ?: throw AuthenticationException("invalid token")
+        }
 
-fun Token.getPermissions() = permissions.permissions
+        else -> throw InvalidAuthenticationType()
+    }
+}
 
-fun Token.getJsonPermissions() = permissions.jsonArray
+/**
+ * Check if a incoming connection is authorized and has [permissions].
+ */
+fun ApplicationCall.isAuthorized(vararg permissions: Permissions) {
+    val token = getTokenFromCall()
 
-fun Token.renew() = TokenManager.renewToken(this)
+    if (token?.isExpired() == true)
+        throw TokenExpiredException()
 
-fun Token.disable() = TokenManager.disableToken(this)
+    if (token?.permissions?.permissions?.containsAll(permissions.toList()) == false)
+        throw TokenMissingPermissions()
+}
 
-fun User.getPermissions() = permissions.permissions
+/**
+ * Check if a incoming connection is authorized.
+ */
+fun ApplicationCall.isAuthorized() {
+    val token = getTokenFromCall()
 
-fun User.getJsonPermissions() = permissions.jsonArray
+    if (token?.isExpired() == true)
+        throw TokenExpiredException()
+}
 
-fun Token.hasPermissions(vararg permissions: Permissions) = TokenManager.hasPermissions(this, arrayListOf(*permissions))
+/**
+ * Check if an incoming request is authorized, and if it is return true.
+ */
+fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permissions): Boolean {
+    return try {
+        isAuthorized(*permissions)
 
-fun User.hasPermissions(vararg permissions: Permissions) = UserManager.hasPermissions(this, arrayListOf(*permissions))
+        true
+    } catch (ex: AuthenticationException) {
+        false
+    }
+}
 
-fun User.hasPermissions(permissions: ArrayList<Permissions>) = UserManager.hasPermissions(this, permissions)
+/**
+ * Check if a incoming connection is authorized and has [permissions].
+ */
+fun ApplicationCall.isAuthorized(mono: Mono<*>, vararg permissions: Permissions) {
+    isAuthorized(*permissions)
+            .also { mono.subscribe() }
+}
+
+/**
+ * Turn the [ApplicationCall]'s authorization header into a pair.
+ * It is the type and token.
+ */
+internal fun getHeader(call: ApplicationCall): Pair<String, String>? {
+    val header = call.request.parseAuthorizationHeader()
+            ?.render()
+            ?.split(" ")
+            ?: return null
+
+    return Pair(header[0], header[1])
+}

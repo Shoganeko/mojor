@@ -12,5 +12,6 @@ data class Token(
         val token: String,
         val owner: Long,
         val permissions: ObjectPermissions,
-        val createdOn: Long
+        val createdOn: Long,
+        val expiresOn: Long = createdOn + TokenManager.EXPIRE_AFTER
 )

@@ -11,20 +11,7 @@ import org.json.JSONArray
  * @see Token
  * @see User
  */
-class ObjectPermissions internal constructor(val permissions: ArrayList<Permissions>) {
-    /**
-     * [permissions] as a jsonArray
-     */
-    val jsonArray by lazy {
-        val ar = JSONArray()
-
-        permissions.forEach { perm ->
-            ar.put(perm)
-        }
-
-        return@lazy ar
-    }
-
+data class ObjectPermissions internal constructor(val permissions: ArrayList<Permissions>) {
     companion object {
         /**
          * Create an empty [ObjectPermissions].
@@ -40,7 +27,7 @@ class ObjectPermissions internal constructor(val permissions: ArrayList<Permissi
             if (jsonArray.length() == 0)
                 return empty()
 
-            (0..jsonArray.length())
+            (0 until jsonArray.length())
                     .asSequence()
                     .map { jsonArray[it].toString() }
                     .mapNotNullTo(ar) { Permissions.parse(it) }

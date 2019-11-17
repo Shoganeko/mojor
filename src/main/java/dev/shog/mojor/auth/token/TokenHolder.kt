@@ -1,5 +1,6 @@
 package dev.shog.mojor.auth.token
 
+import dev.shog.mojor.Mojor
 import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.user.User
 import dev.shog.mojor.auth.user.UserHolder.insertUser
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Manages tokens.
  */
 object TokenHolder {
-    private val TOKENS = ConcurrentHashMap<String, Token>()
+     val TOKENS = ConcurrentHashMap<String, Token>()
 
     /**
      * Get all tokens from the database and insert it into the map.
@@ -23,7 +24,7 @@ object TokenHolder {
                 .map { pre -> pre.executeQuery() }
                 .subscribe { rs ->
                     while (rs.next()) {
-                        TOKENS[rs.getString("token")] = Token(
+                        val token = Token(
                                 rs.getString("token"),
                                 rs.getLong("owner"),
                                 ObjectPermissions.fromJsonArray(
@@ -31,6 +32,8 @@ object TokenHolder {
                                 ),
                                 rs.getLong("createdOn")
                         )
+
+                        insertToken(rs.getString("token"), token)
                     }
                 }
     }
@@ -45,7 +48,6 @@ object TokenHolder {
      * Insert into [TOKENS] a new [tokenObject].
      */
     fun insertToken(token: String, tokenObject: Token) {
-        assert(tokenObject.token == token)
         TOKENS[token] = tokenObject
     }
 

@@ -4,6 +4,12 @@ import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.Health
 import dev.shog.mojor.api.RandomEmote
 import dev.shog.mojor.api.buta.butaPages
+import dev.shog.mojor.api.tokenInteractionPages
+import dev.shog.mojor.api.users.globalUserInteractionPages
+import dev.shog.mojor.api.users.userInteractionPages
+import dev.shog.mojor.auth.AuthenticationException
+import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.isAuthorized
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -51,6 +57,10 @@ private fun Application.mainModule() {
     }
 
     install(StatusPages) {
+        exception<AuthenticationException> {
+            call.respond(HttpStatusCode.Unauthorized, it.message ?: ":(")
+        }
+
         exception<Throwable> {
             it.printStackTrace()
             call.respond(HttpStatusCode.InternalServerError)
@@ -80,13 +90,14 @@ private fun Application.mainModule() {
 
 private fun Routing.root() {
     get("/") {
-        RandomEmote.getEmote()
+        val result = RandomEmote.getEmote()
                 .doOnNext { emote ->
                     launch {
                         call.respond(mapOf("response" to emote))
                     }
                 }
-                .subscribe()
+
+        call.isAuthorized(result, Permissions.APP_MANAGER)
     }
 
     get("/version") {
@@ -94,6 +105,9 @@ private fun Routing.root() {
     }
 
     butaPages()
+    userInteractionPages()
+    tokenInteractionPages()
+    globalUserInteractionPages()
 
     get("/health") {
         Health.getCurrentHealth()

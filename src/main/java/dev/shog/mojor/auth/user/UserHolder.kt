@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Holds users.
  */
 object UserHolder {
-    private val USERS = ConcurrentHashMap<Long, User>()
+    val USERS = ConcurrentHashMap<Long, User>()
 
     /**
      * Get all users from the database and insert it into the map.
@@ -41,6 +41,12 @@ object UserHolder {
             USERS[id]
 
     /**
+     * Get a user from [USERS] by their [username].
+     */
+    fun getUser(username: String): User? =
+            USERS.values.singleOrNull { user -> user.username.equals(username, true) }
+
+    /**
      * Insert into [USERS] a new [user].
      */
     fun insertUser(id: Long, user: User) {
@@ -69,4 +75,8 @@ object UserHolder {
      */
     fun hasUser(id: Long): Boolean =
             USERS.containsKey(id)
+
+    /** If [USERS] contains a user with the [username] */
+    fun hasUser(username: String): Boolean =
+            USERS.values.singleOrNull { user -> user.username.equals(username, true) } != null
 }

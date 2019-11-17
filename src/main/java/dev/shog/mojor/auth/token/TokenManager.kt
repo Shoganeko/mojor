@@ -4,6 +4,7 @@ import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.Permissions
 import dev.shog.mojor.auth.user.User
 import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.getJsonArray
 import kotlin.collections.ArrayList
 import java.util.UUID
 import org.apache.commons.codec.digest.DigestUtils
@@ -17,7 +18,7 @@ object TokenManager {
     /**
      * Expire a token after an amount of time.
      */
-    private const val EXPIRE_AFTER = 1000L * 60L * 6L // 6 hours.
+    const val EXPIRE_AFTER = 1000L * 60L * 24L * 6L // 6 hours.
 
     /**
      * The default permissions for a [Token].
@@ -28,8 +29,10 @@ object TokenManager {
      * If [token] is expired.
      * It is expired if the token's creation time minus the current time is greater than or equal to [EXPIRE_AFTER].
      */
-    fun isTokenExpired(token: Token) =
-            System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
+    fun isTokenExpired(token: Token): Boolean {
+        // TODO queue token for removal from db
+        return System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
+    }
 
     /**
      * If the [token] has [permissions].
@@ -55,7 +58,9 @@ object TokenManager {
      * Disable the [token].
      */
     fun disableToken(token: Token) {
+        TokenHolder.removeToken(token.token)
 
+        // TODO remove token from database
     }
 
     /**
@@ -100,7 +105,7 @@ object TokenManager {
                                 .doOnNext { pre -> pre.setString(1, token.token) }
                                 .doOnNext { pre -> pre.setLong(2, token.owner) }
                                 .doOnNext { pre -> pre.setLong(3, token.createdOn) }
-                                .doOnNext { pre -> pre.setString(4, token.permissions.jsonArray.toString()) }
+                                .doOnNext { pre -> pre.setString(4, token.permissions.getJsonArray().toString()) }
                                 .map { pre -> pre.execute() }
                     }
                     .map { token -> token.t1 }

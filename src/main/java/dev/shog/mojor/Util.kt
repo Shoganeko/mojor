@@ -1,5 +1,6 @@
 package dev.shog.mojor
 
+import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.pages.obj.HtmlCallPage
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.application.call
@@ -12,6 +13,7 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.link
 import kotlinx.html.meta
+import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Document
 import java.lang.management.ManagementFactory
@@ -80,6 +82,7 @@ fun Routing.add(vararg pages: HtmlPage) {
 }
 
 
+/** Does the same as [add] but requests with the [ApplicationCall]. */
 fun Routing.addWithCall(vararg pages: HtmlCallPage) {
     for (page in pages) {
         get(page.url) {
@@ -142,6 +145,20 @@ fun readableBytes(bytes: Long): String {
 
 /** Turn a double into a percentage. */
 fun Double.asPercentage(): String =
-        this.toString()
-                .substring(0..3) +
+        this.toString() +
                 "%"
+
+/** Returns true if any of the [any] are null. */
+fun anyNull(vararg any: Any?): Boolean {
+    any.forEach { obj ->
+        if (obj == null)
+            return true
+    }
+
+    return false
+}
+
+/**
+ * Get a JSON array from an [ObjectPermissions].
+ */
+fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(permissions)

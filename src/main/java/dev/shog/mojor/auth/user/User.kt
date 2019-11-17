@@ -13,8 +13,12 @@ import dev.shog.mojor.auth.ObjectPermissions
  */
 data class User(
         val username: String,
-        val hashedPassword: String,
+        private val hashedPassword: String,
         val id: Long,
         val permissions: ObjectPermissions,
         val createdOn: Long
-)
+) {
+    /** Checks if [password] equals [hashedPassword] */
+    fun isCorrectPassword(password: String): Boolean =
+            hashedPassword == password
+}

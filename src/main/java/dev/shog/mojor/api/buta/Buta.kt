@@ -3,6 +3,8 @@ package dev.shog.mojor.api.buta
 import dev.shog.mojor.api.buta.obj.ButaObject
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
+import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.fancyDate
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -27,21 +29,26 @@ fun Routing.butaPages() {
 
     // The swears page.
     get("/v2/buta/swears") {
+        call.isAuthorized(Permissions.BUTA_MANAGER)
         call.respondText(ButaSwearPage.builtJson.toString(), contentType = ContentType.Application.Json)
     }
 
     // The status page.
     get("/v2/buta/status") {
+        call.isAuthorized(Permissions.BUTA_MANAGER)
         call.respond(ButaStatusPage.getStatusReport())
     }
 
     // The presences page.
     get("/v2/buta/presences") {
+        call.isAuthorized(Permissions.BUTA_MANAGER)
         call.respondText(ButaPresencesPage.builtJson.toString(), contentType = ContentType.Application.Json)
     }
 
     // Get a ButaObject using an ID and Type
     get("/v2/buta/{id}/{type}") {
+        call.isAuthorized(Permissions.BUTA_MANAGER)
+
         val id = call.parameters["id"]?.toLongOrNull() ?: -1L
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
 
@@ -55,6 +62,8 @@ fun Routing.butaPages() {
 
     // Create a ButaObject using an ID and a Type.
     put("/v2/buta/{id}/{type}") {
+        call.isAuthorized(Permissions.BUTA_MANAGER)
+
         val id = call.parameters["id"]?.toLongOrNull() ?: -1L
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
 
