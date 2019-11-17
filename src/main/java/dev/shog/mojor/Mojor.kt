@@ -38,29 +38,37 @@ object Mojor {
 
         // Mojor Dev and Prod modes
         ah.addHooks("--prod", {
-            API = "http://api.shog.dev"
-            CDN = "http://cdn.shog.dev"
-            MAIN = "http://shog.dev"
-
-            ButaObjectHandler.init().subscribe()
+            API = "https://api.shog.dev"
+            CDN = "https://cdn.shog.dev"
+            MAIN = "https://shog.dev"
 
             WEBHOOK = DiscordWebhookHandler()
             WEBHOOK
-                    .sendMessage("Started at ${SimpleDateFormat().format(Date())}! <:PogU:644404760752947210>" +
-                            "\n${getStatisticsOfSystem()}")
+                    .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
                     .subscribe()
 
-            Hooks.onErrorDropped { WEBHOOK.sendMessage("**ERROR** (@everyone): ${it.message}").subscribe() }
+            Hooks.onErrorDropped {
+                it.printStackTrace()
+                WEBHOOK
+                        .sendMessage(getErrorMessage(it, true))
+                        .subscribe()
+            }
+
+            ButaObjectHandler.init().subscribe()
 
             LOGGER.debug("Production mode enabled")
         }, {
             WEBHOOK = DiscordWebhookHandler(DiscordWebhookHandler.Companion.DefaultDeveloperUser)
             WEBHOOK
-                    .sendMessage("Started at ${SimpleDateFormat().format(Date())}! <:PogU:644404760752947210>" +
-                            "\n${getStatisticsOfSystem()}")
+                    .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
                     .subscribe()
 
-            Hooks.onErrorDropped { WEBHOOK.sendMessage("**ERROR**: ${it.message}") }
+            Hooks.onErrorDropped {
+                it.printStackTrace()
+                WEBHOOK
+                        .sendMessage(getErrorMessage(it, false))
+                        .subscribe()
+            }
 
             ButaObjectHandler.devInit().subscribe()
             Hooks.onOperatorDebug()

@@ -30,4 +30,5 @@ object RandomEmote {
             emotes
                     .map { list -> list.random().toString() }
                     .onErrorReturn("xqcL")
+                    .switchIfEmpty("xqcL".toMono())
 }

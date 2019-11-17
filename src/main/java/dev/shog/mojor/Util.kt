@@ -14,6 +14,7 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.dom.createHTMLDocument
 import kotlinx.html.link
 import kotlinx.html.meta
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Document
@@ -163,3 +164,15 @@ fun anyNull(vararg any: Any?): Boolean {
  * Get a JSON array from an [ObjectPermissions].
  */
 fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(permissions)
+
+/**
+ * Form [throwable] and [includeEveryone] into a Discord error message.
+ */
+fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
+    var msg = if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```"
+
+    msg += ExceptionUtils.getStackTrace(throwable) + "```\n\n"
+    msg += getStatisticsOfSystem()
+
+    return msg
+}

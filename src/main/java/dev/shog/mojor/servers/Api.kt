@@ -104,13 +104,12 @@ private fun Application.mainModule() {
  */
 private fun Routing.root() {
     get("/") {
-        RandomEmote.getEmote()
-                .doOnNext { emote ->
-                    launch {
-                        call.respond(mapOf("response" to emote))
-                    }
-                }
-                .subscribe()
+        // TODO fix this: it doesn't work reactive-ly with the first connection
+        val emote = RandomEmote.getEmote().block()
+
+        launch {
+            call.respond(mapOf("response" to emote))
+        }
     }
 
     get("/version") {

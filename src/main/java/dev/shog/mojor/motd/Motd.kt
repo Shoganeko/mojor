@@ -20,18 +20,18 @@ object Motd {
     /**
      * The most recent MOTD
      */
-    private lateinit var mostRecentMotd: MotdClass
+    private var mostRecentMotd: MotdClass? = null
 
     /**
      * Get the recent motd.
      */
     fun getMostRecentMotd(): MotdClass =
-            mostRecentMotd
+            mostRecentMotd ?: refreshMostRecentMotd()
 
     /**
      * Refresh [mostRecentMotd]
      */
-    private fun refreshMostRecentMotd() {
+    private fun refreshMostRecentMotd(): MotdClass {
         var mostRecent: MotdClass? = null
         var mostRecentDif: Long? = null
 
@@ -52,6 +52,8 @@ object Motd {
         }
 
         mostRecentMotd = mostRecent!!
+
+        return mostRecent!!
     }
 
     /**

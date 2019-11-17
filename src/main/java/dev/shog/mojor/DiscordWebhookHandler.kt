@@ -47,8 +47,7 @@ class DiscordWebhookHandler(private val iDiscordWebhookUser: IDiscordWebhookUser
             getJsonObject()
                     .doOnNext { js -> js.put("content", message) }
                     .flatMap { js -> makeRequest(js) }
-                    .map { req -> parseResponse(req) ?: ":)" }
-                    .doOnNext { resp -> if (resp != ":)") throw Exception("Invalid response from Discord.") }
+                    .map { req -> parseResponse(req) ?: "" }
                     .then()
 
     /**

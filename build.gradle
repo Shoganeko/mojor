@@ -69,7 +69,6 @@ dependencies {
     compile "com.googlecode.json-simple:json-simple:1.1"
     compile 'com.atlassian.commonmark:commonmark:0.12.1'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
-    compile 'com.amazonaws:aws-java-sdk:1.11.524'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.6'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'

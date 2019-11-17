@@ -177,8 +177,7 @@ object ButaObjectHandler {
          * Get all objects in the database.
          */
         fun getAllObjects(): Flux<ButaObject> =
-                Mono.justOrEmpty(PostgreSql.createConnection())
-                        .switchIfEmpty(Mono.error(NullPointerException("PostgreSql was null!")))
+                PostgreSql.monoConnection()
                         .map { sql -> sql!!.prepareStatement("SELECT * FROM buta.objs") }
                         .map { sql -> sql.executeQuery() }
                         .map { rs ->
