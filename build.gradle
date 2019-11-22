@@ -2,6 +2,7 @@ buildscript {
     ext.kotlin_version = '1.3.50'
     ext.ktor_version = '1.2.4'
     ext.kotlinx_html_version = ' 1.3.40'
+    ext.myndocs_oauth_version = '0.6.0'
 
     repositories {
         mavenCentral()

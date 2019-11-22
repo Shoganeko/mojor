@@ -1,14 +1,13 @@
 package dev.shog.mojor.auth.token
 
-import dev.shog.mojor.auth.ObjectPermissions
 import dev.shog.mojor.auth.Permissions
 import dev.shog.mojor.auth.user.User
 import dev.shog.mojor.db.PostgreSql
 import dev.shog.mojor.getJsonArray
 import kotlin.collections.ArrayList
-import java.util.UUID
 import org.apache.commons.codec.digest.DigestUtils
 import reactor.core.publisher.Mono
+import java.util.*
 
 
 /**
@@ -26,12 +25,37 @@ object TokenManager {
     private val DEFAULT_PERMISSIONS = arrayListOf<Permissions>()
 
     /**
+     * Tokens queued to be removed
+     */
+    private val REMOVAL_QUEUE = ArrayList<Token>()
+
+    /**
+     * Queue [REMOVAL_QUEUE]
+     */
+    fun queueRemoval(): Mono<Void> {
+        var sqlStr = ""
+
+        REMOVAL_QUEUE.forEach { token ->
+            sqlStr += "DELETE FROM token.tokens WHERE token='${token.token}';"
+        }
+
+        return PostgreSql.monoConnection()
+                .map { sql -> sql.prepareStatement(sqlStr) }
+                .map { pre -> pre.executeLargeUpdate() }
+                .then()
+    }
+
+    /**
      * If [token] is expired.
      * It is expired if the token's creation time minus the current time is greater than or equal to [EXPIRE_AFTER].
      */
     fun isTokenExpired(token: Token): Boolean {
-        // TODO queue token for removal from db
-        return System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
+        val expired = System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
+
+        if (expired)
+            REMOVAL_QUEUE.add(token)
+
+        return expired
     }
 
     /**
@@ -45,22 +69,26 @@ object TokenManager {
 
     /**
      * Renew the [token].
-     * This creates a seemingly identical token, except with a different identifier.
-     * This stops the token from getting expired.
      */
-    fun renewToken(token: Token): Token {
-        disableToken(token)
-
-        return TODO("The new token")
-    }
+    fun renewToken(token: Token, time: Long = System.currentTimeMillis()): Mono<Token> =
+            PostgreSql.monoConnection()
+                    .map { sql -> sql.prepareStatement("UPDATE token.tokens SET createdon=? WHERE token=?") }
+                    .doOnNext { pre -> pre.setLong(1, time) }
+                    .doOnNext { pre -> pre.setString(2, token.token) }
+                    .map { pre -> pre.executeUpdate() }
+                    .map { Token.fromToken(token, time) }
 
     /**
      * Disable the [token].
      */
-    fun disableToken(token: Token) {
+    fun disableToken(token: Token): Mono<Void> {
         TokenHolder.removeToken(token.token)
 
-        // TODO remove token from database
+        return PostgreSql.monoConnection()
+                .map { sql -> sql.prepareStatement("DELETE FROM token.tokens WHERE token=?") }
+                .doOnNext { pre -> pre.setString(1, token.token) }
+                .map { pre -> pre.executeUpdate() }
+                .then()
     }
 
     /**
@@ -81,7 +109,7 @@ object TokenManager {
     /**
      * Create token
      */
-    fun createTokenIdentifier(): Mono<String> =
+    private fun createTokenIdentifier(): Mono<String> =
             createTokenString()
                     .switchIfEmpty(createTokenString())
 
@@ -94,7 +122,7 @@ object TokenManager {
                         Token(
                                 tokenIdentifier,
                                 user.id,
-                                ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS),
+                                user.permissions,
                                 System.currentTimeMillis()
                         )
                     }
