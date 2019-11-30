@@ -1,10 +1,12 @@
 package dev.shog.mojor.auth.user
 
-import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.token.Token
 import dev.shog.mojor.auth.token.TokenManager
 import dev.shog.mojor.getJsonArray
 import org.json.JSONArray
+import reactor.core.publisher.Mono
 
 /** Get a [User]'s permissions */
 fun User.getPermissions() =
@@ -29,3 +31,19 @@ fun User.hasPermissions(permissions: ArrayList<Permissions>) =
 /** Delete [User] */
 fun User.delete() =
         UserManager.deleteUser(id)
+
+/** Update with [user]. */
+fun User.updateWith(user: User): Mono<Void> =
+        UserManager.updateUser(user)
+                .doOnNext { UserHolder.insertUser(id, user) }
+
+/** Add [permissions] to a user's permissions.*/
+fun User.patchPermissions(permissions: ArrayList<Permissions>): Mono<Void> {
+    permissions.addAll(this.permissions.permissions)
+
+    val permObj = ObjectPermissions.fromArrayList(permissions)
+
+    val newUser = User(username, getPassword(), id, permObj, createdOn)
+
+    return UserManager.updateUser(newUser)
+}

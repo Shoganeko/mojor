@@ -43,9 +43,6 @@ object Mojor {
             MAIN = "https://shog.dev"
 
             WEBHOOK = DiscordWebhookHandler()
-            WEBHOOK
-                    .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
-                    .subscribe()
 
             Hooks.onErrorDropped {
                 it.printStackTrace()
@@ -59,9 +56,6 @@ object Mojor {
             LOGGER.debug("Production mode enabled")
         }, {
             WEBHOOK = DiscordWebhookHandler(DiscordWebhookHandler.Companion.DefaultDeveloperUser)
-            WEBHOOK
-                    .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
-                    .subscribe()
 
             Hooks.onErrorDropped {
                 it.printStackTrace()
@@ -75,6 +69,13 @@ object Mojor {
 
             LOGGER.debug("Dev mode enabled")
         })
+
+        // If they're blocking notifications
+        ah.addNonHook("--block-init-notif") {
+            WEBHOOK
+                    .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
+                    .subscribe()
+        }
 
         ah.initWith(args)
 

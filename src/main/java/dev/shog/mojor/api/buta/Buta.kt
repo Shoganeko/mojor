@@ -3,8 +3,8 @@ package dev.shog.mojor.api.buta
 import dev.shog.mojor.api.buta.obj.ButaObject
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
-import dev.shog.mojor.auth.Permissions
 import dev.shog.mojor.auth.isAuthorized
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.fancyDate
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -53,10 +53,12 @@ fun Routing.butaPages() {
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
 
         ButaObjectHandler.getObject(id, type)
-                .doOnNext { launch { call.respond(it) } }
                 .switchIfEmpty(ButaObject.getEmpty().toMono())
-                // If the object wasn't found
-                .doOnNext { obj -> launch { if (obj.id == 0L) call.respond(HttpStatusCode.BadRequest) } }
+                .map { obj ->
+                    if (obj.id == 0L) {
+                        launch { call.respond(HttpStatusCode.BadRequest) }
+                    } else launch { call.respond(obj) }
+                }
                 .subscribe()
     }
 
@@ -73,19 +75,8 @@ fun Routing.butaPages() {
         }
 
         val body = when (type) {
-            1 -> try {
-                call.receive<Guild>()
-            } catch (ex: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@put
-            }
-
-            2 -> try {
-                call.receive<User>()
-            } catch (ex: Exception) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@put
-            }
+            1 -> call.receive<Guild>()
+            2 -> call.receive<User>()
 
             else -> {
                 call.respond(HttpStatusCode.BadRequest)

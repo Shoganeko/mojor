@@ -1,4 +1,4 @@
-package dev.shog.mojor.auth
+package dev.shog.mojor.auth.obj
 
 /**
  * Permissions a token or user has.

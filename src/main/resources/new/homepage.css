@@ -1,0 +1,23 @@
+.title {
+    font-size: 14rem;
+}
+
+.subtitle {
+    font-size: 3.0rem;
+    margin-top: -8.5rem;
+}
+
+.motd-desc {
+    font-size: .75rem;
+    margin-top: -3rem;
+    color: #383737;
+    font-weight: 300;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: inherit;
+}

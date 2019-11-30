@@ -2,7 +2,6 @@ package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
-import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.motd.Motd
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.http.HttpStatusCode
@@ -19,77 +18,42 @@ object Homepage : HtmlPage {
             title("shog.dev")
 
             link("${Mojor.CDN}/pages/homepage/homepage.css", "stylesheet", "text/css")
-
+            link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
+            link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
             applyMeta()
         }
 
-        body {
-            div("animated fadeIn") {
-                id = "head"
+        body("animated fadeIn head") {
+            div {
+                h1("title") { +"shog.dev" }
 
-                h1 {
-                    id = "title"
-
-                    +"shog.dev"
-                }
-
-                p {
-                    id = "version"
-
-                    +"v${Mojor.VERSION}"
-                }
-
-                br
-
-                div("topic") {
-                    h1("topic-header") {
-                        id = "secondary-topic-header"
-
-                        +"motd"
-                    }
-
-                    div("topic-info") {
-                        id = "motd"
-
+                div("motd-topic") {
+                    div("topic-info motd") {
                         val motd = Motd.getMostRecentMotd()
-                        val user = UserHolder.getUser(motd.owner)?.username
-
-                        +motd.data
+                        +motd.getProperData()
 
                         br
 
-                        span {
-                            id = "data"
-
-                            +"${formatter.format(Date.from(Instant.ofEpochMilli(motd.date)))} by $user"
-                        }
+                        span("data") { +"${formatter.format(Date.from(Instant.ofEpochMilli(motd.date)))} by ${motd.getOwnerName()}" }
                     }
                 }
 
                 div("topic") {
-                    h1("topic-header") {
-                        id = "secondary-topic-header"
-
-                        +"projects"
-                    }
+                    h1("topic-header") { +"projects" }
 
                     div("topic-info") {
                         ul {
                             li {
                                 p("list-entry") {
-                                    a("https://github.com/shoganeko/buta") {
-                                        +"Buta"
-                                    }
+                                    a("https://github.com/shoganeko/buta") { +"Buta" }
 
-                                    +"- A multi-purpose Discord bot"
+                                    +" A multi-purpose Discord bot."
                                 }
 
                                 p("list-entry") {
-                                    a("https://github.com/shoganeko/spotkey") {
-                                        +"SpotKey"
-                                    }
+                                    a("https://github.com/shoganeko/spotkey") { +"SpotKey" }
 
-                                    +"- A lightweight Spotify hot-key manager."
+                                    +" A lightweight Spotify hot-key manager."
                                 }
                             }
                         }
@@ -97,43 +61,35 @@ object Homepage : HtmlPage {
                 }
 
                 div("topic") {
-                    h1("topic-header") {
-                        id = "secondary-topic-header"
-
-                        +"utility"
-                    }
+                    h1("topic-header") { +"utility" }
 
                     div("topic-info") {
                         ul {
                             li {
                                 p("list-entry") {
-                                    a("${Mojor.MAIN}/strlen") {
-                                        +"String Length Calculator"
-                                    }
+                                    a("${Mojor.MAIN}/strlen") { +"String Length Calculator" }
 
-                                    +"- Find the length of a string."
+                                    +" Find the length of a string."
                                 }
 
                                 p("list-entry") {
-                                    a("${Mojor.MAIN}/clock") {
-                                        +"Clock"
-                                    }
+                                    a("${Mojor.MAIN}/clock") { +"Clock" }
 
-                                    +"- An online clock."
+                                    +" An online clock."
                                 }
 
                                 p("list-entry") {
-                                    a("${Mojor.MAIN}/ip") {
-                                        +"IP Finder"
-                                    }
+                                    a("${Mojor.MAIN}/ip") { +"IP Finder" }
 
-                                    +"- Find your IP."
+                                    +" Find your IP."
                                 }
                             }
                         }
                     }
                 }
             }
+
+            script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
         }
     }
 

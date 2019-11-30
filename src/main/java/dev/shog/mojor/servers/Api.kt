@@ -8,7 +8,7 @@ import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
 import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.auth.AuthenticationException
-import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.motd.Motd
 import io.ktor.application.Application

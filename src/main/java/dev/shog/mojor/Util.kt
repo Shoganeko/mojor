@@ -1,6 +1,6 @@
 package dev.shog.mojor
 
-import dev.shog.mojor.auth.ObjectPermissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.pages.obj.HtmlCallPage
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.application.ApplicationCall
@@ -22,9 +22,7 @@ import java.lang.management.ManagementFactory
 import kotlin.math.ln
 import kotlin.math.pow
 
-/**
- * Turns ms into a seconds, day and hours format
- */
+/** Turns ms into a seconds, day and hours format */
 fun Long.fancyDate(): String {
     var response = ""
 
@@ -37,17 +35,16 @@ fun Long.fancyDate(): String {
 
     val minutes = seconds / 60
 
-    if (minutes < 60) {
-        response = if (minutes > 1) String.format("%s minutes %s seconds", minutes, seconds - minutes * 60) else String.format("%s minute %s seconds", minutes, seconds - minutes * 60)
-        return response
-    }
+    if (minutes < 60)
+        return if (minutes > 1) "$minutes minutes ${seconds - minutes * 60} seconds" else "$minutes minute ${seconds - minutes * 60} seconds"
 
     val hours = minutes / 60
     val hoursMinutes = minutes - hours * 60
 
     if (hours < 24) {
-        response += if (hours > 1) String.format("%s hours ", hours) else String.format("%s hour ", hours)
-        response += if (hoursMinutes > 1) String.format("%s minutes", hoursMinutes) else String.format("%s minute", hoursMinutes)
+        response += if (hours > 1) "$hours hours " else "$hours hour "
+        response += if (hoursMinutes > 1) "$hoursMinutes minutes" else "$hoursMinutes minute"
+
         return response
     }
 
@@ -55,27 +52,25 @@ fun Long.fancyDate(): String {
     val hoursDays = hours - days * 24
 
     if (days < 7) {
-        response += if (days > 1) String.format("%s days ", days) else String.format("%s day ", days)
-        response += if (hoursDays > 1) String.format("%s hours", hoursDays) else String.format("%s hour", hoursDays)
+        response += if (days > 1) "$days days " else "$days day "
+        response += if (hoursDays > 1) "$hoursDays hours" else "$hoursDays hour"
+
         return response
     }
 
     val weeks = days / 7
     val weekDays = days - weeks * 7
 
-    response += if (weeks > 1) String.format("%s weeks ", weeks) else String.format("%s week ", weeks)
-    response += if (weekDays > 1) String.format("%s days", weekDays) else String.format("%s day", weekDays)
+    response += if (weeks > 1) "$weeks weeks " else "$weeks week "
+    response += if (weekDays > 1) "$weekDays days" else "$weekDays day"
+
     return response
 }
 
-/**
- * Creates an HTML document
- */
+/** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document = html.invoke(createHTMLDocument())
 
-/**
- * Add an [HtmlPage]
- */
+/** Add an [HtmlPage] */
 fun Routing.add(vararg pages: HtmlPage) {
     for (page in pages)
         get(page.url) {
@@ -93,9 +88,7 @@ fun Routing.addWithCall(vararg pages: HtmlCallPage) {
     }
 }
 
-/**
- * Compare a [JSONObject] with another [JSONObject]
- */
+/** Compare a [JSONObject] with another [JSONObject] */
 fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
     for (key in jsonObject.keys())
         if (!has(key.toString()))
@@ -104,9 +97,7 @@ fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
     return true
 }
 
-/**
- * If a map contains [args].
- */
+/** If a map contains [args]. */
 fun Parameters.containsKeys(vararg args: String): Boolean {
     args.forEach { key ->
         if (!this.contains(key))
@@ -116,14 +107,17 @@ fun Parameters.containsKeys(vararg args: String): Boolean {
     return true
 }
 
+/** Turn a boolean into successful or unsuccessful */
 fun Boolean.success(): String =
         if (this) "successful" else "unsuccessful"
 
+/** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")
     link("${Mojor.CDN}/favicon.png", "icon", "image/png")
+    meta("viewport", "width=device-width, initial-scale=1.0")
     meta("author", "shoganeko")
-    meta("keywords", "shog,kotlin,java,shoganeko,dev")
+    meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
 }
 
 /** Get system statistics */
@@ -160,14 +154,10 @@ fun anyNull(vararg any: Any?): Boolean {
     return false
 }
 
-/**
- * Get a JSON array from an [ObjectPermissions].
- */
+/** Get a JSON array from an [ObjectPermissions]. */
 fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(permissions)
 
-/**
- * Form [throwable] and [includeEveryone] into a Discord error message.
- */
+/** Form [throwable] and [includeEveryone] into a Discord error message */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
     var msg = if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```"
 

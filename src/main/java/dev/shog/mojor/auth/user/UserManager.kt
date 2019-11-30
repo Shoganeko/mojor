@@ -1,7 +1,7 @@
 package dev.shog.mojor.auth.user
 
-import dev.shog.mojor.auth.ObjectPermissions
-import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.db.PostgreSql
 import dev.shog.mojor.getJsonArray
 import org.apache.commons.codec.digest.DigestUtils
@@ -87,6 +87,19 @@ object UserManager {
                     .doOnNext { pre -> pre.setString(3, password) }
                     .doOnNext { pre -> pre.setString(4, user.permissions.getJsonArray().toString()) }
                     .doOnNext { pre -> pre.setLong(5, user.createdOn) }
+                    .map { pre -> pre.executeUpdate() }
+                    .then()
+
+    /**
+     * Update a user's account on the database.
+     */
+    fun updateUser(user: User): Mono<Void> =
+            PostgreSql.monoConnection()
+                    .map { sql -> sql.prepareStatement("UPDATE users.users UPDATE 'name'=?, 'password'=?, 'permissions'=? WHERE 'id'=?") }
+                    .doOnNext { pre -> pre.setString(1, user.username) }
+                    .doOnNext { pre -> pre.setString(2, user.getPassword()) }
+                    .doOnNext { pre -> pre.setString(1, user.permissions.getJsonArray().toString()) }
+                    .doOnNext { pre -> pre.setString(1, user.username) }
                     .map { pre -> pre.executeUpdate() }
                     .then()
 }

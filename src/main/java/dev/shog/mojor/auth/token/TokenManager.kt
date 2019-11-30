@@ -1,6 +1,7 @@
 package dev.shog.mojor.auth.token
 
-import dev.shog.mojor.auth.Permissions
+import dev.shog.mojor.auth.obj.Permissions
+import dev.shog.mojor.auth.token.result.TokenRenewResult
 import dev.shog.mojor.auth.user.User
 import dev.shog.mojor.db.PostgreSql
 import dev.shog.mojor.getJsonArray
@@ -70,13 +71,15 @@ object TokenManager {
     /**
      * Renew the [token].
      */
-    fun renewToken(token: Token, time: Long = System.currentTimeMillis()): Mono<Token> =
+    fun renewToken(token: Token, time: Long = System.currentTimeMillis()): Mono<TokenRenewResult> =
             PostgreSql.monoConnection()
                     .map { sql -> sql.prepareStatement("UPDATE token.tokens SET createdon=? WHERE token=?") }
                     .doOnNext { pre -> pre.setLong(1, time) }
                     .doOnNext { pre -> pre.setString(2, token.token) }
                     .map { pre -> pre.executeUpdate() }
                     .map { Token.fromToken(token, time) }
+                    .map { newToken -> TokenRenewResult(newToken, true, newToken.expiresOn) }
+                    .onErrorReturn(TokenRenewResult(null, false, -1L))
 
     /**
      * Disable the [token].

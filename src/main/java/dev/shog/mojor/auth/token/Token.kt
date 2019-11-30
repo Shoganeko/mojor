@@ -1,6 +1,6 @@
 package dev.shog.mojor.auth.token
 
-import dev.shog.mojor.auth.ObjectPermissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
 
 /**
  * An authorization token.

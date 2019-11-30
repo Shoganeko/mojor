@@ -21,5 +21,11 @@ class TokenMissingPermissions :
 /**
  * An invalid token type was inputted
  */
-class InvalidAuthenticationType :
-        AuthenticationException("invalid authentication type (use token)")
+class InvalidAuthenticationType(type: String) :
+        AuthenticationException("$type is an invalid authentication type (use token)")
+
+/**
+ * User is already authorized
+ */
+class AlreadyLoggedInException :
+        Exception("Token cannot be created due to user already being authorized in")

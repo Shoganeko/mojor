@@ -1,6 +1,6 @@
 package dev.shog.mojor.auth.user
 
-import dev.shog.mojor.auth.ObjectPermissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
 
 /**
  * A user.
@@ -21,4 +21,7 @@ data class User(
     /** Checks if [password] equals [hashedPassword] */
     fun isCorrectPassword(password: String): Boolean =
             hashedPassword == password
+
+    /** Get [hashedPassword]. */
+    fun getPassword(): String = hashedPassword
 }

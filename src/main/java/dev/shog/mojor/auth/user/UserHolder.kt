@@ -1,6 +1,6 @@
 package dev.shog.mojor.auth.user
 
-import dev.shog.mojor.auth.ObjectPermissions
+import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.db.PostgreSql
 import org.json.JSONArray
 import java.util.concurrent.ConcurrentHashMap

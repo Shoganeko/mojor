@@ -1,5 +1,6 @@
 package dev.shog.mojor.auth
 
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.token.Token
 import dev.shog.mojor.auth.token.TokenHolder
 import dev.shog.mojor.auth.token.isExpired
@@ -17,7 +18,7 @@ fun ApplicationCall.getTokenFromCall(): Token? {
                     ?: throw AuthenticationException("invalid token")
         }
 
-        else -> throw InvalidAuthenticationType()
+        else -> throw InvalidAuthenticationType(header?.first ?: "null")
     }
 }
 
@@ -42,6 +43,13 @@ fun ApplicationCall.isAuthorized() {
 
     if (token?.isExpired() == true)
         throw TokenExpiredException()
+}
+
+/**
+ * Check if an incoming connection is authorized.
+ */
+fun ApplicationCall.isAuthorizedAvoidExpired() {
+    getTokenFromCall()
 }
 
 /**

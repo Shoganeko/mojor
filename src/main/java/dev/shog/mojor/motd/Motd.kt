@@ -1,7 +1,11 @@
 package dev.shog.mojor.motd
 
+import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.db.PostgreSql
 import reactor.core.publisher.Mono
+import java.time.Instant
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * The MOTD
@@ -15,7 +19,22 @@ object Motd {
     /**
      * A motd class
      */
-    data class MotdClass(val data: String, val owner: Long, val date: Long)
+    data class MotdClass(val data: String, val owner: Long, val date: Long) {
+        /**
+         * TODO Do markdown
+         */
+        fun getProperData() = data
+
+        /**
+         * Get [date] as a [Date]
+         */
+        fun getProperDate(): Date = Date.from(Instant.ofEpochMilli(date))
+
+        /**
+         * Get the name of [owner].
+         */
+        fun getOwnerName(): String = UserHolder.getUser(owner)?.username ?: "admin"
+    }
 
     /**
      * The most recent MOTD
