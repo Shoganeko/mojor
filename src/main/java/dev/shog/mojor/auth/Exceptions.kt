@@ -1,5 +1,7 @@
 package dev.shog.mojor.auth
 
+import dev.shog.mojor.auth.obj.Permissions
+
 /**
  * An authentication exception
  */
@@ -15,8 +17,8 @@ open class AuthenticationException(reason: String) :
 /**
  * A token is missing permissions
  */
-class TokenMissingPermissions :
-        AuthenticationException("token missing permissions")
+class TokenMissingPermissions(permissions: ArrayList<Permissions>) :
+        AuthenticationException("token missing permissions $permissions")
 
 /**
  * An invalid token type was inputted

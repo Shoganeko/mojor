@@ -8,14 +8,15 @@ import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
 import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.auth.AuthenticationException
-import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.isAuthorized
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.motd.Motd
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.*
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.JacksonConverter
 import io.ktor.jackson.jackson
@@ -23,10 +24,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import io.ktor.routing.*
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.serialization
 import io.ktor.server.engine.embeddedServer
@@ -92,6 +90,14 @@ private fun Application.mainModule() {
         header("X-Server", "Mojor/${Mojor.VERSION}")
     }
 
+    install(CORS) {
+        anyHost()
+        method(HttpMethod.Options)
+        header("Authorization")
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
+    }
+
     install(AutoHeadResponse)
 
     routing {
@@ -120,6 +126,8 @@ private fun Routing.root() {
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()
+
+    options("/motd") { call.respond("CORS PepeLaugh") }
 
     post("/motd") {
         call.isAuthorized(Permissions.MOTD_MANAGER)

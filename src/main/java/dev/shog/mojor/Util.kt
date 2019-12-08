@@ -67,6 +67,11 @@ fun Long.fancyDate(): String {
     return response
 }
 
+fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
+        first
+                .filterNot { second.contains(it) }
+                .toMutableList()
+
 /** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document = html.invoke(createHTMLDocument())
 

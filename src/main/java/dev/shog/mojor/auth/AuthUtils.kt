@@ -4,6 +4,7 @@ import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.token.Token
 import dev.shog.mojor.auth.token.TokenHolder
 import dev.shog.mojor.auth.token.isExpired
+import dev.shog.mojor.getMissing
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
 import reactor.core.publisher.Mono
@@ -31,8 +32,10 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permissions) {
     if (token?.isExpired() == true)
         throw TokenExpiredException()
 
-    if (token?.permissions?.permissions?.containsAll(permissions.toList()) == false)
-        throw TokenMissingPermissions()
+    val tokenPerms = token?.permissions?.permissions ?: arrayListOf()
+
+    if (!tokenPerms.containsAll(permissions.toList()))
+        throw TokenMissingPermissions(arrayListOf(*getMissing(tokenPerms, permissions.toList()).toTypedArray()))
 }
 
 /**

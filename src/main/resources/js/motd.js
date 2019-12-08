@@ -1,0 +1,33 @@
+$( document ).ready(function () {
+    let prevAuth = false;
+    const owner = "324080061704794456";
+
+    $("#result").text("Using: " + owner + " / Authorized: " + prevAuth);
+
+    $("#submit").click(function () {
+        const username = $("#username").val();
+        const password = $("#password").val();
+        const text = $("#text").val();
+
+        if (!prevAuth) {
+            $("#result").text("Authorizing...");
+
+            // TODO encript client-side
+            $.post("http://localhost:8080/v1/user", { username: username, password: password, encr: true }, function (data) {
+                const token = data.token.token;
+
+                $.ajaxSetup({headers: {'Authorization': "token " + token}});
+                prevAuth = true;
+
+                updateMotd(text, owner);
+            });
+
+        } else updateMotd(text, owner);
+    });
+});
+
+function updateMotd(text, owner) {
+    $.post("http://localhost:8080/motd", { text: text, owner: owner }, function () {
+        $("#result").text("OK");
+    });
+}

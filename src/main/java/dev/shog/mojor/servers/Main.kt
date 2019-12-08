@@ -3,10 +3,7 @@ package dev.shog.mojor.servers
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.add
 import dev.shog.mojor.addWithCall
-import dev.shog.mojor.pages.Clock
-import dev.shog.mojor.pages.Homepage
-import dev.shog.mojor.pages.IpFinder
-import dev.shog.mojor.pages.StringLengthCalculator
+import dev.shog.mojor.pages.*
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -73,7 +70,7 @@ private fun Application.mainModule() {
         }
 
         routing {
-            add(Homepage, Clock, StringLengthCalculator)
+            add(Homepage, MotdUpdate, Clock, StringLengthCalculator)
             addWithCall(IpFinder)
         }
     }

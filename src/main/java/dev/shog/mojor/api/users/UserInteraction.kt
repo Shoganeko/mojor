@@ -16,6 +16,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import kotlinx.coroutines.launch
+import org.apache.commons.codec.digest.DigestUtils
 
 /**
  * Add the pages.
@@ -39,14 +40,17 @@ fun Routing.userInteractionPages() {
         val params = call.receiveParameters()
 
         val username = params["username"]
-        val password = params["password"]
+        var password = params["password"]
 
         if (username == null || password == null) {
             call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false))
             return@post
         }
 
-        val user = UserManager.loginUsing(username, password)
+        if (params["encr"]?.toBoolean() == true)
+            password = DigestUtils.sha512Hex(password)
+
+        val user = UserManager.loginUsing(username, password ?: "")
 
         if (user == null)
             call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false))
