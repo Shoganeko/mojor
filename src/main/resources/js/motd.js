@@ -12,7 +12,7 @@ $( document ).ready(function () {
         if (!prevAuth) {
             $("#result").text("Authorizing...");
 
-            // TODO encript client-side
+            // TODO encrypt client-side
             $.post("http://localhost:8080/v1/user", { username: username, password: password, encr: true }, function (data) {
                 const token = data.token.token;
 
