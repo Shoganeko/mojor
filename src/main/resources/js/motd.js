@@ -13,7 +13,7 @@ $( document ).ready(function () {
             $("#result").text("Authorizing...");
 
             // TODO encrypt client-side
-            $.post("http://localhost:8080/v1/user", { username: username, password: password, encr: true }, function (data) {
+            $.post("http://api.shog.dev/v1/user", { username: username, password: password, encr: true }, function (data) {
                 const token = data.token.token;
 
                 $.ajaxSetup({headers: {'Authorization': "token " + token}});
@@ -27,7 +27,7 @@ $( document ).ready(function () {
 });
 
 function updateMotd(text, owner) {
-    $.post("http://localhost:8080/motd", { text: text, owner: owner }, function () {
+    $.post("http://api.shog.dev/motd", { text: text, owner: owner }, function () {
         $("#result").text("OK");
     });
 }
