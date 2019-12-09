@@ -27,7 +27,7 @@ fun Routing.userInteractionPages() {
         call.isAuthorized()
 
         val token = call.getTokenFromCall()
-        val user = UserHolder.getUser(token?.owner ?: -1)
+        val user = UserHolder.getUser(token.owner)
 
         call.respond(user ?: Any())
     }
@@ -47,6 +47,7 @@ fun Routing.userInteractionPages() {
             return@post
         }
 
+        // TODO Add encryption to login JS
         if (params["encr"]?.toBoolean() == true)
             password = DigestUtils.sha512Hex(password)
 

@@ -43,20 +43,24 @@ object UserManager {
     /**
      * Create a new user.
      */
-    fun createUser(username: String, hashedPassword: String): Mono<User> {
+    fun createUser(username: String, password: String, requiresHash: Boolean = false, permissions: ArrayList<Permissions> = DEFAULT_PERMISSIONS): Mono<User> {
         if (UserHolder.hasUser(username))
             return Mono.error(Exception("Username $username already exists!"))
 
+        val hashedPassword = if (requiresHash) DigestUtils.sha512Hex(password) else password
+
         return UserIdGenerator.getId()
-                .map { User(username, hashedPassword, it, ObjectPermissions.fromArrayList(DEFAULT_PERMISSIONS), System.currentTimeMillis()) }
+                .map { User(username, hashedPassword, it, ObjectPermissions.fromArrayList(permissions), System.currentTimeMillis()) }
                 .doOnNext { user -> UserHolder.insertUser(user.id, user) }
                 .flatMap { user -> uploadUser(user, hashedPassword).map { user } }
     }
 
     /**
-     * Login using [username] and [hashedPassword]
+     * Login using [username] and [password].
      */
-    fun loginUsing(username: String, hashedPassword: String): User? {
+    fun loginUsing(username: String, password: String, requiresHash: Boolean = false): User? {
+        val hashedPassword = if (requiresHash) DigestUtils.sha512Hex(password) else password
+
         if (UserHolder.hasUser(username)) {
             val user = UserHolder.getUser(username)
 
@@ -65,15 +69,6 @@ object UserManager {
         }
 
         return null
-    }
-
-    /**
-     * Login using [username] and [password], should be using [loginUsing]
-     */
-    fun loginUsingNonHashedPassword(username: String, password: String): User? {
-        val hex = DigestUtils.sha512Hex(password)
-
-        return loginUsing(username, hex)
     }
 
     /**
@@ -95,7 +90,7 @@ object UserManager {
      */
     fun updateUser(user: User): Mono<Void> =
             PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("UPDATE users.users UPDATE 'name'=?, 'password'=?, 'permissions'=? WHERE 'id'=?") }
+                    .map { sql -> sql.prepareStatement("UPDATE users.users SET 'name'=?, 'password'=?, 'permissions'=? WHERE 'id'=?") }
                     .doOnNext { pre -> pre.setString(1, user.username) }
                     .doOnNext { pre -> pre.setString(2, user.getPassword()) }
                     .doOnNext { pre -> pre.setString(1, user.permissions.getJsonArray().toString()) }

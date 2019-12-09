@@ -10,49 +10,32 @@ import io.ktor.auth.parseAuthorizationHeader
 import reactor.core.publisher.Mono
 
 /** Get a [Token] from an [ApplicationCall] */
-fun ApplicationCall.getTokenFromCall(): Token? {
-    val header = getHeader(this)
+fun ApplicationCall.getTokenFromCall(): Token {
+    val header = getHeader(this) ?: throw AuthenticationException("no authentication")
 
-    when (header?.first?.toLowerCase()) {
-        "token" -> {
-            return TokenHolder.getToken(header.second)
-                    ?: throw AuthenticationException("invalid token")
-        }
+    when (header.first.toLowerCase()) {
+        "token" -> return TokenHolder.getToken(header.second)
+                ?: throw AuthenticationException("invalid token")
 
-        else -> throw InvalidAuthenticationType(header?.first ?: "null")
+        else -> throw InvalidAuthenticationType(header.first)
     }
 }
 
 /**
  * Check if a incoming connection is authorized and has [permissions].
  */
-fun ApplicationCall.isAuthorized(vararg permissions: Permissions) {
+fun ApplicationCall.isAuthorized(vararg permissions: Permissions, avoidExpire: Boolean = false) {
     val token = getTokenFromCall()
 
-    if (token?.isExpired() == true)
+    if (token.isExpired() && !avoidExpire)
         throw TokenExpiredException()
 
-    val tokenPerms = token?.permissions?.permissions ?: arrayListOf()
+    if (permissions.isNotEmpty()) {
+        val tokenPerms = token.permissions.permissions
 
-    if (!tokenPerms.containsAll(permissions.toList()))
-        throw TokenMissingPermissions(arrayListOf(*getMissing(tokenPerms, permissions.toList()).toTypedArray()))
-}
-
-/**
- * Check if a incoming connection is authorized.
- */
-fun ApplicationCall.isAuthorized() {
-    val token = getTokenFromCall()
-
-    if (token?.isExpired() == true)
-        throw TokenExpiredException()
-}
-
-/**
- * Check if an incoming connection is authorized.
- */
-fun ApplicationCall.isAuthorizedAvoidExpired() {
-    getTokenFromCall()
+        if (!tokenPerms.containsAll(permissions.toList()))
+            throw TokenMissingPermissions(arrayListOf(*getMissing(tokenPerms, permissions.toList()).toTypedArray()))
+    }
 }
 
 /**

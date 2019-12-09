@@ -25,9 +25,7 @@ object UserHolder {
                                 rs.getString("name"),
                                 rs.getString("password"),
                                 rs.getLong("id"),
-                                ObjectPermissions.fromJsonArray(
-                                        JSONArray(rs.getString("permissions"))
-                                ),
+                                ObjectPermissions.fromJsonArray(JSONArray(rs.getString("permissions"))),
                                 rs.getLong("createdon")
                         )
                     }
