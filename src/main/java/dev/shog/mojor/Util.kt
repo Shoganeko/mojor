@@ -67,6 +67,7 @@ fun Long.fancyDate(): String {
     return response
 }
 
+/** See what [first] is missing from [second] */
 fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
         first
                 .filterNot { second.contains(it) }
@@ -133,7 +134,9 @@ fun getStatisticsOfSystem(): String {
             "\nFree Memory: ${readableBytes(Runtime.getRuntime().freeMemory())}" +
             "\nUsed Memory: ${readableBytes(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())}" +
             "\nCpu Load: ${bean.processCpuLoad.asPercentage()}" +
-            "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}"
+            "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
+            "\nMojor Version: ${Mojor.VERSION}" +
+            "\nMojor URLs: ${Mojor.API}/${Mojor.CDN}/${Mojor.MAIN}"
 }
 
 /** Turn [bytes] into kib, mb etc. */
@@ -146,11 +149,10 @@ fun readableBytes(bytes: Long): String {
 
 /** Turn a double into a percentage. */
 fun Double.asPercentage(): String =
-        this.toString() +
-                "%"
+        "$this%"
 
 /** Returns true if any of the [any] are null. */
-fun anyNull(vararg any: Any?): Boolean {
+fun anyNull(any: ArrayList<Any?>): Boolean {
     any.forEach { obj ->
         if (obj == null)
             return true
@@ -158,6 +160,10 @@ fun anyNull(vararg any: Any?): Boolean {
 
     return false
 }
+
+/** Returns true if any of the values are null. */
+fun ArrayList<Any?>.containsNulls(): Boolean =
+        anyNull(this)
 
 /** Get a JSON array from an [ObjectPermissions]. */
 fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(permissions)
