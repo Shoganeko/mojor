@@ -17,7 +17,7 @@ const colors = ["#e47d7d", "#f0b07f", "#dcdf8e", "#bddabb", "#81c6cc", "#92a7cc"
         lastColor = Number(lastColor);
         lastColor++;
 
-        if (lastColor >= 7)
+        if (lastColor >= colors.length)
             lastColor = 0;
 
         // Update to the new index
