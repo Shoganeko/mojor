@@ -22,7 +22,6 @@ object Clock : HtmlPage {
         head {
             title("Clock")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
-            link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
             link("${Mojor.CDN}/pages/utility/clock.css", "stylesheet", "text/css")
 
             applyMeta()
@@ -50,8 +49,7 @@ object Clock : HtmlPage {
                 }
             }
 
-            script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
-            script(src = "${Mojor.CDN}/pages/utility/clock.js") { }
+            script(src = "${Mojor.CDN}/pages/utility/clock.js") {}
         }
     }
 

@@ -1,0 +1,56 @@
+body {
+    background-color: #212121;
+}
+
+p, h1, h2, a {
+    color: white;
+}
+
+#main {
+    margin-top: 200px;
+    text-align: center;
+}
+
+#result {
+    margin-top: 20px;
+    font-family: 'Roboto', sans-serif;;
+}
+
+#title {
+    font-family: 'Montserrat', sans-serif;
+    margin-bottom: -2px
+}
+
+.lang-housing {
+    font-family: 'Roboto', sans-serif;;
+    color: white;
+    margin-bottom: -1rem;
+}
+
+.desc {
+    font-family: 'Roboto', sans-serif;
+}
+
+#arEntry {
+    font-family: 'Roboto Mono', sans-serif;
+    background-color: #161616;
+    color: white;
+}
+
+#result {
+    font-family: 'Roboto Mono', sans-serif;
+    color: white;
+    overflow-wrap: break-word;
+}
+
+button {
+    background:none !important;
+    color: whitesmoke;
+    border: none;
+    padding:0 !important;
+    font: inherit;
+    font-family: 'Montserrat', sans-serif;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-bottom: 20px;
+}

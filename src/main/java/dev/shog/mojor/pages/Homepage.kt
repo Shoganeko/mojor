@@ -29,6 +29,8 @@ object Homepage : HtmlPage {
 
                 div("motd-topic") {
                     div("topic-info motd") {
+                        id = "motd"
+
                         val motd = Motd.getMostRecentMotd()
                         +motd.getProperData()
 
@@ -79,17 +81,27 @@ object Homepage : HtmlPage {
                                 }
 
                                 p("list-entry") {
-                                    a("${Mojor.MAIN}/ip") { +"IP Finder" }
+                                    a("${Mojor.MAIN}/argen") { +"Array Generator" }
 
-                                    +" Find your IP."
+                                    +" Generate an array for Kotlin or Javascript."
                                 }
                             }
                         }
                     }
                 }
+
+                div("topic") {
+                    h1("topic-header") { +"contact" }
+
+                    div("topic-info") {
+                        a("https://${Mojor.MAIN}/discord", "_blank", "contact") {
+                            +"SHO#0001"
+                        }
+                    }
+                }
             }
 
-            script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
+            script(src = "${Mojor.CDN}/pages/homepage/homepage.js") {}
         }
     }
 

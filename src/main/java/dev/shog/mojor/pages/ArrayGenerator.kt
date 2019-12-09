@@ -6,14 +6,14 @@ import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 
-object StringLengthCalculator : HtmlPage {
-    override val url: String = "/strlen"
+object ArrayGenerator : HtmlPage {
+    override val url: String = "/argen"
     override val html: HTML.() -> Unit = {
         head {
-            title("String Length Calculator")
+            title("Array Generator")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/strlen.css", "stylesheet", "text/css")
+            link("${Mojor.CDN}/pages/utility/argen.css", "stylesheet", "text/css")
 
             applyMeta()
         }
@@ -27,32 +27,40 @@ object StringLengthCalculator : HtmlPage {
                 id = "main"
                 h1 {
                     id = "title"
-                    +"Length"
+                    +"Array Generator"
+                }
+
+                div("lang-housing") {
+                    button {
+                        id = "kotlin"
+                        +"Kotlin"
+                    }
+                    +" / "
+                    button {
+                        id = "javascript"
+                        +"JavaScript"
+                    }
+                }
+
+                p("desc") {
+                    +"Select either language, and add objects by simply typing them then pressing enter."
                 }
 
                 form {
-                    id = "strlen"
+                    id = "argen"
 
-                    button {
-                        type = ButtonType.submit
-                        +"Execute"
-                    }
                     br
                     label {
-                        textArea {
-                            id = "str"
-                            rows = "2"
-                            cols = "50"
+                        input {
+                            id = "arEntry"
                         }
                     }
                 }
 
-                p {
-                    id = "result"
-                }
+                p { id = "result"; +"arrayListOf()" }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/strlen.js") {}
+            script(src = "${Mojor.CDN}/pages/utility/argen.js") {}
         }
     }
 

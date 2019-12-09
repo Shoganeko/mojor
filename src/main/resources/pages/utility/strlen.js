@@ -1,7 +1,8 @@
-$( document ).ready(function () {
-    $("#strlen").submit(function (e) {
-        e.preventDefault();
+(function () {
+    document.querySelector("#strlen").addEventListener("submit", function (event) {
+        event.preventDefault();
 
-        $("#result").text($("#str").val().length + " characters long.")
+        document.querySelector("#result").textContent =
+            document.querySelector("#str").textContent.length + " characters long."
     });
-});
+})();
