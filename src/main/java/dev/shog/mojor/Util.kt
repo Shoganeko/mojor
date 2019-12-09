@@ -119,7 +119,7 @@ fun Boolean.success(): String =
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")
-    link("${Mojor.CDN}/favicon.png", "icon", "image/png")
+    link("${Mojor.CDN}/favicon.jpg", "icon", "image/jpeg")
     meta("viewport", "width=device-width, initial-scale=1.0")
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
