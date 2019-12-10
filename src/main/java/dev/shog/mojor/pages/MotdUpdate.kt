@@ -49,6 +49,7 @@ object MotdUpdate : HtmlPage {
 
             p { id = "result" }
 
+            script(src = "${Mojor.CDN}/js/sha.js") {}
             script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
             script(src = "${Mojor.CDN}/js/motd.js") {}
         }

@@ -1,40 +1,56 @@
-$( document ).ready(function () {
-    let prevAuth = false;
-    const owner = "324080061704794456";
+/**
+ * If authorization has previously taken place.
+ * @type {boolean}
+ */
+let isAuthorized = false;
 
-    $("#result").text("Using: " + owner + " / Authorized: " + prevAuth);
+/**
+ * Current owner.
+ * @type {number}
+ */
+let currentOwner = -1;
 
-    $("#submit").click(function () {
-        const username = $("#username").val();
-        const password = sha512($("#password").val());
-        const text = $("#text").val();
+/**
+ * The result
+ * @type {Element}
+ */
+const result = document.querySelector("#result");
 
-        if (!prevAuth) {
-            $("#result").text("Authorizing...");
+(function () {
+    result.textContent = `Using: ${currentOwner} / Authorized: ${isAuthorized}\n\nReload to un-authorize!`;
 
-            // TODO encrypt client-side
+    document.querySelector("#submit").addEventListener('click', function () {
+        result.textContent = "Finding data...";
+
+        const password = sha512(document.querySelector("#password").value);
+        const username = document.querySelector("#username").value;
+        const text = document.querySelector("#text").value;
+
+        if (!isAuthorized) {
+            result.textContent = "Attempting to authorize...";
+
             $.post("https://api.shog.dev/v1/user", { username: username, password: password }, function (data) {
                 const token = data.token.token;
 
                 $.ajaxSetup({headers: {'Authorization': "token " + token}});
-                prevAuth = true;
 
-                updateMotd(text, owner);
+                isAuthorized = true;
+                currentOwner = data.user.id;
+
+                updateMotd(text, currentOwner);
             });
 
-        } else updateMotd(text, owner);
+        } else updateMotd(text, currentOwner);
     });
-});
+})();
 
-// Honestly dont know how this works, but it does :)
-function sha512(str) {
-    return crypto.subtle.digest("SHA-512", new TextEncoder("utf-8").encode(str)).then(buf => {
-        return Array.prototype.map.call(new Uint8Array(buf), x=>(('00'+x.toString(16)).slice(-2))).join('');
-    });
-}
-
+/**
+ * Update the MOTD by sending a REST request.
+ * @param text The MOTD contents.
+ * @param owner The owner of the MOTD (ID)
+ */
 function updateMotd(text, owner) {
     $.post("https://api.shog.dev/motd", { text: text, owner: owner }, function () {
-        $("#result").text("OK");
+        document.querySelector("#result").textContent = "OK";
     });
 }
