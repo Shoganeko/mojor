@@ -24,6 +24,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
+import io.ktor.response.respondText
 import io.ktor.routing.*
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.serialization
@@ -126,6 +127,10 @@ private fun Routing.root() {
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()
+
+    get("/robots.txt") {
+        call.respondText("User-Agent: *\nDisallow: /")
+    }
 
     options("/motd") { call.respond("CORS PepeLaugh") }
 

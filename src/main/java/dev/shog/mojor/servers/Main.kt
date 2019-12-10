@@ -15,6 +15,7 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
+import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -76,6 +77,10 @@ private fun Application.mainModule() {
     routing {
         get("/discord") {
             call.respondRedirect("https://discord.gg/YCfeQB", true)
+        }
+
+        get("/robots.txt") {
+            call.respondText("User-Agent: *\nDisallow: /discord")
         }
 
         add(Homepage, MotdUpdate, Clock, StringLengthCalculator, ArrayGenerator)
