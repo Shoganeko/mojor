@@ -12,7 +12,7 @@ object MotdUpdate : HtmlPage {
         head {
             title("shog.dev")
 
-            link("${Mojor.CDN}/css/motd.css", "stylesheet", "text/css")
+            link("${Mojor.CDN}/pages/motd/motd.css", "stylesheet", "text/css")
             link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
             applyMeta()
@@ -51,7 +51,7 @@ object MotdUpdate : HtmlPage {
 
             script(src = "${Mojor.CDN}/js/sha.js") {}
             script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
-            script(src = "${Mojor.CDN}/js/motd.js") {}
+            script(src = "${Mojor.CDN}/pages/motd/motd.js") {}
         }
     }
 
