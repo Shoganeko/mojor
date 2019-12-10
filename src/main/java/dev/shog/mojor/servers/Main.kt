@@ -45,37 +45,39 @@ private fun Application.mainModule() {
 
     install(StatusPages) {
         exception<Throwable> {
-            exception<Throwable> {
-                val errorString = it.message ?: "Error"
+            val errorString = it.message ?: "Error"
 
-                Mojor.WEBHOOK
-                        .sendMessage("There has been an error on the Main server!\n$errorString")
-                        .subscribe()
+            Mojor.WEBHOOK
+                    .sendMessage("There has been an error on the Main server!\n$errorString")
+                    .subscribe()
 
-                call.respond(HttpStatusCode.InternalServerError)
-            }
-
-            status(HttpStatusCode.NotFound) {
-                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Not Found!"))
-            }
-
-            status(HttpStatusCode.Unauthorized) {
-                call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Not Authorized!"))
-            }
+            call.respond(HttpStatusCode.InternalServerError)
         }
 
-        install(Locations)
-
-        install(DefaultHeaders) {
-            header("X-Server", "Mojor/${Mojor.VERSION}")
+        status(HttpStatusCode.NotFound) {
+            call.respondRedirect(Mojor.MAIN, true)
         }
 
-        routing {
-            get("/discord") {
-                call.respondRedirect("https://discord.gg/YCfeQB", true)
-            }
-
-            add(Homepage, MotdUpdate, Clock, StringLengthCalculator, ArrayGenerator)
+        status(HttpStatusCode.NotAcceptable) {
+            call.respondRedirect(Mojor.MAIN, true)
         }
+
+        status(HttpStatusCode.Unauthorized) {
+            call.respond(HttpStatusCode.Unauthorized, "Not Authorized")
+        }
+    }
+
+    install(Locations)
+
+    install(DefaultHeaders) {
+        header("X-Server", "Mojor/${Mojor.VERSION}")
+    }
+
+    routing {
+        get("/discord") {
+            call.respondRedirect("https://discord.gg/YCfeQB", true)
+        }
+
+        add(Homepage, MotdUpdate, Clock, StringLengthCalculator, ArrayGenerator)
     }
 }
