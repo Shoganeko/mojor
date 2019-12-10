@@ -13,7 +13,7 @@ object ArrayGenerator : HtmlPage {
             title("Array Generator")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/argen.css", "stylesheet", "text/css")
+            link("${Mojor.CDN}/pages/utility/argen/argen.css", "stylesheet", "text/css")
 
             applyMeta()
         }
@@ -60,7 +60,7 @@ object ArrayGenerator : HtmlPage {
                 p { id = "result"; +"arrayListOf()" }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/argen.js") {}
+            script(src = "${Mojor.CDN}/pages/utility/argen/argen.js") {}
         }
     }
 

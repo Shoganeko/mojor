@@ -22,7 +22,7 @@ object Clock : HtmlPage {
         head {
             title("Clock")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/clock.css", "stylesheet", "text/css")
+            link("${Mojor.CDN}/pages/utility/clock/clock.css", "stylesheet", "text/css")
 
             applyMeta()
         }
@@ -49,7 +49,7 @@ object Clock : HtmlPage {
                 }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/clock.js") {}
+            script(src = "${Mojor.CDN}/pages/utility/clock/clock.js") {}
         }
     }
 

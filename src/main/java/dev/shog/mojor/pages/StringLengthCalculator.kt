@@ -13,7 +13,7 @@ object StringLengthCalculator : HtmlPage {
             title("String Length Calculator")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/strlen.css", "stylesheet", "text/css")
+            link("${Mojor.CDN}/pages/utility/strlen/strlen.css", "stylesheet", "text/css")
 
             applyMeta()
         }
@@ -52,7 +52,7 @@ object StringLengthCalculator : HtmlPage {
                 }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/strlen.js") {}
+            script(src = "${Mojor.CDN}/pages/utility/strlen/strlen.js") {}
         }
     }
 
