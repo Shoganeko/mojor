@@ -100,7 +100,7 @@ object Homepage : HtmlPage {
                     }
                 }
             }
-
+            script(src = "${Mojor.CDN}/js/util.js") {}
             script(src = "${Mojor.CDN}/pages/homepage/homepage.js") {}
         }
     }

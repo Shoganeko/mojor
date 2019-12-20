@@ -2,6 +2,7 @@ package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.add
+import dev.shog.mojor.addMarkdownPages
 import dev.shog.mojor.pages.*
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -75,6 +76,8 @@ private fun Application.mainModule() {
     }
 
     routing {
+        addMarkdownPages("privacy")
+
         get("/discord") {
             call.respondRedirect("https://discord.gg/YCfeQB", true)
         }

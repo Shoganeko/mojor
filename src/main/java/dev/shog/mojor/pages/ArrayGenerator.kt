@@ -32,13 +32,13 @@ object ArrayGenerator : HtmlPage {
 
                 div("lang-housing") {
                     button {
-                        id = "kotlin"
-                        +"Kotlin"
+                        id = "lang-swap"
+                        +"Kotlin: Click to Swap"
                     }
-                    +" / "
+                    br
                     button {
-                        id = "javascript"
-                        +"JavaScript"
+                        id = "clear"
+                        +"Clear"
                     }
                 }
 
@@ -60,6 +60,7 @@ object ArrayGenerator : HtmlPage {
                 p { id = "result"; +"arrayListOf()" }
             }
 
+            script(src = "${Mojor.CDN}/js/util.js") {}
             script(src = "${Mojor.CDN}/pages/utility/argen/argen.js") {}
         }
     }

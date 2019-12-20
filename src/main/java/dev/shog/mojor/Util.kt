@@ -1,12 +1,15 @@
 package dev.shog.mojor
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.pages.MarkdownPage
 import dev.shog.mojor.pages.obj.HtmlCallPage
 import dev.shog.mojor.pages.obj.HtmlPage
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
+import io.ktor.http.ContentType
 import io.ktor.http.Parameters
 import io.ktor.response.respond
+import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import kotlinx.html.HEAD
@@ -176,4 +179,13 @@ fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
     msg += getStatisticsOfSystem()
 
     return msg
+}
+
+/** Add markdown pages with name [pageName]. */
+fun Routing.addMarkdownPages(vararg pageName: String) {
+    pageName.forEach { name ->
+        get("/${name.removeSuffix(".md")}") {
+            call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
+        }
+    }
 }

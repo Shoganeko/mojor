@@ -62,6 +62,7 @@ repositories {
 
 dependencies {
     compile group: 'junit', name: 'junit', version: '4.12'
+    compile 'com.atlassian.commonmark:commonmark:0.13.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.apache.commons:commons-lang3:3.8.1"
     compile "ch.qos.logback:logback-classic:1.2.3"
