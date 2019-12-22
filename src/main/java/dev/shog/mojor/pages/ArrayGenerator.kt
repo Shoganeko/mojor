@@ -3,11 +3,9 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.HtmlPage
-import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 
 object ArrayGenerator : HtmlPage {
-    override val url: String = "/argen"
     override val html: HTML.() -> Unit = {
         head {
             title("Array Generator")
@@ -64,6 +62,4 @@ object ArrayGenerator : HtmlPage {
             script(src = "${Mojor.CDN}/pages/utility/argen/argen.js") {}
         }
     }
-
-    override val statusCode: HttpStatusCode = HttpStatusCode.OK
 }

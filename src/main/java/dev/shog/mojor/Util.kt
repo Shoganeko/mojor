@@ -1,14 +1,11 @@
 package dev.shog.mojor
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
-import dev.shog.mojor.pages.MarkdownPage
-import dev.shog.mojor.pages.obj.HtmlCallPage
-import dev.shog.mojor.pages.obj.HtmlPage
-import io.ktor.application.ApplicationCall
+import dev.shog.mojor.markdown.MarkdownPage
+import dev.shog.mojor.pages.obj.Page
 import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
-import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
@@ -78,24 +75,6 @@ fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
 
 /** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document = html.invoke(createHTMLDocument())
-
-/** Add an [HtmlPage] */
-fun Routing.add(vararg pages: HtmlPage) {
-    for (page in pages)
-        get(page.url) {
-            call.respond(io.ktor.html.HtmlContent(page.statusCode, page.html))
-        }
-}
-
-
-/** Does the same as [add] but requests with the [ApplicationCall]. */
-fun Routing.addWithCall(vararg pages: HtmlCallPage) {
-    for (page in pages) {
-        get(page.url) {
-            call.respond(io.ktor.html.HtmlContent(page.statusCode, page.html(call)))
-        }
-    }
-}
 
 /** Compare a [JSONObject] with another [JSONObject] */
 fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
@@ -184,8 +163,29 @@ fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
 /** Add markdown pages with name [pageName]. */
 fun Routing.addMarkdownPages(vararg pageName: String) {
     pageName.forEach { name ->
+        addPages("/${name.removeSuffix(".md")}")
+
         get("/${name.removeSuffix(".md")}") {
             call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
+        }
+    }
+}
+
+/** Add each [page] to [MarkdownPage.PAGES]. */
+fun addPages(vararg page: String) {
+    page.forEach { pg ->
+        MarkdownPage.PAGES.add(pg)
+    }
+}
+
+/** Register [pages]. */
+fun Routing.registerPages(vararg pages: Pair<String, Page>) {
+    pages.forEach { page ->
+        if (page.second.displayTree)
+            addPages(page.first)
+
+        get(page.first) {
+            page.second.exec(call)
         }
     }
 }

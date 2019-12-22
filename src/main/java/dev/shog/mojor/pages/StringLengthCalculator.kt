@@ -3,11 +3,9 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.HtmlPage
-import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 
 object StringLengthCalculator : HtmlPage {
-    override val url: String = "/strlen"
     override val html: HTML.() -> Unit = {
         head {
             title("String Length Calculator")
@@ -55,6 +53,4 @@ object StringLengthCalculator : HtmlPage {
             script(src = "${Mojor.CDN}/pages/utility/strlen/strlen.js") {}
         }
     }
-
-    override val statusCode: HttpStatusCode = HttpStatusCode.OK
 }

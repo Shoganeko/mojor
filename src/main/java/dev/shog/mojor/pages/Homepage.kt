@@ -2,17 +2,14 @@ package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
-import dev.shog.mojor.motd.Motd
+import dev.shog.mojor.motd.MotdHandler
 import dev.shog.mojor.pages.obj.HtmlPage
-import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.util.*
 
 object Homepage : HtmlPage {
-    private val formatter = SimpleDateFormat("EEEE, MMMM d, yyyy")
-    override val url: String = "/"
+    val formatter = SimpleDateFormat("EEEE, MMMM d, yyyy")
+
     override val html: HTML.() -> Unit = {
         head {
             title("shog.dev")
@@ -31,12 +28,16 @@ object Homepage : HtmlPage {
                     div("topic-info motd") {
                         id = "motd"
 
-                        val motd = Motd.getMostRecentMotd()
+                        val motd = MotdHandler.getMostRecentMotd()
                         +motd.getProperData()
 
                         br
 
-                        span("data") { +"${formatter.format(Date.from(Instant.ofEpochMilli(motd.date)))} by ${motd.getOwnerName()}" }
+                        span("data") {
+                            +"${formatter.format(motd.getProperDate())} by ${motd.getOwnerName()}"
+                            br
+                            a(Mojor.MAIN + "/motd/history") { +"View History" }
+                        }
                     }
                 }
 
@@ -104,6 +105,4 @@ object Homepage : HtmlPage {
             script(src = "${Mojor.CDN}/pages/homepage/homepage.js") {}
         }
     }
-
-    override val statusCode: HttpStatusCode = HttpStatusCode.OK
 }

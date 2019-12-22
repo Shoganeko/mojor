@@ -1,9 +1,9 @@
 package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
-import dev.shog.mojor.add
 import dev.shog.mojor.addMarkdownPages
 import dev.shog.mojor.pages.*
+import dev.shog.mojor.registerPages
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -16,8 +16,6 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
-import io.ktor.response.respondText
-import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -76,16 +74,19 @@ private fun Application.mainModule() {
     }
 
     routing {
-        addMarkdownPages("privacy")
+        addMarkdownPages("privacy.md")
 
-        get("/discord") {
-            call.respondRedirect("https://discord.gg/YCfeQB", true)
-        }
-
-        get("/robots.txt") {
-            call.respondText("User-Agent: *\nDisallow: /discord")
-        }
-
-        add(Homepage, MotdUpdate, Clock, StringLengthCalculator, ArrayGenerator)
+        registerPages(
+                "/site-tree" to SiteTree,
+                "/motd/history" to MotdPages.History,
+                "/motd/{date}" to MotdPages.MotdSelector,
+                "/discord" to Discord,
+                "/robots.txt" to RobotsTxt,
+                "/" to Homepage,
+                "/motd/update" to MotdUpdate,
+                "/clock" to Clock,
+                "/strlen" to StringLengthCalculator,
+                "/argen" to ArrayGenerator
+        )
     }
 }

@@ -3,7 +3,6 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.HtmlPage
-import io.ktor.http.HttpStatusCode
 import kotlinx.html.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,7 +15,6 @@ object Clock : HtmlPage {
         }, 0, 1000 * 60 * 24)
     }
 
-    override val url: String = "/clock"
     private lateinit var initDate: String
     override val html: HTML.() -> Unit = {
         head {
@@ -52,6 +50,4 @@ object Clock : HtmlPage {
             script(src = "${Mojor.CDN}/pages/utility/clock/clock.js") {}
         }
     }
-
-    override val statusCode: HttpStatusCode = HttpStatusCode.OK
 }

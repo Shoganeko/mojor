@@ -1,6 +1,7 @@
-package dev.shog.mojor.pages
+package dev.shog.mojor.markdown
 
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.Mojor.LOGGER
 import dev.shog.mojor.applyMeta
 import kong.unirest.Unirest
 import kotlinx.html.*
@@ -41,7 +42,7 @@ class MarkdownPage(private val file: String) {
                                 a(Mojor.MAIN + "/motd/history") { +"MOTD History" }
                             }
                             li {
-                                a(Mojor.MAIN + "/tree") { +"Site Tree" }
+                                a(Mojor.MAIN + "/site-tree") { +"Site Tree" }
                             }
                         }
                     }
@@ -67,12 +68,21 @@ class MarkdownPage(private val file: String) {
 
     companion object {
         /**
+         * Pages
+         */
+        val PAGES = ArrayList<String>()
+
+        /**
          * Parse a markdown string into HTML.
          */
         fun parseMarkdown(file: String): String {
+            val url = "https://raw.githubusercontent.com/Shoganeko/mojor-pages/master/$file"
+
+            LOGGER.debug("Making request to {}", url)
+
             val fi = try {
                 Unirest
-                        .get("https://raw.githubusercontent.com/Shoganeko/mojor-pages/master/$file")
+                        .get(url)
                         .asString()
             } catch (ex: Exception) {
                 return "<h1>Invalid File!</h1)"
