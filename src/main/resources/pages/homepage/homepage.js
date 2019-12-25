@@ -6,22 +6,18 @@ const colors = ["#e47d7d", "#f0b07f", "#dcdf8e", "#bddabb", "#81c6cc", "#92a7cc"
 
 (function () {
     // Get the last color used.
-    let lastColor = getCookie("lastColor");
+    let cycle = getCookie("cycle");
 
-    // If there wasn't a last color used
-    if (lastColor === "") {
-        lastColor = 0;
-        setCookie("lastColor", lastColor, 1)
-    } else {
-        // Get the index of the last color used from the cookie
-        lastColor = Number(lastColor) + 1;
+    // If the color doesn't exist, set to 0. If it does, get the number version.
+    if (cycle === "")
+        cycle = 0;
+    else cycle = Number(cycle);
 
-        if (lastColor >= colors.length)
-            lastColor = 0;
+    // Make sure it doesn't reach the end.
+    if (cycle++ >= colors.length - 1)
+        cycle = 0;
 
-        // Update to the new index
-        setCookie("lastColor", lastColor, 1);
-    }
+    setCookie("cycle", cycle, 1);
 
-    document.getElementById("motd").style.color = colors[lastColor];
+    document.getElementById("motd").style.color = colors[cycle];
 })();
