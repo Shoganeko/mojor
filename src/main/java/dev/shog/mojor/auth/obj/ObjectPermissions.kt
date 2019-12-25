@@ -7,17 +7,15 @@ import org.json.JSONArray
 /**
  * An object's permissions.
  *
- * @param permissions The permissions that the [ObjectPermissions] should have.
- *
  * @see Token
  * @see User
  */
-data class ObjectPermissions internal constructor(val permissions: ArrayList<Permissions>) {
+class ObjectPermissions internal constructor() : ArrayList<Permissions>() {
     companion object {
         /**
          * Create an empty [ObjectPermissions].
          */
-        fun empty() = ObjectPermissions(arrayListOf())
+        fun empty() = ObjectPermissions()
 
         /**
          * Create [ObjectPermissions] from a [JSONArray].
@@ -33,12 +31,15 @@ data class ObjectPermissions internal constructor(val permissions: ArrayList<Per
                     .map { jsonArray[it].toString() }
                     .mapNotNullTo(ar) { Permissions.parse(it) }
 
-            return ObjectPermissions(ar)
+            return ObjectPermissions().apply {
+                addAll(ar)
+            }
         }
 
         /**
          * Create [ObjectPermissions] from a [ArrayList]
          */
-        fun fromArrayList(arrayList: ArrayList<Permissions>) = ObjectPermissions(arrayList)
+        fun fromArrayList(arrayList: ArrayList<Permissions>) =
+                ObjectPermissions().apply { addAll(arrayList) }
     }
 }

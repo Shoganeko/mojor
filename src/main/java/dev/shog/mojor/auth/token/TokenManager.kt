@@ -62,11 +62,8 @@ object TokenManager {
     /**
      * If the [token] has [permissions].
      */
-    fun hasPermissions(token: Token, permissions: ArrayList<Permissions>): Boolean {
-        val tokenPermissions = token.permissions.permissions
-
-        return tokenPermissions.containsAll(permissions)
-    }
+    fun hasPermissions(token: Token, permissions: ArrayList<Permissions>): Boolean =
+            token.permissions.containsAll(permissions)
 
     /**
      * Renew the [token].

@@ -13,10 +13,6 @@ fun Token.isExpired() =
 fun Token.hasPermissions(permissions: ArrayList<Permissions>) =
         TokenManager.hasPermissions(this, permissions)
 
-/** Get a [Token]'s permissions */
-fun Token.getPermissions() =
-        permissions.permissions
-
 /** Get a [Token]'s [JSONArray] permissions */
 fun Token.getJsonPermissions() =
         permissions.getJsonArray()

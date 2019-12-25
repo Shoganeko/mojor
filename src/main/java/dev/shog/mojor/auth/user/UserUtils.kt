@@ -8,10 +8,6 @@ import dev.shog.mojor.getJsonArray
 import org.json.JSONArray
 import reactor.core.publisher.Mono
 
-/** Get a [User]'s permissions */
-fun User.getPermissions() =
-        permissions.permissions
-
 /** Get a [User]'s [JSONArray] permissions */
 fun User.getJsonPermissions() =
         permissions.getJsonArray()
@@ -39,7 +35,7 @@ fun User.updateWith(user: User): Mono<Void> =
 
 /** Add [permissions] to a user's permissions.*/
 fun User.patchPermissions(permissions: ArrayList<Permissions>): Mono<Void> {
-    permissions.addAll(this.permissions.permissions)
+    permissions.addAll(this.permissions)
 
     val permObj = ObjectPermissions.fromArrayList(permissions)
 

@@ -148,7 +148,7 @@ fun ArrayList<Any?>.containsNulls(): Boolean =
         anyNull(this)
 
 /** Get a JSON array from an [ObjectPermissions]. */
-fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(permissions)
+fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(this)
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {

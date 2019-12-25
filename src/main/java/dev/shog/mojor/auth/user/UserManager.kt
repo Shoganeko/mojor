@@ -19,11 +19,8 @@ object UserManager {
     /**
      * If the [user] has [permissions].
      */
-    fun hasPermissions(user: User, permissions: ArrayList<Permissions>): Boolean {
-        val tokenPermissions = user.permissions.permissions
-
-        return tokenPermissions.containsAll(permissions)
-    }
+    fun hasPermissions(user: User, permissions: ArrayList<Permissions>): Boolean =
+            user.permissions.containsAll(permissions)
 
     /**
      * Delete the [user].
