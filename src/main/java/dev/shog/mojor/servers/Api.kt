@@ -10,8 +10,8 @@ import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.auth.AuthenticationException
 import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.motd.Motd
-import dev.shog.mojor.motd.MotdHandler
+import dev.shog.mojor.handle.motd.Motd
+import dev.shog.mojor.handle.motd.MotdHandler
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install

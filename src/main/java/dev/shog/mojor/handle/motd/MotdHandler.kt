@@ -1,6 +1,6 @@
-package dev.shog.mojor.motd
+package dev.shog.mojor.handle.motd
 
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import reactor.core.publisher.Mono
 
 /**

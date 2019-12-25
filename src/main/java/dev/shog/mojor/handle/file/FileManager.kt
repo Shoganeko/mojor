@@ -1,4 +1,4 @@
-package dev.shog.mojor.file
+package dev.shog.mojor.handle.file
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory

@@ -1,4 +1,4 @@
-package dev.shog.mojor
+package dev.shog.mojor.handle
 
 /**
  * Manages program arguments.

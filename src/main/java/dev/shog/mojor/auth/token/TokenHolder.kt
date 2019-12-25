@@ -1,7 +1,7 @@
 package dev.shog.mojor.auth.token
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import org.json.JSONArray
 import java.util.concurrent.ConcurrentHashMap
 

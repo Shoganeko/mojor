@@ -1,8 +1,8 @@
 package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
-import dev.shog.mojor.markdown.MarkdownPage
-import dev.shog.mojor.motd.MotdHandler
+import dev.shog.mojor.handle.markdown.MarkdownPage
+import dev.shog.mojor.handle.motd.MotdHandler
 import dev.shog.mojor.pages.Homepage.formatter
 import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall

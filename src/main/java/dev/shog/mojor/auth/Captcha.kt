@@ -1,6 +1,6 @@
 package dev.shog.mojor.auth
 
-import dev.shog.mojor.file.Config
+import dev.shog.mojor.handle.file.Config
 import kong.unirest.Unirest
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.shog.mojor.api.buta.obj.ButaObject
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

@@ -1,6 +1,6 @@
 package dev.shog.mojor
 
-import dev.shog.mojor.file.Config
+import dev.shog.mojor.handle.file.Config
 import kong.unirest.HttpResponse
 import kong.unirest.Unirest
 import org.json.JSONObject

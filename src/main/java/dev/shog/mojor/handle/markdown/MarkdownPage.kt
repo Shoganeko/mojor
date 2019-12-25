@@ -1,4 +1,4 @@
-package dev.shog.mojor.markdown
+package dev.shog.mojor.handle.markdown
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.Mojor.LOGGER

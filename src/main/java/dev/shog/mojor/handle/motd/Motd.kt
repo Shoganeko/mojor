@@ -1,4 +1,4 @@
-package dev.shog.mojor.motd
+package dev.shog.mojor.handle.motd
 
 import dev.shog.mojor.auth.user.UserHolder
 import org.commonmark.parser.Parser

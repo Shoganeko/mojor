@@ -1,4 +1,4 @@
-package dev.shog.mojor.file
+package dev.shog.mojor.handle.file
 
 import dev.shog.mojor.Mojor
 

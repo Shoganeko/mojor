@@ -1,6 +1,6 @@
-package dev.shog.mojor.db
+package dev.shog.mojor.handle.db
 
-import dev.shog.mojor.file.Config
+import dev.shog.mojor.handle.file.Config
 import reactor.core.publisher.Mono
 import java.sql.Connection
 import java.sql.DriverManager

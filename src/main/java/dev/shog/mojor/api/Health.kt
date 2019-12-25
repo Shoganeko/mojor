@@ -1,6 +1,6 @@
 package dev.shog.mojor.api
 
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import reactor.core.publisher.Flux
 
 /**

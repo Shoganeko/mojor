@@ -1,6 +1,6 @@
 package dev.shog.mojor.auth.user
 
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import kotlin.random.Random

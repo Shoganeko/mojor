@@ -2,7 +2,7 @@ package dev.shog.mojor.auth.user
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.db.PostgreSql
+import dev.shog.mojor.handle.db.PostgreSql
 import dev.shog.mojor.getJsonArray
 import org.apache.commons.codec.digest.DigestUtils
 import reactor.core.publisher.Mono

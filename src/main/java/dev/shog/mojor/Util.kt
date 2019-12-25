@@ -1,7 +1,7 @@
 package dev.shog.mojor
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
-import dev.shog.mojor.markdown.MarkdownPage
+import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.Page
 import io.ktor.application.call
 import io.ktor.http.ContentType

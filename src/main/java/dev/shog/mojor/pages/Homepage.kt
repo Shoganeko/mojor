@@ -2,7 +2,7 @@ package dev.shog.mojor.pages
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
-import dev.shog.mojor.motd.MotdHandler
+import dev.shog.mojor.handle.motd.MotdHandler
 import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
 import kotlinx.html.*
