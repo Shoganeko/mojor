@@ -13,5 +13,5 @@ object Discord : RedirectPage {
 /** The robots.txt */
 object RobotsTxt : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            "User-Agent: *\nDisallow: /discord\nDisallow: /motd/*"
+            "<pre>User-Agent: *\nDisallow: /discord\nDisallow: /motd/*</pre>"
 }
