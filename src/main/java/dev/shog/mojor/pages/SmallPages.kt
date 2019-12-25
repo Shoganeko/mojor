@@ -1,5 +1,7 @@
 package dev.shog.mojor.pages
 
+import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.obj.RedirectPage
 import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
@@ -16,8 +18,8 @@ object RobotsTxt : RegPage {
             "<pre>User-Agent: *\nDisallow: /discord\nDisallow: /motd/*</pre>"
 }
 
-/** */
+/** NaM */
 object Nam : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            "NaM"
+            "# NaM" modify MarkdownModifier
 }

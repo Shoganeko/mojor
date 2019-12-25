@@ -86,7 +86,8 @@ private fun Application.mainModule() {
                 "/motd/update" to MotdUpdate,
                 "/clock" to Clock,
                 "/strlen" to StringLengthCalculator,
-                "/argen" to ArrayGenerator
+                "/argen" to ArrayGenerator,
+                "/nam" to Nam
         )
     }
 }
