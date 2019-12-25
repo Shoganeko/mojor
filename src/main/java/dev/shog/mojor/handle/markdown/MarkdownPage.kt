@@ -3,11 +3,11 @@ package dev.shog.mojor.handle.markdown
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.Mojor.LOGGER
 import dev.shog.mojor.applyMeta
+import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.modify
 import kong.unirest.Unirest
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import java.util.*
 
 /**
@@ -88,12 +88,7 @@ class MarkdownPage(private val file: String) {
                 return "<h1>Invalid File!</h1)"
             }
 
-            val document = Parser.builder().build().parse(fi.body)
-
-            return HtmlRenderer
-                    .builder()
-                    .build()
-                    .render(document)
+            return fi.body modify MarkdownModifier
         }
     }
 }

@@ -1,8 +1,8 @@
 package dev.shog.mojor.handle.motd
 
 import dev.shog.mojor.auth.user.UserHolder
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
+import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.modify
 import java.time.Instant
 import java.util.*
 
@@ -14,15 +14,8 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
      * Get the markdown rendered motd.
      */
     fun getProperData(): String {
-        val document = Parser
-                .builder()
-                .build()
-                .parse(data)
 
-        val result = HtmlRenderer
-                .builder()
-                .build()
-                .render(document)
+        val result = data modify MarkdownModifier
 
         return result
                 .substring(3, result.length - 5) // Cut off the <p></p> because that messes stuff up

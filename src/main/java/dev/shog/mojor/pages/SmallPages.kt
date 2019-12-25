@@ -15,3 +15,9 @@ object RobotsTxt : RegPage {
     override fun getPage(call: ApplicationCall): String =
             "<pre>User-Agent: *\nDisallow: /discord\nDisallow: /motd/*</pre>"
 }
+
+/** */
+object Nam : RegPage {
+    override fun getPage(call: ApplicationCall): String =
+            "NaM"
+}
