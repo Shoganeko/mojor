@@ -2,6 +2,7 @@ package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
+import dev.shog.mojor.auth.AuthenticationException
 import dev.shog.mojor.auth.obj.Session
 import dev.shog.mojor.auth.token.TokenHolder
 import dev.shog.mojor.handle.MarkdownModifier
@@ -20,6 +21,8 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
+import io.ktor.response.respondRedirect
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -55,6 +58,10 @@ private fun Application.mainModule() {
     }
 
     install(StatusPages) {
+        exception<AuthenticationException> {
+            Error(401, "Make sure you have logged in!").exec(call)
+        }
+
         exception<Throwable> {
             val errorString = it.message ?: "Error"
 
@@ -92,6 +99,11 @@ private fun Application.mainModule() {
                 call.sessions.set(Session(params["token"]!!, System.currentTimeMillis(), call.request.origin.remoteHost))
                 call.respond("Token has been updated with the proper token.")
             } else call.respond(HttpStatusCode.BadRequest, "${params["token"]} is an invalid token!")
+        }
+
+        get("/logout") {
+            call.sessions.clear<Session>()
+            call.respondRedirect("${Mojor.MAIN}/account", true)
         }
 
         addMarkdownPages("privacy.md")
