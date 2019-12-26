@@ -1,14 +1,18 @@
 package dev.shog.mojor
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.auth.obj.Session
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.Page
+import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.sessions.get
+import io.ktor.sessions.sessions
 import kotlinx.html.HEAD
 import kotlinx.html.TagConsumer
 import kotlinx.html.dom.createHTMLDocument
@@ -115,10 +119,10 @@ fun getStatisticsOfSystem(): String {
     return "Available Processor Cores: ${Runtime.getRuntime().availableProcessors()}" +
             "\nFree Memory: ${readableBytes(Runtime.getRuntime().freeMemory())}" +
             "\nUsed Memory: ${readableBytes(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())}" +
-            "\nCpu Load: ${bean.processCpuLoad.asPercentage()}" +
+            "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
             "\nMojor Version: ${Mojor.VERSION}" +
-            "\nMojor URLs: ${Mojor.API}/${Mojor.CDN}/${Mojor.MAIN}"
+            "\nMojor URLs: ${Mojor.API} - ${Mojor.CDN} - ${Mojor.MAIN}"
 }
 
 /** Turn [bytes] into kib, mb etc. */
@@ -189,3 +193,7 @@ fun Routing.registerPages(vararg pages: Pair<String, Page>) {
         }
     }
 }
+
+/** Get the session */
+fun ApplicationCall.getSession(): Session? =
+        sessions.get<Session>()

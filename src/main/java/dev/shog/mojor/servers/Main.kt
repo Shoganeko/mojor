@@ -2,6 +2,8 @@ package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
+import dev.shog.mojor.auth.obj.Session
+import dev.shog.mojor.auth.token.TokenHolder
 import dev.shog.mojor.handle.MarkdownModifier
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
@@ -16,9 +18,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.CachingOptions
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
+import io.ktor.request.receiveParameters
+import io.ktor.response.respond
+import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.sessions.*
 import org.slf4j.event.Level
 
 val mainServer = embeddedServer(Netty, port = 8090, module = Application::mainModule)
@@ -42,6 +48,11 @@ private fun Application.mainModule() {
         level = Level.INFO
     }
 
+    install(Sessions) {
+        cookie<Session>("SESSION", SessionStorageMemory()) {
+            cookie.path = "/"
+        }
+    }
 
     install(StatusPages) {
         exception<Throwable> {
@@ -74,6 +85,15 @@ private fun Application.mainModule() {
     }
 
     routing {
+        post("/session") {
+            val params = call.receiveParameters()
+
+            if (params.contains("token") && TokenHolder.hasToken(params["token"])) {
+                call.sessions.set(Session(params["token"]!!, System.currentTimeMillis(), call.request.origin.remoteHost))
+                call.respond("Token has been updated with the proper token.")
+            } else call.respond(HttpStatusCode.BadRequest, "${params["token"]} is an invalid token!")
+        }
+
         addMarkdownPages("privacy.md")
 
         registerPages(
@@ -88,7 +108,10 @@ private fun Application.mainModule() {
                 "/strlen" to StringLengthCalculator,
                 "/argen" to ArrayGenerator,
                 "/nam" to Nam,
-                "/induce/error" to InduceError
+                "/induce/error" to InduceError,
+                "/login" to Login,
+                "/account" to Account,
+                "/debug" to Debug
         )
     }
 }

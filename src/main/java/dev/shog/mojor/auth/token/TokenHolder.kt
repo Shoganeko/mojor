@@ -67,6 +67,6 @@ object TokenHolder {
     /**
      * If [TOKENS] contains a token with the [token].
      */
-    fun hasToken(token: String): Boolean =
-            TOKENS.containsKey(token)
+    fun hasToken(token: String?): Boolean =
+            TOKENS.containsKey(token ?: "")
 }

@@ -1,5 +1,7 @@
 package dev.shog.mojor.pages
 
+import dev.shog.mojor.getSession
+import dev.shog.mojor.getStatisticsOfSystem
 import dev.shog.mojor.handle.MarkdownModifier
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.handle.modify
@@ -42,4 +44,12 @@ object InduceError : RegPage {
     override fun getPage(call: ApplicationCall): String {
         throw Exception(System.currentTimeMillis().toString())
     }
+}
+
+/** Debug statistics & session */
+object Debug : RegPage {
+    override fun getPage(call: ApplicationCall): String =
+            getStatisticsOfSystem().replace("\n", "<br/>") +
+                    "<br/><br/>Session: " +
+                    call.getSession()
 }

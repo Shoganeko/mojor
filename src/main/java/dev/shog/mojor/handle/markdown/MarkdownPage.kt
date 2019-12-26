@@ -44,6 +44,9 @@ class MarkdownPage(private val file: String) {
                             li {
                                 a(Mojor.MAIN + "/site-tree") { +"Site Tree" }
                             }
+                            li {
+                                a(Mojor.MAIN + "/account") { +"Account" }
+                            }
                         }
                     }
 
