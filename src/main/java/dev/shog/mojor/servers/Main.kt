@@ -2,6 +2,8 @@ package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
+import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
 import dev.shog.mojor.registerPages
 import io.ktor.application.Application
@@ -14,8 +16,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.CachingOptions
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
-import io.ktor.response.respond
-import io.ktor.response.respondRedirect
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -51,19 +51,19 @@ private fun Application.mainModule() {
                     .sendMessage("There has been an error on the Main server!\n$errorString")
                     .subscribe()
 
-            call.respond(HttpStatusCode.InternalServerError)
+            Error(500, "There's an issue with our backend. **If you have a chance, please report this [here](https://shog.dev/discord).**" modify MarkdownModifier).exec(call)
         }
 
         status(HttpStatusCode.NotFound) {
-            call.respondRedirect(Mojor.MAIN, true)
+            Error(404, "Make sure that you have entered the correct URL!").exec(call)
         }
 
         status(HttpStatusCode.NotAcceptable) {
-            call.respondRedirect(Mojor.MAIN, true)
+            Error(406).exec(call)
         }
 
         status(HttpStatusCode.Unauthorized) {
-            call.respond(HttpStatusCode.Unauthorized, "Not Authorized")
+            Error(401, "Make sure you have logged in!").exec(call)
         }
     }
 
@@ -87,7 +87,8 @@ private fun Application.mainModule() {
                 "/clock" to Clock,
                 "/strlen" to StringLengthCalculator,
                 "/argen" to ArrayGenerator,
-                "/nam" to Nam
+                "/nam" to Nam,
+                "/induce/error" to InduceError
         )
     }
 }
