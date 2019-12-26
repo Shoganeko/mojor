@@ -2,8 +2,6 @@
     document.querySelector("#login").addEventListener("submit", function (e) {
         e.preventDefault();
 
-        let username = document.querySelector("#username");
-        let password = document.querySelector("#password");
         let status = document.querySelector("#status");
 
         $.ajax({
@@ -17,11 +15,11 @@
                 status.textContent = "Signed in, updating session...";
 
                 $.ajax({
-                    url: 'http://localhost:8090/session',
+                    url: 'https://shog.dev/session',
                     type: 'POST',
                     data: { token: data.token.token },
                     success: function (e) {
-                        window.location = "http://localhost:8090/account";
+                        window.location = "https://shog.dev/account";
                     },
                     error: function (e) {
                         status.textContent = "Failed to update session! Please try again."
