@@ -16,6 +16,10 @@ import java.time.Instant
 import java.util.*
 
 object Account : RegPage {
+    private val ELEVATED_SIGN_IN = MarkdownPage("account/elevated-account.md").respond()
+    private val SIGNED_IN = MarkdownPage("account/signed-in.md").respond()
+    private val SIGNED_OUT = MarkdownPage("account/signed-out.md").respond()
+
     override fun getPage(call: ApplicationCall): String {
         if (call.getSession() != null)
             return SignedIn.getPage(call)
@@ -27,17 +31,13 @@ object Account : RegPage {
             buildString {
                 user.permissions.forEach { permissions ->
                     when (permissions) {
-                        Permissions.APP_MANAGER -> append("You have permissions to manage Mojor. <br/>")
+                        Permissions.APP_MANAGER -> append("You have the elevated dashboard. <br/>")
                         Permissions.BUTA_MANAGER -> append("You have permission to manage Buta. <br/>")
                         Permissions.USER_MANAGER -> append("You have permission to manage Users. <br/>")
-                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${Mojor.MAIN}).")
+                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${Mojor.MAIN}/motd/update).")
                     }
                 }
             }
-
-    private val ELEVATED_SIGN_IN = MarkdownPage("account/elevated-account.md").respond()
-    private val SIGNED_IN = MarkdownPage("account/signed-in.md").respond()
-    private val SIGNED_OUT = MarkdownPage("account/signed-out.md").respond()
 
     /**
      * A signed out user.
@@ -64,7 +64,9 @@ object Account : RegPage {
                 val owner = UserHolder.getUser(token.owner)
                         ?: return SIGNED_OUT // shouldn't ever happen
 
-                return SIGNED_IN
+                val page = if (owner.permissions.contains(Permissions.APP_MANAGER)) ELEVATED_SIGN_IN else SIGNED_IN
+
+                return page
                         .replace("{name}", owner.username)
                         .replace("{sign-in-date}", Homepage.formatter.format(Date.from(Instant.ofEpochMilli(ses.signInDate))))
                         .replace("{sign-in-ip}", ses.signInIp)
