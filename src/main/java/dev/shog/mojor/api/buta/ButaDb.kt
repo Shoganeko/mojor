@@ -22,7 +22,7 @@ object ButaDb {
     fun updateObject(id: Long, butaObject: ButaObject): Mono<Boolean> =
             Mono.justOrEmpty(PostgreSql.createConnection())
                     .switchIfEmpty(Mono.error(NullPointerException("PostgreSql was null!")))
-                    .map { sql -> sql!!.prepareStatement("UPDATE buta.objs SET 'js'=? WHERE 'id'=? ") }
+                    .map { sql -> sql!!.prepareStatement("UPDATE buta.objs SET js=? WHERE id=? ") }
                     .doOnNext { sql -> sql.setString(1, ObjectMapper().writeValueAsString(butaObject)) }
                     .doOnNext { sql -> sql.setLong(2, id) }
                     .map { sql -> sql.execute() }

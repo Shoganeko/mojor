@@ -144,7 +144,10 @@ fun Routing.butaPages() {
 
         ButaObjectHandler.updateObject(id, body)
                 .doOnSuccess { launch { call.respond(HttpStatusCode.OK) } }
-                .doOnError { launch { call.respond(HttpStatusCode.BadRequest) } }
+                .doOnError { err ->
+                    err.printStackTrace()
+                    launch { call.respond(HttpStatusCode.BadRequest) }
+                }
                 .subscribe()
     }
 }
