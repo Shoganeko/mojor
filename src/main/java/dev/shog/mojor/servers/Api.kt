@@ -69,6 +69,8 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
+            it.printStackTrace()
+
             Mojor.WEBHOOK
                     .sendMessage("API: " + getErrorMessage(it, true))
                     .subscribe()
