@@ -22,6 +22,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Document
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.lang.management.ManagementFactory
 import kotlin.math.ln
 import kotlin.math.pow
@@ -32,10 +34,8 @@ fun Long.fancyDate(): String {
 
     val seconds = this / 1000
 
-    if (seconds <= 60) {
-        // Assuming there's multiple seconds
+    if (seconds <= 60)
         return "$seconds seconds"
-    }
 
     val minutes = seconds / 60
 
@@ -78,7 +78,8 @@ fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
                 .toMutableList()
 
 /** Creates an HTML document */
-fun html(html: TagConsumer<Document>.() -> Document): Document = html.invoke(createHTMLDocument())
+fun html(html: TagConsumer<Document>.() -> Document): Document =
+        html.invoke(createHTMLDocument())
 
 /** Compare a [JSONObject] with another [JSONObject] */
 fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
@@ -112,6 +113,10 @@ fun HEAD.applyMeta() {
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
 }
 
+/** Execute */
+fun execute(th: Thread): Mono<Void> =
+        th.run().toMono().then()
+
 /** Get system statistics */
 fun getStatisticsOfSystem(): String {
     val bean = ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
@@ -127,7 +132,9 @@ fun getStatisticsOfSystem(): String {
 
 /** Turn [bytes] into kib, mb etc. */
 fun readableBytes(bytes: Long): String {
-    if (bytes < 1024) return "$bytes B"
+    if (bytes < 1024)
+        return "$bytes B"
+
     val exp = (ln(bytes.toDouble()) / ln(1024.toDouble())).toInt()
     val pre = ("KMGTPE")[exp - 1] + "i"
     return String.format("%.1f %sB", bytes / 1024.toDouble().pow(exp.toDouble()), pre)
@@ -138,21 +145,17 @@ fun Double.asPercentage(): String =
         "$this%"
 
 /** Returns true if any of the [any] are null. */
-fun anyNull(any: ArrayList<Any?>): Boolean {
-    any.forEach { obj ->
-        if (obj == null)
-            return true
-    }
-
-    return false
-}
+fun anyNull(any: ArrayList<Any?>): Boolean =
+        any.stream()
+                .anyMatch { it == null }
 
 /** Returns true if any of the values are null. */
 fun ArrayList<Any?>.containsNulls(): Boolean =
         anyNull(this)
 
 /** Get a JSON array from an [ObjectPermissions]. */
-fun ObjectPermissions.getJsonArray(): JSONArray = JSONArray(this)
+fun ObjectPermissions.getJsonArray(): JSONArray =
+        JSONArray(this)
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {

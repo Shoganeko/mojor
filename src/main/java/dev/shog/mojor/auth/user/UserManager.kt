@@ -55,14 +55,14 @@ object UserManager {
     /**
      * Login using [username] and [password].
      */
-    fun loginUsing(username: String, password: String, requiresHash: Boolean = false): User? {
+    fun loginUsing(username: String, password: String, usingCaptcha: Boolean, requiresHash: Boolean = false): User? {
         val hashedPassword = if (requiresHash) DigestUtils.sha512Hex(password) else password
 
         if (UserHolder.hasUser(username)) {
             val user = UserHolder.getUser(username)
 
             if (user?.isCorrectPassword(hashedPassword) == true)
-                return user
+                return user.setCaptcha(usingCaptcha)
         }
 
         return null

@@ -1,13 +1,11 @@
 package dev.shog.mojor.api.users
 
-import dev.shog.mojor.auth.AlreadyLoggedInException
-import dev.shog.mojor.auth.getTokenFromCall
-import dev.shog.mojor.auth.isAuthorized
-import dev.shog.mojor.auth.isAuthorizedBoolean
+import dev.shog.mojor.auth.*
 import dev.shog.mojor.auth.token.TokenManager
 import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.auth.user.UserManager
 import dev.shog.mojor.auth.user.result.UserLoginResult
+import dev.shog.mojor.execute
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
@@ -16,7 +14,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import kotlinx.coroutines.launch
-import org.apache.commons.codec.digest.DigestUtils
+import reactor.core.publisher.Mono
 
 /**
  * Add the pages.
@@ -40,24 +38,38 @@ fun Routing.userInteractionPages() {
         val params = call.receiveParameters()
 
         val username = params["username"]
-        var password = params["password"]
+        val password = params["password"]
 
         if (username == null || password == null) {
-            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false))
+            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false, success = false))
             return@post
         }
 
-        // TODO Add encryption to login JS
-        if (params["encr"]?.toBoolean() == true)
-            password = DigestUtils.sha512Hex(password)
+        val captcha = params["captcha"]
+        if (captcha != null) {
+            Captcha.verifyReCaptcha(captcha)
+                    .filter { it }
+                    .flatMap {
+                        Mono.justOrEmpty(UserManager.loginUsing(username, password, true))
+                                .flatMap { user ->
+                                    TokenManager.createToken(user!!)
+                                            .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = true, success = true)) } }
+                                }
+                                .then()
+                    }
+                    .switchIfEmpty(execute(Thread {
+                        run {
+                            launch { call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, success = false)) }
+                        }
+                    }))
+                    .subscribe()
+        } else {
+            val user = UserManager.loginUsing(username, password, false)
 
-        val user = UserManager.loginUsing(username, password ?: "")
-
-        if (user == null)
-            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false))
-        else {
-            TokenManager.createToken(user)
-                    .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, true)) } }
+            if (user == null)
+                call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, success = false))
+            else TokenManager.createToken(user)
+                    .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = false, success = true)) } }
                     .subscribe()
         }
     }

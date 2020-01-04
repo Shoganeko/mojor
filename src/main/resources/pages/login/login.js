@@ -9,7 +9,8 @@
             type: 'POST',
             data: {
                 username: $("#username").val(),
-                password: sha512($("#password").val())
+                password: sha512($("#password").val()),
+                captcha: grecaptcha.getResponse()
             },
             success: function (data) {
                 status.textContent = "Signed in, updating session...";
