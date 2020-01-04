@@ -268,9 +268,11 @@ internal object ButaSwearPage {
             Unirest.get("https://raw.githubusercontent.com/MauriceButler/badwords/master/array.js")
                     .asStringAsync()
                     .toMono()
-                    .map { js -> js.body }
-                    .map { obj -> obj.removePrefix("module.exports = ") }
-                    .map { obj -> obj.removeSuffix(";") }
+                    .map { js ->
+                        js.body
+                                .removePrefix("module.exports = ")
+                                .removeSuffix(";")
+                    }
                     .map(::JSONArray)
                     .doOnNext { ar -> builtJson = ar }
                     .doFinally { lastRefresh = System.currentTimeMillis() }
