@@ -37,8 +37,10 @@ object Login : RegPage {
                     }
 
 
-                    div {
-                        id = "recaptcha"
+                    div("center") {
+                        div {
+                            id = "recaptcha"
+                        }
                     }
 
                     br
