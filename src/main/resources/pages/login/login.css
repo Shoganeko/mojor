@@ -18,7 +18,9 @@ body {
 input {
     background-color: #2a2a2a;
     color: white;
-    margin-top: 1rem;
+    padding: .25rem;
+    font-family: 'Roboto Mono', sans-serif;
+    border-radius: 4px;
 }
 
 p, h1, h2, h3, h4, h5, h6, label {
@@ -30,6 +32,25 @@ a {
     color: #9b9b9b;
 }
 
+label {
+    font-size: 18px;
+}
+
+#nav {
+    float: left;
+}
+
+#back-button {
+    color: white;
+    text-decoration: none;
+}
+
 form button {
     margin-top: 1rem;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    font-size: 14px;
+    padding: .5rem 1rem;
+    color: white;
+    font-family: 'Roboto', sans-serif;
 }

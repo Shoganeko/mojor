@@ -14,25 +14,39 @@ object Login : RegPage {
                 title("shog.dev login")
 
                 link("${Mojor.CDN}/pages/login/login.css", "stylesheet", "text/css")
+                link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
                 applyMeta()
             }
 
             body("animated fadeIn head") {
+                div {
+                    id = "nav"
+                    a(Mojor.MAIN) {
+                        id = "back-button"
+                        i("material-icons") { +"arrow_back" }
+                    }
+                }
+
+                br
+
                 h1("title") { +"Login" }
                 form {
                     id = "login"
 
                     label {
                         +"Username "
+                        br
                         input(InputType.text, classes = "input") { id = "username" }
                     }
 
                     br
+                    br
 
                     label {
                         +"Password "
+                        br
                         input(InputType.password, classes = "input") { id = "password" }
                     }
 
