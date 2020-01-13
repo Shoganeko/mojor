@@ -1,3 +1,10 @@
+var onloadCallback = function () {
+    grecaptcha.render(document.getElementById("recaptcha"), {
+        'theme': 'dark',
+        'sitekey': '6Ldyv8sUAAAAALrxgLnAOZdWmqIneLT6HCEyh4E5'
+    })
+};
+
 (function () {
     document.querySelector("#login").addEventListener("submit", function (e) {
         e.preventDefault();

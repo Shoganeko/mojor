@@ -37,8 +37,8 @@ object Login : RegPage {
                     }
 
 
-                    div("g-recaptcha") {
-                        attributes["data-sitekey"] = "6Ldyv8sUAAAAALrxgLnAOZdWmqIneLT6HCEyh4E5"
+                    div {
+                        id = "recaptcha"
                     }
 
                     br
@@ -49,7 +49,7 @@ object Login : RegPage {
                 p { id = "status" }
 
                 script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
-                script(src = "https://www.google.com/recaptcha/api.js") {
+                script(src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit") {
                     async = true
                     defer = true
                 }
