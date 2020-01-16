@@ -31,23 +31,15 @@ private fun Application.mainModule() {
         options { outgoingContent ->
             val def = CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 24 * 60 * 60))
             when (outgoingContent.contentType?.withoutParameters()) {
-                ContentType.Text.CSS -> def
-                ContentType.Text.JavaScript -> def
-                ContentType.Text.Html -> def
-                ContentType.Text.Xml -> def
-                ContentType.Image.PNG -> def
-                ContentType.Image.JPEG -> def
-                ContentType.Application.Json -> def
-                ContentType.Application.JavaScript -> def
-                ContentType.Image.XIcon -> def
+                ContentType.Text.CSS, ContentType.Text.JavaScript, ContentType.Text.Html,
+                ContentType.Text.Xml, ContentType.Image.PNG, ContentType.Image.JPEG,
+                ContentType.Application.Json, ContentType.Application.JavaScript, ContentType.Image.XIcon -> def
                 else -> null
             }
         }
     }
 
-    install(CallLogging) {
-        level = Level.INFO
-    }
+    install(CallLogging) { level = Level.INFO }
 
     install(StatusPages) {
         exception<Throwable> {

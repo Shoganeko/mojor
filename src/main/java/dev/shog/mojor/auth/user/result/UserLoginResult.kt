@@ -9,6 +9,11 @@ import dev.shog.mojor.auth.user.User
  * @param user The user who logged in.
  * @param token THe created token from the login.
  * @param usingCaptcha If the user logged in using Captcha
- * @param success If the login was successful.
+ * @param error The error, if there's an error.
  */
-data class UserLoginResult(val user: User?, val token: Token?, val usingCaptcha: Boolean, val success: Boolean)
+data class UserLoginResult(
+        val user: User?,
+        val token: Token?,
+        val usingCaptcha: Boolean,
+        val error: String?
+)

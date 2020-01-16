@@ -41,7 +41,7 @@ fun Routing.userInteractionPages() {
         val password = params["password"]
 
         if (username == null || password == null) {
-            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false, success = false))
+            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false, "Username or Password was not included."))
             return@post
         }
 
@@ -53,13 +53,15 @@ fun Routing.userInteractionPages() {
                         Mono.justOrEmpty(UserManager.loginUsing(username, password, true))
                                 .flatMap { user ->
                                     TokenManager.createToken(user!!)
-                                            .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = true, success = true)) } }
+                                            .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = true, error = null)) } }
                                 }
                                 .then()
                     }
                     .switchIfEmpty(execute(Thread {
-                        run {
-                            launch { call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, success = false)) }
+                        launch {
+                            call.respond(
+                                    HttpStatusCode.BadRequest,
+                                    UserLoginResult(null, null, usingCaptcha = false, error = "Invalid reCAPTCHA"))
                         }
                     }))
                     .subscribe()
@@ -67,9 +69,9 @@ fun Routing.userInteractionPages() {
             val user = UserManager.loginUsing(username, password, false)
 
             if (user == null)
-                call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, success = false))
+                call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, error = "Invalid Username or Password"))
             else TokenManager.createToken(user)
-                    .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = false, success = true)) } }
+                    .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = false, error = null)) } }
                     .subscribe()
         }
     }
