@@ -13,10 +13,10 @@ object ButaPresencesPage {
     /**
      * Refresh [content].
      */
-    fun refresh() {
+    suspend fun refresh() {
         val rs = PostgreSql.createConnection()
-                ?.prepareStatement("SELECT * FROM buta.presences")
-                ?.executeQuery()
+                .prepareStatement("SELECT * FROM buta.presences")
+                .executeQuery()
 
         val array = JSONArray()
         while (rs?.next() == true) {
@@ -32,10 +32,8 @@ object ButaPresencesPage {
     /**
      * Get the page.
      */
-    fun getPage(): JSONArray {
-        if (content == null) {
-            refresh()
-        }
+    suspend fun getPage(): JSONArray {
+        if (content == null) refresh()
 
         return content ?: JSONArray()
     }

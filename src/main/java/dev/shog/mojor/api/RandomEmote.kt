@@ -1,9 +1,8 @@
 package dev.shog.mojor.api
 
-import kong.unirest.Unirest
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import org.json.JSONObject
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 
 /**
  * Random emotes
@@ -12,23 +11,27 @@ object RandomEmote {
     /**
      * The emotes yoinked from FrankerFaceZ
      */
-    private val emotes = Unirest.get("https://api.frankerfacez.com/v1/emoticons")
-            .queryString("sort", "count")
-            .queryString("per_page", "200")
-            .asJsonAsync()
-            .toMono()
-            .map { obj -> obj.body.`object` }
-            .flatMapIterable { obj -> obj.getJSONArray("emoticons") }
-            .map { js -> JSONObject(js.toString()) }
-            .map { obj -> obj.getString("name") }
-            .collectList()
+    suspend fun refreshEmotes() {
+        val req = HttpClient().get<String>("https://api.frankerfacez.com/v1/emoticons?sort=count&per_page=200")
+
+        val array = JSONObject(req).getJSONArray("emoticons")
+
+        (0 until array.length())
+                .mapTo(emotes) { array.getJSONObject(it).getString("name") }
+    }
+
+    /**
+     * The emotes yoinked from FrankerFaceZ
+     */
+    private val emotes: ArrayList<String> = arrayListOf()
 
     /**
      * Get a random emote
      */
-    fun getEmote(): Mono<String> =
-            emotes
-                    .map { list -> list.random().toString() }
-                    .onErrorReturn("xqcL")
-                    .switchIfEmpty("xqcL".toMono())
+    suspend fun getEmote(): String {
+        if (emotes.isEmpty())
+            refreshEmotes()
+
+        return emotes.random()
+    }
 }

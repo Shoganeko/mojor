@@ -1,7 +1,6 @@
 package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
-import dev.shog.mojor.api.Health
 import dev.shog.mojor.api.RandomEmote
 import dev.shog.mojor.api.buta.butaPages
 import dev.shog.mojor.api.tokenInteractionPages
@@ -108,21 +107,16 @@ private fun Application.mainModule() {
     install(AutoHeadResponse)
 
     routing {
-        root()
+        launch { root() }
     }
 }
 
 /**
  * The main routing.
  */
-private fun Routing.root() {
+private suspend fun Routing.root() {
     get("/") {
-        // TODO fix this: it doesn't work reactive-ly with the first connection
-        val emote = RandomEmote.getEmote().block()
-
-        launch {
-            call.respond(mapOf("response" to emote))
-        }
+        call.respond(mapOf("response" to RandomEmote.getEmote()))
     }
 
     get("/version") {
@@ -154,19 +148,7 @@ private fun Routing.root() {
             return@post
         }
 
-        MotdHandler.insertMotd(Motd(text, owner, date)).subscribe()
+        MotdHandler.insertMotd(Motd(text, owner, date))
         call.respond(HttpStatusCode.OK)
-    }
-
-    get("/health") {
-        Health.getCurrentHealth()
-                .collectList()
-                .map { list -> list.toMap() }
-                .doOnNext { map ->
-                    launch {
-                        call.respond(map)
-                    }
-                }
-                .subscribe()
     }
 }

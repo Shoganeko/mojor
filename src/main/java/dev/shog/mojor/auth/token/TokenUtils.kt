@@ -18,9 +18,9 @@ fun Token.getJsonPermissions() =
         permissions.getJsonArray()
 
 /** Renew a [Token] */
-fun Token.renew() =
+suspend fun Token.renew() =
         TokenManager.renewToken(this)
 
 /** Disable a [Token] */
-fun Token.disable() =
+suspend fun Token.disable() =
         TokenManager.disableToken(this)

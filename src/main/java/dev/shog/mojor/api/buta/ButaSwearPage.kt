@@ -1,9 +1,8 @@
 package dev.shog.mojor.api.buta
 
-import kong.unirest.Unirest
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import org.json.JSONArray
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 
 /**
  * The /v2/buta/swears page
@@ -14,26 +13,19 @@ internal object ButaSwearPage {
     /**
      * Refresh [content].
      */
-    fun refresh(): Mono<Void> =
-            Unirest.get("https://raw.githubusercontent.com/MauriceButler/badwords/master/array.js")
-                    .asStringAsync()
-                    .toMono()
-                    .map { js ->
-                        js.body
-                                .removePrefix("module.exports = ")
-                                .removeSuffix(";")
-                    }
-                    .map(::JSONArray)
-                    .doOnNext { ar -> content = ar }
-                    .then()
+    suspend fun refresh() =
+            JSONArray(
+                    HttpClient().get<String>("https://raw.githubusercontent.com/MauriceButler/badwords/master/array.js")
+                            .removePrefix("module.exports = ")
+                            .removeSuffix(";")
+            )
 
     /**
      * Get the page.
      */
-    fun getPage(): JSONArray {
-        if (content == null) {
+    suspend fun getPage(): JSONArray {
+        if (content == null)
             refresh()
-        }
 
         return content ?: JSONArray()
     }

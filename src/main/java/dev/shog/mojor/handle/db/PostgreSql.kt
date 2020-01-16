@@ -2,7 +2,8 @@ package dev.shog.mojor.handle.db
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.handle.file.Config
-import reactor.core.publisher.Mono
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.sql.Connection
 import java.sql.DriverManager
 
@@ -19,17 +20,7 @@ object PostgreSql {
     /**
      * Create a connection to the AWS.
      */
-    fun createConnection(): Connection? {
-        return try {
-            DriverManager.getConnection(URL, USERNAME, PASSWORD)
-        } catch (ex: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Create a connection to AWS and turn it into a [Mono].
-     */
-    fun monoConnection(): Mono<Connection> =
-            Mono.justOrEmpty(createConnection())
+    suspend fun createConnection(): Connection = coroutineScope {
+        async { DriverManager.getConnection(URL, USERNAME, PASSWORD) }
+    }.await()
 }

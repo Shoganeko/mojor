@@ -5,7 +5,6 @@ import dev.shog.mojor.auth.token.TokenManager
 import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.auth.user.UserManager
 import dev.shog.mojor.auth.user.result.UserLoginResult
-import dev.shog.mojor.execute
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
@@ -13,8 +12,6 @@ import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
-import kotlinx.coroutines.launch
-import reactor.core.publisher.Mono
 
 /**
  * Add the pages.
@@ -47,32 +44,24 @@ fun Routing.userInteractionPages() {
 
         val captcha = params["captcha"]
         if (captcha != null) {
-            Captcha.verifyReCaptcha(captcha)
-                    .filter { it }
-                    .flatMap {
-                        Mono.justOrEmpty(UserManager.loginUsing(username, password, true))
-                                .flatMap { user ->
-                                    TokenManager.createToken(user!!)
-                                            .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = true, error = null)) } }
-                                }
-                                .then()
-                    }
-                    .switchIfEmpty(execute(Thread {
-                        launch {
-                            call.respond(
-                                    HttpStatusCode.BadRequest,
-                                    UserLoginResult(null, null, usingCaptcha = false, error = "Invalid reCAPTCHA"))
-                        }
-                    }))
-                    .subscribe()
+            val captchaResult = Captcha.verifyReCaptcha(captcha)
+
+            if (captchaResult) {
+                val user = UserManager.loginUsing(username, password, true)
+
+                if (user != null) {
+                    call.respond(HttpStatusCode.OK, UserLoginResult(user, TokenManager.createToken(user), true, null))
+                    return@post
+                }
+            }
+
+            call.respond(HttpStatusCode.BadRequest)
         } else {
             val user = UserManager.loginUsing(username, password, false)
 
             if (user == null)
-                call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, usingCaptcha = false, error = "Invalid Username or Password"))
-            else TokenManager.createToken(user)
-                    .doOnNext { token -> launch { call.respond(UserLoginResult(user, token, usingCaptcha = false, error = null)) } }
-                    .subscribe()
+                call.respond(HttpStatusCode.BadRequest, UserLoginResult(error = "Invalid Username or Password"))
+            else call.respond(HttpStatusCode.OK, UserLoginResult(user, TokenManager.createToken(user), false, null))
         }
     }
 }

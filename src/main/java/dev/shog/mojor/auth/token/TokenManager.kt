@@ -3,13 +3,11 @@ package dev.shog.mojor.auth.token
 import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.token.result.TokenRenewResult
 import dev.shog.mojor.auth.user.User
-import dev.shog.mojor.handle.db.PostgreSql
 import dev.shog.mojor.getJsonArray
-import kotlin.collections.ArrayList
+import dev.shog.mojor.handle.db.PostgreSql
 import org.apache.commons.codec.digest.DigestUtils
-import reactor.core.publisher.Mono
 import java.util.*
-
+import kotlin.collections.ArrayList
 
 /**
  * Manages tokens.
@@ -33,17 +31,16 @@ object TokenManager {
     /**
      * Queue [REMOVAL_QUEUE]
      */
-    fun queueRemoval(): Mono<Void> {
+    suspend fun queueRemoval() {
         var sqlStr = ""
 
         REMOVAL_QUEUE.forEach { token ->
             sqlStr += "DELETE FROM token.tokens WHERE token='${token.token}';"
         }
 
-        return PostgreSql.monoConnection()
-                .map { sql -> sql.prepareStatement(sqlStr) }
-                .map { pre -> pre.executeLargeUpdate() }
-                .then()
+        PostgreSql.createConnection()
+                .prepareStatement(sqlStr)
+                .executeLargeUpdate()
     }
 
     /**
@@ -68,73 +65,82 @@ object TokenManager {
     /**
      * Renew the [token].
      */
-    fun renewToken(token: Token, time: Long = System.currentTimeMillis()): Mono<TokenRenewResult> =
-            PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("UPDATE token.tokens SET createdon=? WHERE token=?") }
-                    .doOnNext { pre -> pre.setLong(1, time) }
-                    .doOnNext { pre -> pre.setString(2, token.token) }
-                    .map { pre -> pre.executeUpdate() }
-                    .map { Token.fromToken(token, time) }
-                    .map { newToken -> TokenRenewResult(newToken, true, newToken.expiresOn) }
-                    .onErrorReturn(TokenRenewResult(null, false, -1L))
+    suspend fun renewToken(token: Token, time: Long = System.currentTimeMillis()): TokenRenewResult {
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("UPDATE token.tokens SET createdon=? WHERE token=?")
+
+        pre.setLong(1, time)
+        pre.setString(2, token.token)
+
+        pre.executeUpdate()
+
+        val newToken = Token.fromToken(token, time)
+        return TokenRenewResult(newToken, true, newToken.expiresOn)
+    }
 
     /**
      * Disable the [token].
      */
-    fun disableToken(token: Token): Mono<Void> {
+    suspend fun disableToken(token: Token) {
         TokenHolder.removeToken(token.token)
 
-        return PostgreSql.monoConnection()
-                .map { sql -> sql.prepareStatement("DELETE FROM token.tokens WHERE token=?") }
-                .doOnNext { pre -> pre.setString(1, token.token) }
-                .map { pre -> pre.executeUpdate() }
-                .then()
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("DELETE FROM token.tokens WHERE token=?")
+
+        pre.setString(1, token.token)
+
+        pre.executeUpdate()
     }
 
     /**
      * Create a unused token identifier.
      */
-    private fun createTokenString(): Mono<String> {
-        val postgre = Mono.justOrEmpty(PostgreSql.createConnection())
+    private suspend fun createTokenString(): String? {
+        val postgre = PostgreSql.createConnection()
         val id = DigestUtils.sha512Hex(UUID.randomUUID().toString().toByteArray(Charsets.UTF_8))
 
-        return postgre
-                .map { sql -> sql!!.prepareStatement("SELECT * FROM token.tokens WHERE token = ?") }
-                .doOnNext { pre -> pre.setString(1, id) }
-                .map { pre -> pre.executeQuery() }
-                .filter { rs -> !rs.next() }
-                .map { id }
+        val pre = postgre.prepareStatement("SELECT * FROM token.tokens WHERE token = ?")
+
+        pre.setString(1, id)
+
+        val query = pre.executeQuery()
+
+        return if (query.next()) null else id
     }
 
     /**
      * Create token
      */
-    private fun createTokenIdentifier(): Mono<String> =
-            createTokenString()
-                    .switchIfEmpty(createTokenString())
+    private suspend fun createTokenIdentifier(): String {
+        var id: String? = null
+
+        while (id == null)
+            id = createTokenString()
+
+        return id
+    }
 
     /**
      * Create a unique [Token] with [user] as the owner.
      */
-    fun createToken(user: User): Mono<Token> =
-            createTokenIdentifier()
-                    .map { tokenIdentifier ->
-                        Token(
-                                tokenIdentifier,
-                                user.id,
-                                user.permissions,
-                                System.currentTimeMillis()
-                        )
-                    }
-                    .doOnNext { token -> TokenHolder.insertToken(token.token, token) }
-                    .zipWhen { token ->
-                        PostgreSql.monoConnection()
-                                .map { sql -> sql.prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)") }
-                                .doOnNext { pre -> pre.setString(1, token.token) }
-                                .doOnNext { pre -> pre.setLong(2, token.owner) }
-                                .doOnNext { pre -> pre.setLong(3, token.createdOn) }
-                                .doOnNext { pre -> pre.setString(4, token.permissions.getJsonArray().toString()) }
-                                .map { pre -> pre.execute() }
-                    }
-                    .map { token -> token.t1 }
+    suspend fun createToken(user: User): Token {
+        val identifier = createTokenIdentifier()
+
+        val token = Token(identifier, user.id, user.permissions, System.currentTimeMillis())
+
+        TokenHolder.insertToken(token.token, token)
+
+        val prepared = PostgreSql.createConnection()
+                .prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)")
+
+        prepared.setString(1, token.token)
+        prepared.setLong(2, token.owner)
+        prepared.setLong(3, token.createdOn)
+        prepared.setString(4, token.permissions.getJsonArray().toString())
+
+        prepared.execute()
+
+        return token
+    }
 }
+

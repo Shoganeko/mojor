@@ -2,10 +2,13 @@ package dev.shog.mojor.auth.user
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.handle.db.PostgreSql
 import dev.shog.mojor.getJsonArray
+import dev.shog.mojor.handle.db.PostgreSql
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.commons.codec.digest.DigestUtils
-import reactor.core.publisher.Mono
 
 /**
  * Manages users.
@@ -25,31 +28,34 @@ object UserManager {
     /**
      * Delete the [user].
      */
-    fun deleteUser(user: Long): Mono<Void> {
-        return if (UserHolder.hasUser(user)) {
+    suspend fun deleteUser(user: Long) = coroutineScope {
+        if (UserHolder.hasUser(user)) {
             UserHolder.removeUser(user)
 
-            PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("DELETE FROM users.users WHERE id = ?") }
-                    .doOnNext { pre -> pre.setLong(1, user) }
-                    .map { pre -> pre.executeUpdate() }
-                    .then()
-        } else Mono.error(Exception("Tried deleting a user that doesn't exist!"))
+            val pre = PostgreSql.createConnection()
+                    .prepareStatement("DELETE FROM users.users WHERE id = ?")
+
+            pre.setLong(1, user)
+
+            launch { pre.executeUpdate() }
+        } else throw Exception("Tried deleting a user that doesn't exist!")
     }
 
     /**
      * Create a new user.
      */
-    fun createUser(username: String, password: String, requiresHash: Boolean = false, permissions: ArrayList<Permissions> = DEFAULT_PERMISSIONS): Mono<User> {
+    suspend fun createUser(username: String, password: String, requiresHash: Boolean = false, permissions: ArrayList<Permissions> = DEFAULT_PERMISSIONS): User = coroutineScope {
         if (UserHolder.hasUser(username))
-            return Mono.error(Exception("Username $username already exists!"))
+            throw Exception("Username $username already exists!")
 
         val hashedPassword = if (requiresHash) DigestUtils.sha512Hex(password) else password
+        val id = UserIdGenerator.getNewId()
+        val user = User(username, hashedPassword, id, ObjectPermissions.fromArrayList(permissions), System.currentTimeMillis())
 
-        return UserIdGenerator.getId()
-                .map { User(username, hashedPassword, it, ObjectPermissions.fromArrayList(permissions), System.currentTimeMillis()) }
-                .doOnNext { user -> UserHolder.insertUser(user.id, user) }
-                .flatMap { user -> uploadUser(user, hashedPassword).map { user } }
+        UserHolder.insertUser(user.id, user)
+        launch { uploadUser(user, hashedPassword) }
+
+        return@coroutineScope user
     }
 
     /**
@@ -71,27 +77,31 @@ object UserManager {
     /**
      * Upload a user to the database.
      */
-    private fun uploadUser(user: User, password: String): Mono<Void> =
-            PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)") }
-                    .doOnNext { pre -> pre.setLong(1, user.id) }
-                    .doOnNext { pre -> pre.setString(2, user.username) }
-                    .doOnNext { pre -> pre.setString(3, password) }
-                    .doOnNext { pre -> pre.setString(4, user.permissions.getJsonArray().toString()) }
-                    .doOnNext { pre -> pre.setLong(5, user.createdOn) }
-                    .map { pre -> pre.executeUpdate() }
-                    .then()
+    private suspend fun uploadUser(user: User, password: String) = coroutineScope {
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)")
+
+        pre.setLong(1, user.id)
+        pre.setString(2, user.username)
+        pre.setString(3, password)
+        pre.setString(4, user.permissions.getJsonArray().toString())
+        pre.setLong(5, user.createdOn)
+
+        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.executeUpdate() }
+    }
 
     /**
      * Update a user's account on the database.
      */
-    fun updateUser(user: User): Mono<Void> =
-            PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("UPDATE users.users SET 'name'=?, 'password'=?, 'permissions'=? WHERE 'id'=?") }
-                    .doOnNext { pre -> pre.setString(1, user.username) }
-                    .doOnNext { pre -> pre.setString(2, user.getPassword()) }
-                    .doOnNext { pre -> pre.setString(1, user.permissions.getJsonArray().toString()) }
-                    .doOnNext { pre -> pre.setString(1, user.username) }
-                    .map { pre -> pre.executeUpdate() }
-                    .then()
+    suspend fun updateUser(user: User) = coroutineScope {
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("UPDATE users.users SET 'name'=?, 'password'=?, 'permissions'=? WHERE 'id'=?")
+
+        pre.setString(1, user.username)
+        pre.setString(2, user.getPassword())
+        pre.setString(3, user.permissions.getJsonArray().toString())
+        pre.setLong(4, user.id)
+
+        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.executeUpdate() }
+    }
 }

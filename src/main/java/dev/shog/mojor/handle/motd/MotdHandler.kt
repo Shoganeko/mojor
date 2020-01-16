@@ -1,7 +1,10 @@
 package dev.shog.mojor.handle.motd
 
 import dev.shog.mojor.handle.db.PostgreSql
-import reactor.core.publisher.Mono
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /**
  * The MOTD
@@ -35,24 +38,30 @@ object MotdHandler {
     /**
      * Insert a motd class into the database and [motds]
      */
-    fun insertMotd(properMotd: Motd): Mono<Void> =
-            PostgreSql.monoConnection()
-                    .map { sql -> sql.prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?) ") }
-                    .doOnNext { pre -> pre.setString(1, properMotd.data) }
-                    .doOnNext { pre -> pre.setLong(2, properMotd.owner) }
-                    .doOnNext { pre -> pre.setLong(3, properMotd.date) }
-                    .map { pre -> pre.executeUpdate() }
-                    .doFinally { motds.add(properMotd) }
-                    .then()
+    suspend fun insertMotd(properMotd: Motd) = coroutineScope {
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?)")
+
+        pre.setString(1, properMotd.data)
+        pre.setLong(2, properMotd.owner)
+        pre.setLong(3, properMotd.date)
+
+        motds.add(properMotd)
+
+        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.executeUpdate() }
+    }
 
     init {
-        PostgreSql.monoConnection()
-                .map { sql -> sql.prepareStatement("SELECT * FROM motd.motds") }
-                .map { pre -> pre.executeQuery() }
-                .subscribe { rs ->
-                    while (rs.next()) {
-                        motds.add(Motd(rs.getString("data"), rs.getLong("owner"), rs.getLong("date")))
-                    }
-                }
+        runBlocking {
+            val rs = withContext(Dispatchers.Unconfined) {
+                PostgreSql.createConnection()
+                        .prepareStatement("SELECT * FROM motd.motds")
+                        .executeQuery()
+            }
+
+            while (rs.next()) {
+                motds.add(Motd(rs.getString("data"), rs.getLong("owner"), rs.getLong("date")))
+            }
+        }
     }
 }

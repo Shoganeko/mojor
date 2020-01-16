@@ -55,7 +55,7 @@ object Mojor {
                         .subscribe()
             }
 
-            ButaObjectHandler.init().subscribe()
+            runBlocking { ButaObjectHandler.init() }
 
             LOGGER.debug("Production mode enabled")
         }, {
@@ -66,7 +66,7 @@ object Mojor {
                         .subscribe()
             }
 
-            ButaObjectHandler.devInit().subscribe()
+            runBlocking { ButaObjectHandler.devInit() }
             Hooks.onOperatorDebug()
 
             LOGGER.debug("Dev mode enabled")

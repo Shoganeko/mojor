@@ -2,6 +2,7 @@ package dev.shog.mojor.auth.token
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.handle.db.PostgreSql
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import java.util.concurrent.ConcurrentHashMap
 
@@ -9,30 +10,33 @@ import java.util.concurrent.ConcurrentHashMap
  * Manages tokens.
  */
 object TokenHolder {
-    val TOKENS = ConcurrentHashMap<String, Token>()
+    private val TOKENS = ConcurrentHashMap<String, Token>()
 
     /**
      * Get all tokens from the database and insert it into the map.
      */
-    init {
-        PostgreSql
-                .monoConnection()
-                .map { sql -> sql.prepareStatement("SELECT * FROM token.tokens") }
-                .map { pre -> pre.executeQuery() }
-                .subscribe { rs ->
-                    while (rs.next()) {
-                        val token = Token(
-                                rs.getString("token"),
-                                rs.getLong("owner"),
-                                ObjectPermissions.fromJsonArray(
-                                        JSONArray(rs.getString("permissions"))
-                                ),
-                                rs.getLong("createdOn")
-                        )
+    private suspend fun init() {
+        val rs = PostgreSql
+                .createConnection()
+                .prepareStatement("SELECT * FROM token.tokens")
+                .executeQuery()
 
-                        insertToken(rs.getString("token"), token)
-                    }
-                }
+        while (rs.next()) {
+            val token = Token(
+                    rs.getString("token"),
+                    rs.getLong("owner"),
+                    ObjectPermissions.fromJsonArray(
+                            JSONArray(rs.getString("permissions"))
+                    ),
+                    rs.getLong("createdOn")
+            )
+
+            insertToken(rs.getString("token"), token)
+        }
+    }
+
+    init {
+        runBlocking { init() }
     }
 
     /**

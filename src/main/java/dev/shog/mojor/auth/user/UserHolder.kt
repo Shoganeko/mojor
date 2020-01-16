@@ -2,6 +2,10 @@ package dev.shog.mojor.auth.user
 
 import dev.shog.mojor.auth.obj.ObjectPermissions
 import dev.shog.mojor.handle.db.PostgreSql
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.util.concurrent.ConcurrentHashMap
 
@@ -12,24 +16,28 @@ object UserHolder {
     val USERS = ConcurrentHashMap<Long, User>()
 
     /**
-     * Get all users from the database and insert it into the map.
+     * Refresh users.
      */
+    private suspend fun refreshUsers() = coroutineScope {
+        val rs = withContext(Dispatchers.Default) {
+            PostgreSql.createConnection()
+                    .prepareStatement("SELECT * FROM users.users")
+                    .executeQuery()
+        }
+
+        while (rs.next()) {
+            USERS[rs.getLong("id")] = User(
+                    rs.getString("name"),
+                    rs.getString("password"),
+                    rs.getLong("id"),
+                    ObjectPermissions.fromJsonArray(JSONArray(rs.getString("permissions"))),
+                    rs.getLong("createdon")
+            )
+        }
+    }
+
     init {
-        PostgreSql
-                .monoConnection()
-                .map { sql -> sql.prepareStatement("SELECT * FROM users.users") }
-                .map { pre -> pre.executeQuery() }
-                .subscribe { rs ->
-                    while (rs.next()) {
-                        USERS[rs.getLong("id")] = User(
-                                rs.getString("name"),
-                                rs.getString("password"),
-                                rs.getLong("id"),
-                                ObjectPermissions.fromJsonArray(JSONArray(rs.getString("permissions"))),
-                                rs.getLong("createdon")
-                        )
-                    }
-                }
+        runBlocking { refreshUsers() }
     }
 
     /**

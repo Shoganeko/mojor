@@ -24,8 +24,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.w3c.dom.Document
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 import java.lang.management.ManagementFactory
 
 /** See what [first] is missing from [second] */
@@ -65,10 +63,6 @@ fun HEAD.applyMeta() {
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
 }
-
-/** Execute */
-fun execute(th: Thread): Mono<Void> =
-        th.run().toMono().then()
 
 /** Get system statistics */
 fun getStatisticsOfSystem(): String {

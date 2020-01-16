@@ -3,8 +3,6 @@ package dev.shog.mojor.api.buta
 import dev.shog.mojor.api.buta.obj.ButaObject
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -14,25 +12,18 @@ object ButaObjectHandler {
     val OBJECTS = ConcurrentHashMap<Long, ButaObject>()
 
     /**Initialize [OBJECTS] by adding all from the database.*/
-    fun init(): Mono<Void> =
-            ButaDb.getAllObjects()
-                    .doOnNext { obj -> OBJECTS[obj.id] = obj }
-                    .collectList()
-                    .then()
+    suspend fun init() {
+        ButaDb.getAllObjects().forEach { obj -> OBJECTS[obj.id] = obj }
+    }
 
     /**
      * Initialize [OBJECTS] by adding fake objects to cut down on database interaction.
      */
-    fun devInit(): Mono<Void> {
-        val user = User()
-        val guild = Guild()
-
-        user.id = 1
-        guild.id = 2
-
-        return Flux.just(user, guild)
-                .doOnNext { obj -> OBJECTS[obj.id] = obj }
-                .then()
+    fun devInit() {
+        OBJECTS.apply {
+            put(0, Guild().apply { id = 0 })
+            put(1, User().apply { id = 1 })
+        }
     }
 
     /**
@@ -41,9 +32,9 @@ object ButaObjectHandler {
      * @param id The ID of the object.
      * @param butaObject The new object.
      */
-    fun updateObject(id: Long, butaObject: ButaObject): Mono<Boolean> {
+    suspend fun updateObject(id: Long, butaObject: ButaObject): Boolean {
         if (!OBJECTS.containsKey(id))
-            return Mono.error(NullPointerException("Object doesn't exist!"))
+            throw Exception("Object doesn't exist!")
         else OBJECTS[id] = butaObject
 
         return ButaDb.updateObject(id, butaObject)
@@ -55,9 +46,9 @@ object ButaObjectHandler {
      * @param id The ID of the new object.
      * @param butaObject The new object.
      */
-    fun createObject(id: Long, butaObject: ButaObject): Mono<Boolean> {
+    suspend fun createObject(id: Long, butaObject: ButaObject): Boolean {
         if (OBJECTS.containsKey(id))
-            return Mono.error(NullPointerException("This object already exists!"))
+            throw Exception("This object already exists!")
         else OBJECTS[id] = butaObject
 
         return ButaDb.createObject(id, butaObject)
@@ -70,12 +61,9 @@ object ButaObjectHandler {
      * @param id The ID of the object.
      * @param type The type of the object.
      */
-    fun deleteObject(id: Long, type: Int): Mono<Boolean> {
-        try {
-            OBJECTS.remove(id) ?: return Mono.error(NullPointerException())
-        } catch (e: Exception) {
-            return Mono.error(e)
-        }
+    suspend fun deleteObject(id: Long, type: Int): Boolean {
+        OBJECTS.remove(id)
+                ?: throw Exception()
 
         return ButaDb.deleteObject(id, type)
     }
@@ -87,7 +75,7 @@ object ButaObjectHandler {
      * @param type The type of the object.
      * @param useDb If the function should use the database.
      */
-    fun getObject(id: Long, type: Int, useDb: Boolean = false): Mono<ButaObject> =
+    suspend fun getObject(id: Long, type: Int, useDb: Boolean = false): ButaObject? =
             if (useDb) getObjectUsingDatabase(id, type) else getObjectFromCache(id)
 
     /**
@@ -95,8 +83,8 @@ object ButaObjectHandler {
      *
      * @param id The ID of the object.
      */
-    private fun getObjectFromCache(id: Long): Mono<ButaObject> =
-            Mono.justOrEmpty(OBJECTS[id])
+    private fun getObjectFromCache(id: Long): ButaObject? =
+            OBJECTS[id]
 
     /**
      * Get an object from the cache, then try the database.
@@ -104,7 +92,7 @@ object ButaObjectHandler {
      * @param id The ID of the object.
      * @param type The type of the object.
      */
-    private fun getObjectUsingDatabase(id: Long, type: Int): Mono<ButaObject> =
+    private suspend fun getObjectUsingDatabase(id: Long, type: Int): ButaObject =
             getObjectFromCache(id)
-                    .switchIfEmpty(ButaDb.getObject(id, type))
+                    ?: ButaDb.getObject(id, type)
 }

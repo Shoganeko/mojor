@@ -5,7 +5,9 @@ import dev.shog.mojor.Mojor.LOGGER
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.handle.MarkdownModifier
 import dev.shog.mojor.handle.modify
-import kong.unirest.Unirest
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import kotlinx.coroutines.runBlocking
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
 import java.util.*
@@ -66,7 +68,7 @@ class MarkdownPage(private val file: String) {
 
                 script(src = "${Mojor.CDN}/pages/markdown/js.js") {}
             }
-        }.replace("<p>rmkdr</p>", parseMarkdown(file))
+        }.replace("<p>rmkdr</p>", runBlocking { parseMarkdown(file) })
     }
 
     companion object {
@@ -78,20 +80,18 @@ class MarkdownPage(private val file: String) {
         /**
          * Parse a markdown string into HTML.
          */
-        fun parseMarkdown(file: String): String {
+        suspend fun parseMarkdown(file: String): String {
             val url = "https://raw.githubusercontent.com/Shoganeko/mojor-pages/master/$file"
 
             LOGGER.debug("Making request to {}", url)
 
             val fi = try {
-                Unirest
-                        .get(url)
-                        .asString()
+                HttpClient().get<String>(url)
             } catch (ex: Exception) {
                 return "<h1>Invalid File!</h1)"
             }
 
-            return fi.body modify MarkdownModifier
+            return fi modify MarkdownModifier
         }
     }
 }

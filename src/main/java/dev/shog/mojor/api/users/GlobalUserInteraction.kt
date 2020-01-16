@@ -15,7 +15,6 @@ import io.ktor.routing.Routing
 import io.ktor.routing.delete
 import io.ktor.routing.get
 import io.ktor.routing.patch
-import kotlinx.coroutines.launch
 
 /**
  * Add the pages.
@@ -40,9 +39,7 @@ fun Routing.globalUserInteractionPages() {
         }
 
         user.delete()
-                .doOnError { launch { call.respond(HttpStatusCode.BadRequest) } }
-                .doOnSuccess { launch { call.respond(HttpStatusCode.OK) } }
-                .subscribe()
+        call.respond(HttpStatusCode.OK)
     }
 
     /** Delete a selected user. */
@@ -55,9 +52,7 @@ fun Routing.globalUserInteractionPages() {
             call.respond(HttpStatusCode.BadRequest)
         else {
             user.delete()
-                    .doOnError { launch { call.respond(HttpStatusCode.BadRequest, "User does not exist!") } }
-                    .doOnSuccess { launch { call.respond(HttpStatusCode.OK) } }
-                    .subscribe()
+            call.respond(HttpStatusCode.OK)
         }
     }
 

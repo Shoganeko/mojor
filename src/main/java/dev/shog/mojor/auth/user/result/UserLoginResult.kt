@@ -12,8 +12,8 @@ import dev.shog.mojor.auth.user.User
  * @param error The error, if there's an error.
  */
 data class UserLoginResult(
-        val user: User?,
-        val token: Token?,
-        val usingCaptcha: Boolean,
+        val user: User? = null,
+        val token: Token? = null,
+        val usingCaptcha: Boolean = false,
         val error: String?
 )

@@ -7,7 +7,6 @@ import dev.shog.mojor.auth.token.isExpired
 import dev.shog.mojor.getMissing
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
-import reactor.core.publisher.Mono
 
 /** Get a [Token] from an [ApplicationCall] */
 fun ApplicationCall.getTokenFromCall(): Token {
@@ -49,14 +48,6 @@ fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permissions): Boolea
     } catch (ex: AuthenticationException) {
         false
     }
-}
-
-/**
- * Check if a incoming connection is authorized and has [permissions].
- */
-fun ApplicationCall.isAuthorized(mono: Mono<*>, vararg permissions: Permissions) {
-    isAuthorized(*permissions)
-            .also { mono.subscribe() }
 }
 
 /**
