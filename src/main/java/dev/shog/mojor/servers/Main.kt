@@ -30,6 +30,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.sessions.*
 import org.slf4j.event.Level
 
+@KtorExperimentalLocationsAPI
 val mainServer = embeddedServer(Netty, port = 8090, module = Application::mainModule)
 
 @KtorExperimentalLocationsAPI
@@ -65,7 +66,7 @@ private fun Application.mainModule() {
         exception<Throwable> {
             val errorString = it.message ?: "Error"
 
-            Mojor.WEBHOOK
+            Mojor.APP
                     .sendMessage("There has been an error on the Main server!\n$errorString")
                     .subscribe()
 
@@ -88,7 +89,7 @@ private fun Application.mainModule() {
     install(Locations)
 
     install(DefaultHeaders) {
-        header("X-Server", "Mojor/${Mojor.VERSION}")
+        header("Server", "Mojor/${Mojor.APP.getVersion()}")
     }
 
     routing {

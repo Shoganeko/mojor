@@ -1,9 +1,9 @@
 package dev.shog.mojor.handle.motd
 
+import dev.shog.lib.util.asDate
 import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.handle.MarkdownModifier
 import dev.shog.mojor.handle.modify
-import java.time.Instant
 import java.util.*
 
 /**
@@ -14,7 +14,6 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
      * Get the markdown rendered motd.
      */
     fun getProperData(): String {
-
         val result = data modify MarkdownModifier
 
         return result
@@ -25,7 +24,7 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
      * Get [date] as a [Date]
      */
     fun getProperDate(): Date =
-            Date.from(Instant.ofEpochMilli(date))
+            date.asDate()
 
     /**
      * Get the name of [owner].

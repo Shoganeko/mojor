@@ -27,14 +27,10 @@ object MotdHandler {
     /**
      * Get a [Motd] by their [date].
      */
-    fun getMotdByDate(date: Long): Motd? {
-        motds.forEach { motd ->
-            if (motd.date == date)
-                return motd
-        }
-
-        return null
-    }
+    fun getMotdByDate(date: Long): Motd? =
+            motds
+                    .filter { motd -> motd.date == date }
+                    .getOrNull(0)
 
     /**
      * Insert a motd class into the database and [motds]

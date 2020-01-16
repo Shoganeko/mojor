@@ -41,6 +41,8 @@ import java.text.DateFormat
 /**
  * The API server
  */
+@KtorExperimentalLocationsAPI
+@KtorExperimentalAPI
 val apiServer = embeddedServer(Netty, port = 8080, module = Application::mainModule)
 
 @KtorExperimentalAPI
@@ -71,7 +73,7 @@ private fun Application.mainModule() {
         exception<Throwable> {
             it.printStackTrace()
 
-            Mojor.WEBHOOK
+            Mojor.APP
                     .sendMessage("API: " + getErrorMessage(it, true))
                     .subscribe()
 
@@ -79,7 +81,9 @@ private fun Application.mainModule() {
         }
 
         status(HttpStatusCode.NotFound) {
-            call.respond(HttpStatusCode.NotFound)
+            call.respondText("{\"not-found\": \"URL was not found.\"}",
+                    ContentType.parse("application/json"),
+                    HttpStatusCode.NotFound)
         }
 
         status(HttpStatusCode.Unauthorized) {
@@ -90,7 +94,7 @@ private fun Application.mainModule() {
     install(Locations)
 
     install(DefaultHeaders) {
-        header("X-Server", "Mojor/${Mojor.VERSION}")
+        header("Server", "Mojor/${Mojor.APP.getVersion()}")
     }
 
     install(CORS) {
@@ -122,7 +126,7 @@ private fun Routing.root() {
     }
 
     get("/version") {
-        call.respond(mapOf("response" to Mojor.VERSION))
+        call.respond(mapOf("response" to Mojor.APP.getVersion()))
     }
 
     butaPages()

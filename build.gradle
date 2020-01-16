@@ -58,6 +58,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://jitpack.io'}
 }
 
 dependencies {
@@ -82,5 +83,6 @@ dependencies {
     compile "io.ktor:ktor-client-auth-jvm:$ktor_version"
     compile "io.ktor:ktor-serialization:$ktor_version"
     compile 'com.konghq:unirest-java:3.1.02'
+    compile 'com.github.Shoganeko:lib:e62e4bba2d'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.9'
 }

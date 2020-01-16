@@ -1,8 +1,11 @@
 package dev.shog.mojor
 
+import dev.shog.lib.app.AppBuilder
+import dev.shog.lib.cfg.ConfigHandler
+import dev.shog.lib.hook.DiscordWebhook
 import dev.shog.mojor.api.buta.ButaObjectHandler
 import dev.shog.mojor.handle.ArgsHandler
-import dev.shog.mojor.handle.file.FileManager
+import dev.shog.mojor.handle.file.Config
 import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
 import dev.shog.mojor.servers.mainServer
@@ -17,10 +20,16 @@ import java.util.*
  * Mojor
  */
 object Mojor {
-    /**
-     * The version of Mojor
-     */
-    const val VERSION = 1.0F
+    const val MOJOR_VERSION = 1.0F
+
+    val APP = AppBuilder()
+            .withName("Mojor")
+            .withVersion(MOJOR_VERSION)
+            .checkUpdates(false)
+            .usingConfig(ConfigHandler.createConfig(ConfigHandler.ConfigType.YML, "mojor", Config()))
+            .withCache()
+            .withWebhook { DiscordWebhook(this!!.asObject<Config>().discordUrl) }
+            .build()
 
     var API: String = "http://localhost:8080"
     var CDN: String = "http://localhost:8070"
@@ -29,12 +38,7 @@ object Mojor {
     /** The logger of Mojor */
     val LOGGER: Logger = LoggerFactory.getLogger("MOJOR")
 
-    /** The default Discord Webhook Handler */
-    lateinit var WEBHOOK: DiscordWebhookHandler
-
     internal fun main(args: Array<String>) = runBlocking<Unit> {
-        FileManager
-
         val ah = ArgsHandler()
 
         // Mojor Dev and Prod modes
@@ -43,11 +47,10 @@ object Mojor {
             CDN = "https://cdn.shog.dev"
             MAIN = "https://shog.dev"
 
-            WEBHOOK = DiscordWebhookHandler()
-
             Hooks.onErrorDropped {
                 it.printStackTrace()
-                WEBHOOK
+
+                APP
                         .sendMessage(getErrorMessage(it, true))
                         .subscribe()
             }
@@ -56,11 +59,9 @@ object Mojor {
 
             LOGGER.debug("Production mode enabled")
         }, {
-            WEBHOOK = DiscordWebhookHandler(DiscordWebhookHandler.Companion.DefaultDeveloperUser)
-
             Hooks.onErrorDropped {
                 it.printStackTrace()
-                WEBHOOK
+                APP
                         .sendMessage(getErrorMessage(it, false))
                         .subscribe()
             }
@@ -73,7 +74,7 @@ object Mojor {
 
         // If they're blocking notifications
         ah.addNonHook("--block-init-notif") {
-            WEBHOOK
+            APP
                     .sendMessage("Started at __${SimpleDateFormat().format(Date())}__! <:PogU:644404760752947210>")
                     .subscribe()
         }
