@@ -20,7 +20,7 @@ import java.util.*
  * Mojor
  */
 object Mojor {
-    const val MOJOR_VERSION = 1.0F
+    const val MOJOR_VERSION = 1.1F
 
     val APP = AppBuilder()
             .withName("Mojor")
