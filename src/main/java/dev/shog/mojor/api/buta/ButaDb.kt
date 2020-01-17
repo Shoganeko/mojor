@@ -101,7 +101,7 @@ object ButaDb {
         val array = arrayListOf<ButaObject>()
 
         while (rs.next()) {
-            array.add(when (rs.getInt("int")) {
+            array.add(when (rs.getInt("type")) {
                 1 -> ObjectMapper().readValue<Guild>(rs.getString("js"))
                 2 -> ObjectMapper().readValue<User>(rs.getString("js"))
                 else -> throw Exception("Invalid Type!")
