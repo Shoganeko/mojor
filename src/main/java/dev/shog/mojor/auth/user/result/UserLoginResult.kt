@@ -4,16 +4,14 @@ import dev.shog.mojor.auth.token.Token
 import dev.shog.mojor.auth.user.User
 
 /**
- * A user login result.
+ * A login payload.
  *
- * @param user The user who logged in.
- * @param token THe created token from the login.
- * @param usingCaptcha If the user logged in using Captcha
- * @param error The error, if there's an error.
+ * @param usingCaptcha If the user logged in using a reCAPTCHA
+ * @param user The account that was used to log in
+ * @param token The token created from the login.
  */
-data class UserLoginResult(
-        val user: User? = null,
-        val token: Token? = null,
+class UserLoginPayload(
         val usingCaptcha: Boolean = false,
-        val error: String?
+        val user: User? = null,
+        val token: Token? = null
 )

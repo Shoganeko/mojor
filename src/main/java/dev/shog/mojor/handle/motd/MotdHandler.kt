@@ -1,6 +1,16 @@
 package dev.shog.mojor.handle.motd
 
+import dev.shog.mojor.api.response.Response
+import dev.shog.mojor.auth.isAuthorized
+import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.handle.db.PostgreSql
+import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receiveParameters
+import io.ktor.response.respond
+import io.ktor.routing.Routing
+import io.ktor.routing.options
+import io.ktor.routing.post
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
@@ -14,6 +24,31 @@ object MotdHandler {
      * All motds
      */
     val motds = ArrayList<Motd>()
+
+    /**
+     * Register MOTD pages
+     */
+    fun registerPages(routing: Routing) {
+        routing.options("/motd") { call.respond(Response(payload = "CORS PepeLaugh")) }
+
+        routing.post("/motd") {
+            call.isAuthorized(Permissions.MOTD_MANAGER)
+
+            val params = call.receiveParameters()
+
+            val owner = params["owner"]?.toLongOrNull()
+            val text = params["text"]
+            val date = System.currentTimeMillis()
+
+            if (text == null || owner == null) {
+                call.respond(HttpStatusCode.BadRequest, Response("Text or Owner was not included"))
+                return@post
+            }
+
+            insertMotd(Motd(text, owner, date))
+            call.respond(Response())
+        }
+    }
 
     /**
      * Get the recent motd.

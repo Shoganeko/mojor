@@ -36,25 +36,6 @@ fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
 fun html(html: TagConsumer<Document>.() -> Document): Document =
         html.invoke(createHTMLDocument())
 
-/** Compare a [JSONObject] with another [JSONObject] */
-fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
-    for (key in jsonObject.keys())
-        if (!has(key.toString()))
-            return false
-
-    return true
-}
-
-/** If a map contains [args]. */
-fun Parameters.containsKeys(vararg args: String): Boolean {
-    args.forEach { key ->
-        if (!this.contains(key))
-            return false
-    }
-
-    return true
-}
-
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")

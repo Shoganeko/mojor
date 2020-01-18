@@ -2,14 +2,13 @@ package dev.shog.mojor.api.buta
 
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
+import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.auth.obj.Permissions
 import io.ktor.application.call
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.*
 
 /**
@@ -22,27 +21,27 @@ suspend fun Routing.butaPages() {
     // The swears page.
     get("/v2/buta/swears") {
         call.isAuthorized(Permissions.BUTA_MANAGER)
-        call.respondText(ButaSwearPage.getPage().toString(), contentType = ContentType.Application.Json)
+        call.respond(Response(payload = ButaSwearPage.getPage().toString()))
     }
 
     // Refresh swears
     post("/v2/buta/swears") {
         call.isAuthorized(Permissions.BUTA_MANAGER)
         ButaSwearPage.refresh()
-        call.respond(HttpStatusCode.OK)
+        call.respond(Response())
     }
 
     // Refresh presences.
     post("/v2/buta/presences") {
         call.isAuthorized(Permissions.BUTA_MANAGER)
         ButaPresencesPage.refresh()
-        call.respond(HttpStatusCode.OK)
+        call.respond(Response())
     }
 
     // The presences page.
     get("/v2/buta/presences") {
         call.isAuthorized(Permissions.BUTA_MANAGER)
-        call.respondText(ButaPresencesPage.getPage().toString(), contentType = ContentType.Application.Json)
+        call.respond(Response(payload = ButaPresencesPage.getPage().toString()))
     }
 
     // Get a ButaObject using an ID and Type
@@ -54,8 +53,8 @@ suspend fun Routing.butaPages() {
         val obj = ButaObjectHandler.getObject(id, type)
 
         if (obj == null)
-            call.respond(HttpStatusCode.BadRequest)
-        else call.respond(obj)
+            call.respond(HttpStatusCode.BadRequest, Response("Invalid ID or Type"))
+        else call.respond(Response(payload = obj))
     }
 
     // Create a ButaObject using an ID and a Type.
@@ -86,7 +85,7 @@ suspend fun Routing.butaPages() {
         }
 
         ButaObjectHandler.createObject(id, body)
-        call.respond(HttpStatusCode.OK)
+        call.respond(Response())
     }
 
     // Delete a ButaObject using an ID and a type
@@ -95,7 +94,7 @@ suspend fun Routing.butaPages() {
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
 
         ButaObjectHandler.deleteObject(id, type)
-        call.respond(HttpStatusCode.OK)
+        call.respond(Response())
     }
 
     // Update a ButaObject using an ID and a type.
@@ -135,6 +134,6 @@ suspend fun Routing.butaPages() {
         }
 
         ButaObjectHandler.updateObject(id, body)
-        call.respond(HttpStatusCode.OK)
+        call.respond(Response())
     }
 }

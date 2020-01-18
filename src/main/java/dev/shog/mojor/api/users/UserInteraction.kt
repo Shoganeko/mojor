@@ -1,10 +1,11 @@
 package dev.shog.mojor.api.users
 
+import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.auth.*
 import dev.shog.mojor.auth.token.TokenManager
 import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.auth.user.UserManager
-import dev.shog.mojor.auth.user.result.UserLoginResult
+import dev.shog.mojor.auth.user.result.UserLoginPayload
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
@@ -17,17 +18,21 @@ import io.ktor.routing.post
  * Add the pages.
  */
 fun Routing.userInteractionPages() {
-    /** Get a user's account information, excluding their password. */
+    /**
+     * Get a user's account information, excluding their password.
+     */
     get("/v1/user") {
         call.isAuthorized()
 
         val token = call.getTokenFromCall()
         val user = UserHolder.getUser(token.owner)
 
-        call.respond(user ?: Any())
+        call.respond(Response(payload = user))
     }
 
-    /** Login to a user's account. */
+    /**
+     * Login to a user's account.
+     */
     post("/v1/user") {
         if (call.isAuthorizedBoolean())
             throw AlreadyLoggedInException()
@@ -38,7 +43,7 @@ fun Routing.userInteractionPages() {
         val password = params["password"]
 
         if (username == null || password == null) {
-            call.respond(HttpStatusCode.BadRequest, UserLoginResult(null, null, false, "Username or Password was not included."))
+            call.respond(HttpStatusCode.BadRequest, Response("Username or Password was not included", UserLoginPayload()))
             return@post
         }
 
@@ -50,7 +55,7 @@ fun Routing.userInteractionPages() {
                 val user = UserManager.loginUsing(username, password, true)
 
                 if (user != null) {
-                    call.respond(HttpStatusCode.OK, UserLoginResult(user, TokenManager.createToken(user), true, null))
+                    call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenManager.createToken(user))))
                     return@post
                 }
             }
@@ -60,8 +65,8 @@ fun Routing.userInteractionPages() {
             val user = UserManager.loginUsing(username, password, false)
 
             if (user == null)
-                call.respond(HttpStatusCode.BadRequest, UserLoginResult(error = "Invalid Username or Password"))
-            else call.respond(HttpStatusCode.OK, UserLoginResult(user, TokenManager.createToken(user), false, null))
+                call.respond(HttpStatusCode.BadRequest, Response("Invalid Username or Password", UserLoginPayload()))
+            else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenManager.createToken(user))))
         }
     }
 }
