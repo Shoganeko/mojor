@@ -7,6 +7,10 @@ body {
     padding: 0;
 }
 
+.tab {
+    margin-left: 2rem;
+}
+
 .content {
     height: 90vh;
     display: flex;
