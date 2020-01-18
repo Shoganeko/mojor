@@ -1,10 +1,10 @@
 package dev.shog.mojor.pages
 
+import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
-import io.ktor.http.toHttpDateString
 
 object SiteTree : RegPage {
     private val TREE = MarkdownPage("tree.md").respond()
@@ -16,7 +16,7 @@ object SiteTree : RegPage {
 
         BUILT_TREE = TREE
                 .replace("{tree}", buildTree())
-                .replace("{last-built}", System.currentTimeMillis().toHttpDateString())
+                .replace("{last-built}", System.currentTimeMillis().defaultFormat())
 
         return BUILT_TREE ?: ""
     }
