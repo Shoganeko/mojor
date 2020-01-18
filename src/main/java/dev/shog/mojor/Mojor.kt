@@ -23,7 +23,7 @@ object Mojor {
     const val MOJOR_VERSION = 1.1F
 
     val APP = AppBuilder()
-            .withName("Mojor")
+            .withName("mojor")
             .withVersion(MOJOR_VERSION)
             .checkUpdates(false)
             .usingConfig(ConfigHandler.createConfig(ConfigHandler.ConfigType.YML, "mojor", Config()))
