@@ -85,6 +85,5 @@ dependencies {
     compile "io.ktor:ktor-serialization:$ktor_version"
     compile 'com.konghq:unirest-java:3.1.02'
     compile 'com.github.Shoganeko:lib:4970c524ff'
-    compile 'org.jetbrains.exposed:exposed:0.17.7'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.9'
 }
