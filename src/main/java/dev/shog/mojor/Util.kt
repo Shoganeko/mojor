@@ -9,7 +9,6 @@ import dev.shog.mojor.pages.obj.Page
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
-import io.ktor.http.Parameters
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
@@ -22,7 +21,6 @@ import kotlinx.html.link
 import kotlinx.html.meta
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
-import org.json.JSONObject
 import org.w3c.dom.Document
 import java.lang.management.ManagementFactory
 
