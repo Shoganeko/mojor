@@ -9,7 +9,6 @@ import dev.shog.mojor.pages.obj.Page
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
-import io.ktor.http.Parameters
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
@@ -22,7 +21,6 @@ import kotlinx.html.link
 import kotlinx.html.meta
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
-import org.json.JSONObject
 import org.w3c.dom.Document
 import java.lang.management.ManagementFactory
 
@@ -35,25 +33,6 @@ fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
 /** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document =
         html.invoke(createHTMLDocument())
-
-/** Compare a [JSONObject] with another [JSONObject] */
-fun JSONObject.compareWith(jsonObject: JSONObject): Boolean {
-    for (key in jsonObject.keys())
-        if (!has(key.toString()))
-            return false
-
-    return true
-}
-
-/** If a map contains [args]. */
-fun Parameters.containsKeys(vararg args: String): Boolean {
-    args.forEach { key ->
-        if (!this.contains(key))
-            return false
-    }
-
-    return true
-}
 
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {

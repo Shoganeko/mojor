@@ -3,14 +3,12 @@ package dev.shog.mojor.servers
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.RandomEmote
 import dev.shog.mojor.api.buta.butaPages
+import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
 import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.auth.AuthenticationException
-import dev.shog.mojor.auth.isAuthorized
-import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.getErrorMessage
-import dev.shog.mojor.handle.motd.Motd
 import dev.shog.mojor.handle.motd.MotdHandler
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -23,10 +21,11 @@ import io.ktor.jackson.JacksonConverter
 import io.ktor.jackson.jackson
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
-import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.*
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.routing
 import io.ktor.serialization.DefaultJsonConfiguration
 import io.ktor.serialization.serialization
 import io.ktor.server.engine.embeddedServer
@@ -66,7 +65,7 @@ private fun Application.mainModule() {
 
     install(StatusPages) {
         exception<AuthenticationException> {
-            call.respond(HttpStatusCode.Unauthorized, it.message ?: ":(")
+            call.respond(HttpStatusCode.Unauthorized, Response(it.message ?: "Authentication Exception"))
         }
 
         exception<Throwable> {
@@ -76,17 +75,15 @@ private fun Application.mainModule() {
                     .sendMessage("API: " + getErrorMessage(it, true))
                     .subscribe()
 
-            call.respond(HttpStatusCode.InternalServerError)
+            call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
         }
 
         status(HttpStatusCode.NotFound) {
-            call.respondText("{\"not-found\": \"URL was not found.\"}",
-                    ContentType.parse("application/json"),
-                    HttpStatusCode.NotFound)
+            call.respond(HttpStatusCode.NotFound, Response("That resource was not found."))
         }
 
         status(HttpStatusCode.Unauthorized) {
-            call.respond(HttpStatusCode.Unauthorized)
+            call.respond(HttpStatusCode.Unauthorized, Response("You are not authorized."))
         }
     }
 
@@ -116,39 +113,20 @@ private fun Application.mainModule() {
  */
 private suspend fun Routing.root() {
     get("/") {
-        call.respond(mapOf("response" to RandomEmote.getEmote()))
+        call.respond(Response(payload = RandomEmote.getEmote()))
     }
 
     get("/version") {
-        call.respond(mapOf("response" to Mojor.APP.getVersion()))
+        call.respond(Response(payload = Mojor.APP.getVersion()))
+    }
+
+    get("/robots.txt") {
+        call.respondText("User-Agent: *\nDisallow: /")
     }
 
     butaPages()
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()
-
-    get("/robots.txt") {
-        call.respondText("User-Agent: *\nDisallow: /")
-    }
-
-    options("/motd") { call.respond("CORS PepeLaugh") }
-
-    post("/motd") {
-        call.isAuthorized(Permissions.MOTD_MANAGER)
-
-        val params = call.receiveParameters()
-
-        val owner = params["owner"]?.toLongOrNull()
-        val text = params["text"]
-        val date = System.currentTimeMillis()
-
-        if (text == null || owner == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@post
-        }
-
-        MotdHandler.insertMotd(Motd(text, owner, date))
-        call.respond(HttpStatusCode.OK)
-    }
+    MotdHandler.registerPages(this)
 }

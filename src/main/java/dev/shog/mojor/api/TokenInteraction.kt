@@ -1,5 +1,6 @@
 package dev.shog.mojor.api
 
+import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.auth.getTokenFromCall
 import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.auth.token.disable
@@ -18,18 +19,18 @@ fun Routing.tokenInteractionPages() {
     /** Get a token's full data from their identifier. */
     get("/v1/token") {
         call.isAuthorized()
-        call.respond(call.getTokenFromCall())
+        call.respond(Response(payload = call.getTokenFromCall()))
     }
 
     /** Renew a token. */
     patch("/v1/token") {
         call.isAuthorized(avoidExpire = true)
-        call.respond(call.getTokenFromCall().renew())
+        call.respond(Response(payload = call.getTokenFromCall().renew()))
     }
 
     /** Disable/Delete a token. */
     delete("/v1/token") {
         call.isAuthorized()
-        call.respond(call.getTokenFromCall().disable())
+        call.respond(Response(payload = call.getTokenFromCall().disable()))
     }
 }

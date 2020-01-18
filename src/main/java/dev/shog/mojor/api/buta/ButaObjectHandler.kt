@@ -32,7 +32,7 @@ object ButaObjectHandler {
      * @param id The ID of the object.
      * @param butaObject The new object.
      */
-    suspend fun updateObject(id: Long, butaObject: ButaObject): Boolean {
+    suspend fun updateObject(id: Long, butaObject: ButaObject) {
         if (!OBJECTS.containsKey(id))
             throw Exception("Object doesn't exist!")
         else OBJECTS[id] = butaObject
@@ -46,7 +46,7 @@ object ButaObjectHandler {
      * @param id The ID of the new object.
      * @param butaObject The new object.
      */
-    suspend fun createObject(id: Long, butaObject: ButaObject): Boolean {
+    suspend fun createObject(id: Long, butaObject: ButaObject) {
         if (OBJECTS.containsKey(id))
             throw Exception("This object already exists!")
         else OBJECTS[id] = butaObject
@@ -61,7 +61,7 @@ object ButaObjectHandler {
      * @param id The ID of the object.
      * @param type The type of the object.
      */
-    suspend fun deleteObject(id: Long, type: Int): Boolean {
+    suspend fun deleteObject(id: Long, type: Int) {
         OBJECTS.remove(id)
                 ?: throw Exception()
 

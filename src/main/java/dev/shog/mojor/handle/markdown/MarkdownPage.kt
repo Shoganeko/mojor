@@ -81,9 +81,16 @@ class MarkdownPage(private val file: String) {
          * Parse a markdown string into HTML.
          */
         suspend fun parseMarkdown(file: String): String {
+            val cacheObj = Mojor.APP.getCache().getObject<String>(file)
+
+            if (cacheObj != null) {
+                LOGGER.debug("Successfully found $file in cache.")
+                return cacheObj.getValue()
+            }
+
             val url = "https://raw.githubusercontent.com/Shoganeko/mojor-pages/master/$file"
 
-            LOGGER.debug("Making request to {}", url)
+            LOGGER.debug("Made a request to {}.", url)
 
             val fi = try {
                 HttpClient().get<String>(url)
@@ -91,7 +98,10 @@ class MarkdownPage(private val file: String) {
                 return "<h1>Invalid File!</h1)"
             }
 
-            return fi modify MarkdownModifier
+            val result = fi modify MarkdownModifier
+            val cache = Mojor.APP.getCache().createObject(file, result)
+
+            return cache?.getValue() ?: "Failed to retrieve content."
         }
     }
 }

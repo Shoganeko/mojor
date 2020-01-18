@@ -64,6 +64,7 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
+            it.printStackTrace()
             val errorString = it.message ?: "Error"
 
             Mojor.APP
@@ -107,15 +108,13 @@ private fun Application.mainModule() {
             call.respondRedirect("${Mojor.MAIN}/account", true)
         }
 
-        addMarkdownPages("privacy.md")
-
         registerPages(
+                "/" to Homepage,
                 "/site-tree" to SiteTree,
                 "/motd/history" to MotdPages.History,
                 "/motd/{date}" to MotdPages.MotdSelector,
                 "/discord" to Discord,
                 "/robots.txt" to RobotsTxt,
-                "/" to Homepage,
                 "/motd/update" to MotdUpdate,
                 "/clock" to Clock,
                 "/strlen" to StringLengthCalculator,
@@ -126,5 +125,7 @@ private fun Application.mainModule() {
                 "/account" to Account,
                 "/debug" to Debug
         )
+
+        addMarkdownPages("privacy.md")
     }
 }

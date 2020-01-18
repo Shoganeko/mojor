@@ -7,7 +7,6 @@ import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
-import java.text.SimpleDateFormat
 
 object Homepage : RegPage {
     override fun getPage(call: ApplicationCall): String {
@@ -35,7 +34,7 @@ object Homepage : RegPage {
                             br
 
                             span("data") {
-                                +"${formatter.format(motd.getProperDate())} by ${motd.getOwnerName()}"
+                                +"${motd.getProperDate()} by ${motd.getOwnerName()}"
                                 br
                                 a(Mojor.MAIN + "/motd/history") { +"View History" }
                             }
@@ -107,6 +106,4 @@ object Homepage : RegPage {
             }
         }.replace("{motd-content}", MotdHandler.getMostRecentMotd().getProperData())
     }
-
-    val formatter = SimpleDateFormat("EEEE, MMMM d, yyyy")
 }

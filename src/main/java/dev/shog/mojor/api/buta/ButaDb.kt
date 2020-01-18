@@ -8,8 +8,8 @@ import dev.shog.mojor.api.buta.obj.User
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import reactor.core.publisher.Mono
 
 /**
  * Database interaction for Buta.
@@ -21,14 +21,16 @@ object ButaDb {
      * @param id The ID of the object.
      * @param butaObject The object.
      */
-    suspend fun updateObject(id: Long, butaObject: ButaObject): Boolean = coroutineScope {
-        val pre = PostgreSql.createConnection()
-                .prepareStatement("UPDATE buta.objs SET js=? WHERE id=?")
+    suspend fun updateObject(id: Long, butaObject: ButaObject) {
+        coroutineScope {
+            val pre = PostgreSql.createConnection()
+                    .prepareStatement("UPDATE buta.objs SET js=? WHERE id=?")
 
-        pre.setString(1, ObjectMapper().writeValueAsString(butaObject))
-        pre.setLong(2, id)
+            pre.setString(1, ObjectMapper().writeValueAsString(butaObject))
+            pre.setLong(2, id)
 
-        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.execute() }
+            launch { pre.execute() }
+        }
     }
 
     /**
@@ -37,15 +39,17 @@ object ButaDb {
      * @param id The ID of the new object.
      * @param butaObject The new object.
      */
-    suspend fun createObject(id: Long, butaObject: ButaObject): Boolean = coroutineScope {
-        val pre = PostgreSql.createConnection()
-                .prepareStatement("INSERT INTO buta.objs(id, js, type) VALUES (?, ?, ?)")
+    suspend fun createObject(id: Long, butaObject: ButaObject) {
+        coroutineScope {
+            val pre = PostgreSql.createConnection()
+                    .prepareStatement("INSERT INTO buta.objs(id, js, type) VALUES (?, ?, ?)")
 
-        pre.setLong(1, id)
-        pre.setString(2, ObjectMapper().writeValueAsString(butaObject))
-        pre.setInt(3, butaObject.type)
+            pre.setLong(1, id)
+            pre.setString(2, ObjectMapper().writeValueAsString(butaObject))
+            pre.setInt(3, butaObject.type)
 
-        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.execute() }
+            launch { pre.execute() }
+        }
     }
 
     /**
@@ -54,13 +58,15 @@ object ButaDb {
      * @param id The ID of the object.
      * @param type The type of object.
      */
-    suspend fun deleteObject(id: Long, type: Int): Boolean = coroutineScope {
-        val pre = PostgreSql.createConnection()
-                .prepareStatement("DELETE FROM buta.objs WHERE id=?")
+    suspend fun deleteObject(id: Long, type: Int) {
+        coroutineScope {
+            val pre = PostgreSql.createConnection()
+                    .prepareStatement("DELETE FROM buta.objs WHERE id=?")
 
-        pre.setLong(1, id)
+            pre.setLong(1, id)
 
-        return@coroutineScope withContext(Dispatchers.Unconfined) { pre.execute() }
+            launch { pre.execute() }
+        }
     }
 
     /**

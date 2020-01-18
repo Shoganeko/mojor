@@ -1,5 +1,6 @@
 package dev.shog.mojor.pages
 
+import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.obj.Session
@@ -68,7 +69,7 @@ object Account : RegPage {
 
                 return page
                         .replace("{name}", owner.username)
-                        .replace("{sign-in-date}", Homepage.formatter.format(Date.from(Instant.ofEpochMilli(ses.signInDate))))
+                        .replace("{sign-in-date}", ses.signInDate.defaultFormat())
                         .replace("{sign-in-ip}", ses.signInIp)
                         .replace("{permissions}", getPermissions(owner))
             }

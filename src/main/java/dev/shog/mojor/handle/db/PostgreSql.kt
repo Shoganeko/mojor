@@ -21,6 +21,7 @@ object PostgreSql {
      * Create a connection to the AWS.
      */
     suspend fun createConnection(): Connection = coroutineScope {
+        Class.forName("org.postgresql.Driver")
         async { DriverManager.getConnection(URL, USERNAME, PASSWORD) }
     }.await()
 }

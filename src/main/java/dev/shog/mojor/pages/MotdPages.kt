@@ -3,7 +3,6 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.handle.motd.MotdHandler
-import dev.shog.mojor.pages.Homepage.formatter
 import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
 
@@ -40,7 +39,7 @@ object MotdPages {
         return VALID_MOTD
                 .replace("{content}", motd.getProperData())
                 .replace("{author}", motd.getOwnerName())
-                .replace("{date}", formatter.format(motd.getProperDate()))
+                .replace("{date}", motd.getProperDate())
     }
 
     /** Get the MOTD history */
@@ -58,8 +57,8 @@ object MotdPages {
         }
 
         return MOTD_HISTORY
-                .replace("{most-recent-motd}", formatter.format(MotdHandler.getMostRecentMotd().getProperDate()))
-                .replace("{oldest-motd}", formatter.format(MotdHandler.getOldestMotd().getProperDate()))
+                .replace("{most-recent-motd}", MotdHandler.getMostRecentMotd().getProperDate())
+                .replace("{oldest-motd}", MotdHandler.getOldestMotd().getProperDate())
                 .replace("{content}", motds)
     }
 }

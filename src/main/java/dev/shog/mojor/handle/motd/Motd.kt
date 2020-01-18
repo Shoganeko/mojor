@@ -1,10 +1,9 @@
 package dev.shog.mojor.handle.motd
 
-import dev.shog.lib.util.asDate
+import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.auth.user.UserHolder
 import dev.shog.mojor.handle.MarkdownModifier
 import dev.shog.mojor.handle.modify
-import java.util.*
 
 /**
  * A motd class
@@ -21,10 +20,10 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
     }
 
     /**
-     * Get [date] as a [Date]
+     * Get [date] as a [String]
      */
-    fun getProperDate(): Date =
-            date.asDate()
+    fun getProperDate(): String =
+            date.defaultFormat()
 
     /**
      * Get the name of [owner].
