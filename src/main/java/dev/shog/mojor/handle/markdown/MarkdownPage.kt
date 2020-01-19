@@ -67,7 +67,7 @@ class MarkdownPage(private val file: String) {
 
                 script(src = "${Mojor.URLS.cdn}/pages/markdown/js.js") {}
             }
-        }.replace("<p>rmkdr</p>", runBlocking { parseMarkdown(file) })
+        }.replace("<p>rmkdr</p>", runBlocking { getGitHubPage(file) })
     }
 
     companion object {
@@ -77,9 +77,9 @@ class MarkdownPage(private val file: String) {
         val PAGES = ArrayList<String>()
 
         /**
-         * Parse a markdown string into HTML.
+         * Get a GitHub pages and parse into a markdown page.
          */
-        suspend fun parseMarkdown(file: String): String {
+        suspend fun getGitHubPage(file: String): String {
             val cacheObj = Mojor.APP.getCache().getObject<String>(file)
 
             if (cacheObj != null) {
