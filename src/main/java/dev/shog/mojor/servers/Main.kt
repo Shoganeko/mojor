@@ -105,7 +105,7 @@ private fun Application.mainModule() {
 
         get("/logout") {
             call.sessions.clear<Session>()
-            call.respondRedirect("${Mojor.MAIN}/account", true)
+            call.respondRedirect("${Mojor.URLS.main}/account", true)
         }
 
         registerPages(

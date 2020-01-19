@@ -35,7 +35,7 @@ object Account : RegPage {
                         Permissions.APP_MANAGER -> append("You have the elevated dashboard. <br/>")
                         Permissions.BUTA_MANAGER -> append("You have permission to manage Buta. <br/>")
                         Permissions.USER_MANAGER -> append("You have permission to manage Users. <br/>")
-                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${Mojor.MAIN}/motd/update).")
+                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${Mojor.URLS.main}/motd/update).")
                     }
                 }
             }

@@ -51,7 +51,7 @@ object MotdPages {
                 append("<div>")
                 append("<h4>${motd.getProperData()}<br/>")
                 append("<span class=\"unh\">On ${motd.getProperDate()} by ${motd.getOwnerName()}. ")
-                append("<a href=\"${Mojor.MAIN}/motd/${motd.date}\">View this MOTD</a></span></h4>")
+                append("<a href=\"${Mojor.URLS.cdn}/motd/${motd.date}\">View this MOTD</a></span></h4>")
                 append("</div>")
             }
         }

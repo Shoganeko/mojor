@@ -37,7 +37,7 @@ fun html(html: TagConsumer<Document>.() -> Document): Document =
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")
-    link("${Mojor.CDN}/favicon.jpg", "icon", "image/jpeg")
+    link("${Mojor.URLS.cdn}/favicon.jpg", "icon", "image/jpeg")
     meta("viewport", "width=device-width, initial-scale=1.0")
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
@@ -53,7 +53,7 @@ fun getStatisticsOfSystem(): String {
             "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
             "\nMojor Version: ${Mojor.APP.getVersion()}" +
-            "\nMojor URLs: ${Mojor.API} - ${Mojor.CDN} - ${Mojor.MAIN}"
+            "\nMojor URLs: ${Mojor.URLS.api} - ${Mojor.URLS.cdn} - ${Mojor.URLS.main}"
 }
 
 /** Get a JSON array from an [ObjectPermissions]. */

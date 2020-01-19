@@ -20,7 +20,7 @@ object Clock : HtmlPage {
         head {
             title("Clock")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/clock/clock.css", "stylesheet", "text/css")
+            link("${Mojor.URLS.cdn}/pages/utility/clock/clock.css", "stylesheet", "text/css")
 
             applyMeta()
         }
@@ -28,10 +28,10 @@ object Clock : HtmlPage {
         body {
             div {
                 id = "nav"
-                a(Mojor.MAIN) {
-                    id = "back-button"
-                    i("material-icons") { +"arrow_back" }
-                }
+            }
+            a(Mojor.URLS.main) {
+                id = "back-button"
+                i("material-icons") { +"arrow_back" }
             }
 
             div {
@@ -47,7 +47,7 @@ object Clock : HtmlPage {
                 }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/clock/clock.js") {}
+            script(src = "${Mojor.URLS.cdn}/pages/utility/clock/clock.js") {}
         }
     }
 }

@@ -5,13 +5,12 @@ import dev.shog.lib.cfg.ConfigHandler
 import dev.shog.lib.hook.DiscordWebhook
 import dev.shog.mojor.api.buta.ButaObjectHandler
 import dev.shog.mojor.handle.ArgsHandler
+import dev.shog.mojor.handle.UrlSet
 import dev.shog.mojor.handle.file.Config
 import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
 import dev.shog.mojor.servers.mainServer
 import kotlinx.coroutines.runBlocking
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import reactor.core.publisher.Hooks
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,26 +25,25 @@ object Mojor {
             .withName("mojor")
             .withVersion(MOJOR_VERSION)
             .checkUpdates(false)
+            .withLogger()
             .usingConfig(ConfigHandler.createConfig(ConfigHandler.ConfigType.YML, "mojor", Config()))
             .withCache()
             .withWebhook { DiscordWebhook(this!!.asObject<Config>().discordUrl) }
             .build()
 
-    var API: String = "http://localhost:8080"
-    var CDN: String = "http://localhost:8070"
-    var MAIN: String = "http://localhost:8090"
-
-    /** The logger of Mojor */
-    val LOGGER: Logger = LoggerFactory.getLogger("MOJOR")
+    /**
+     * The URLS for Mojor
+     */
+    var URLS = UrlSet("http://localhost:8090", "http://localhost:8080", "http://localhost:8070")
 
     internal fun main(args: Array<String>) = runBlocking<Unit> {
         val ah = ArgsHandler()
 
         // Mojor Dev and Prod modes
         ah.addHooks("--prod", {
-            API = "https://api.shog.dev"
-            CDN = "https://cdn.shog.dev"
-            MAIN = "https://shog.dev"
+            URLS.api = "https://api.shog.dev"
+            URLS.cdn = "https://cdn.shog.dev"
+            URLS.main = "https://shog.dev"
 
             Hooks.onErrorDropped {
                 it.printStackTrace()
@@ -57,7 +55,7 @@ object Mojor {
 
             runBlocking { ButaObjectHandler.init() }
 
-            LOGGER.debug("Production mode enabled")
+            APP.getLogger().debug("Production mode enabled")
         }, {
             Hooks.onErrorDropped {
                 it.printStackTrace()
@@ -69,7 +67,7 @@ object Mojor {
             runBlocking { ButaObjectHandler.devInit() }
             Hooks.onOperatorDebug()
 
-            LOGGER.debug("Dev mode enabled")
+            APP.getLogger().debug("Dev mode enabled")
         })
 
         // If they're blocking notifications

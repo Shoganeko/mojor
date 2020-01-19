@@ -11,13 +11,13 @@ object StringLengthCalculator : HtmlPage {
             title("String Length Calculator")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
-            link("${Mojor.CDN}/pages/utility/strlen/strlen.css", "stylesheet", "text/css")
+            link("${Mojor.URLS.cdn}/pages/utility/strlen/strlen.css", "stylesheet", "text/css")
 
             applyMeta()
         }
 
         body {
-            a(Mojor.MAIN) {
+            a(Mojor.URLS.main) {
                 i("material-icons") { +"arrow_back" }
             }
 
@@ -50,7 +50,7 @@ object StringLengthCalculator : HtmlPage {
                 }
             }
 
-            script(src = "${Mojor.CDN}/pages/utility/strlen/strlen.js") {}
+            script(src = "${Mojor.URLS.cdn}/pages/utility/strlen/strlen.js") {}
         }
     }
 }

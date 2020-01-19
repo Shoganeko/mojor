@@ -14,7 +14,7 @@ object Homepage : RegPage {
             head {
                 title("shog.dev")
 
-                link("${Mojor.CDN}/pages/homepage/homepage.css", "stylesheet", "text/css")
+                link("${Mojor.URLS.cdn}/pages/homepage/homepage.css", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
                 applyMeta()
@@ -36,7 +36,7 @@ object Homepage : RegPage {
                             span("data") {
                                 +"${motd.getProperDate()} by ${motd.getOwnerName()}"
                                 br
-                                a(Mojor.MAIN + "/motd/history") { +"View History" }
+                                a(Mojor.URLS.main + "/motd/history") { +"View History" }
                             }
                         }
                     }
@@ -70,19 +70,19 @@ object Homepage : RegPage {
                             ul {
                                 li {
                                     p("list-entry") {
-                                        a("${Mojor.MAIN}/strlen") { +"String Length Calculator" }
+                                        a("${Mojor.URLS.main}/strlen") { +"String Length Calculator" }
 
                                         +" Find the length of a string."
                                     }
 
                                     p("list-entry") {
-                                        a("${Mojor.MAIN}/clock") { +"Clock" }
+                                        a("${Mojor.URLS.main}/clock") { +"Clock" }
 
                                         +" An online clock."
                                     }
 
                                     p("list-entry") {
-                                        a("${Mojor.MAIN}/argen") { +"Array Generator" }
+                                        a("${Mojor.URLS.main}/argen") { +"Array Generator" }
 
                                         +" Generate an array for Kotlin or Javascript."
                                     }
@@ -95,14 +95,14 @@ object Homepage : RegPage {
                         h1("topic-header") { +"contact" }
 
                         div("topic-info") {
-                            a("https://${Mojor.MAIN}/discord", "_blank", "contact") {
+                            a("https://${Mojor.URLS.main}/discord", "_blank", "contact") {
                                 +"SHO#0001"
                             }
                         }
                     }
                 }
-                script(src = "${Mojor.CDN}/js/util.js") {}
-                script(src = "${Mojor.CDN}/pages/homepage/homepage.js") {}
+                script(src = "${Mojor.URLS.cdn}/js/util.js") {}
+                script(src = "${Mojor.URLS.cdn}/pages/homepage/homepage.js") {}
             }
         }.replace("{motd-content}", MotdHandler.getMostRecentMotd().getProperData())
     }
