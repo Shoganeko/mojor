@@ -71,34 +71,32 @@ fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
 }
 
 /** Add markdown pages with name [pageName]. */
-fun Routing.addMarkdownPages(vararg pageName: String) {
-    pageName.forEach { name ->
-        addPages("/${name.removeSuffix(".md")}")
+fun Routing.addMarkdownPages(vararg pageName: String) =
+        pageName.asSequence()
+                .forEach { name ->
+                    addPages("/${name.removeSuffix(".md")}")
 
-        get("/${name.removeSuffix(".md")}") {
-            call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
-        }
-    }
-}
+                    get("/${name.removeSuffix(".md")}") {
+                        call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
+                    }
+                }
 
 /** Add each [page] to [MarkdownPage.PAGES]. */
-fun addPages(vararg page: String) {
-    page.forEach { pg ->
-        MarkdownPage.PAGES.add(pg)
-    }
-}
+fun addPages(vararg page: String) =
+        page.asSequence()
+                .forEach { pg -> MarkdownPage.PAGES.add(pg) }
 
 /** Register [pages]. */
-fun Routing.registerPages(vararg pages: Pair<String, Page>) {
-    pages.forEach { page ->
-        if (page.second.displayTree)
-            addPages(page.first)
+fun Routing.registerPages(vararg pages: Pair<String, Page>) =
+        pages.asSequence()
+                .forEach { page ->
+                    if (page.second.displayTree)
+                        addPages(page.first)
 
-        get(page.first) {
-            page.second.exec(call)
-        }
-    }
-}
+                    get(page.first) {
+                        page.second.exec(call)
+                    }
+                }
 
 /** Get the session */
 fun ApplicationCall.getSession(): Session? =
