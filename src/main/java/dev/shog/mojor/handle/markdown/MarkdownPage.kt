@@ -2,7 +2,7 @@ package dev.shog.mojor.handle.markdown
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
-import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.modify
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -97,7 +97,7 @@ class MarkdownPage(private val file: String) {
                 return "<h1>Invalid File!</h1)"
             }
 
-            val result = fi modify MarkdownModifier
+            val result = fi modify MARKDOWN
             val cache = Mojor.APP.getCache().createObject(file, result)
 
             return cache?.getValue() ?: "Failed to retrieve content."

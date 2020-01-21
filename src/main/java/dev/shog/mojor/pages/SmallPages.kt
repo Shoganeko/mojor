@@ -2,7 +2,7 @@ package dev.shog.mojor.pages
 
 import dev.shog.mojor.getSession
 import dev.shog.mojor.getStatisticsOfSystem
-import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.obj.RedirectPage
@@ -25,7 +25,7 @@ object RobotsTxt : RegPage {
 /** NaM */
 object Nam : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            "# NaM" modify MarkdownModifier
+            "# NaM<br/>## IT IS NaM O'CLOCK" modify MARKDOWN
 }
 
 /** Error page with code */
