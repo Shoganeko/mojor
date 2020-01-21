@@ -3,6 +3,6 @@
         event.preventDefault();
 
         document.querySelector("#result").textContent =
-            document.querySelector("#str").textContent.length + " characters long."
+            document.querySelector("#str").value.length + " characters long."
     });
 })();
