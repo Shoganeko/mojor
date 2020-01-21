@@ -95,7 +95,7 @@ object Homepage : RegPage {
                         h1("topic-header") { +"contact" }
 
                         div("topic-info") {
-                            a("https://${Mojor.URLS.main}/discord", "_blank", "contact") {
+                            a("${Mojor.URLS.main}/discord", "_blank", "contact") {
                                 +"SHO#0001"
                             }
                         }
