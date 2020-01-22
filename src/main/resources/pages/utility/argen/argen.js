@@ -101,7 +101,7 @@ function setLang(lang) {
             break;
         case "python":
             currentArrayString = "array = [";
-            currentArrayStringEnding = "]"
+            currentArrayStringEnding = "]";
             break;
     }
 

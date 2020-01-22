@@ -15,20 +15,29 @@ infix fun <A> A.modify(modifier: Modifier<A>): A =
  */
 interface Modifier<A> {
     fun execute(obj: A): A
-}
 
-/**
- * Modifies a string to html markdown
- */
-object MarkdownModifier : Modifier<String> {
-    override fun execute(obj: String): String {
-        val document = Parser.builder()
-                .build()
-                .parse(obj)
-
-        return HtmlRenderer
-                .builder()
-                .build()
-                .render(document)
+    companion object {
+        /**
+         * Create a modifier and apply [func] to objects.
+         */
+        fun <A> newModifier(func: A.() -> A): Modifier<A> = object : Modifier<A> {
+            override fun execute(obj: A): A =
+                    func.invoke(obj)
+        }
     }
 }
+
+
+val MARKDOWN = Modifier.newModifier<String> {
+    val document = Parser.builder()
+            .build()
+            .parse(this)
+
+    HtmlRenderer
+            .builder()
+            .build()
+            .render(document)
+}
+val CAPITALIZE = Modifier.newModifier(String::capitalize)
+val UPPERCASE = Modifier.newModifier(String::toUpperCase)
+val LOWERCASE = Modifier.newModifier(String::toLowerCase)

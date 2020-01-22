@@ -1,9 +1,8 @@
 package dev.shog.mojor.handle.markdown
 
 import dev.shog.mojor.Mojor
-import dev.shog.mojor.Mojor.LOGGER
 import dev.shog.mojor.applyMeta
-import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.modify
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -21,7 +20,7 @@ class MarkdownPage(private val file: String) {
             head {
                 title("shog.dev")
 
-                link("${Mojor.CDN}/pages/markdown/css.css", "stylesheet", "text/css")
+                link("${Mojor.URLS.cdn}/pages/markdown/css.css", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
                 applyMeta()
@@ -38,16 +37,16 @@ class MarkdownPage(private val file: String) {
                             li("margin")
 
                             li {
-                                a(Mojor.MAIN) { +"Main Page" }
+                                a(Mojor.URLS.main) { +"Main Page" }
                             }
                             li {
-                                a(Mojor.MAIN + "/motd/history") { +"MOTD History" }
+                                a(Mojor.URLS.main + "/motd/history") { +"MOTD History" }
                             }
                             li {
-                                a(Mojor.MAIN + "/site-tree") { +"Site Tree" }
+                                a(Mojor.URLS.main + "/site-tree") { +"Site Tree" }
                             }
                             li {
-                                a(Mojor.MAIN + "/account") { +"Account" }
+                                a(Mojor.URLS.main + "/account") { +"Account" }
                             }
                         }
                     }
@@ -61,14 +60,14 @@ class MarkdownPage(private val file: String) {
                     footer {
                         p {
                             +"shog.dev ${Calendar.getInstance().get(Calendar.YEAR)} "
-                            a("${Mojor.MAIN}/privacy") { +"Privacy" }
+                            a("${Mojor.URLS.main}/privacy") { +"Privacy" }
                         }
                     }
                 }
 
-                script(src = "${Mojor.CDN}/pages/markdown/js.js") {}
+                script(src = "${Mojor.URLS.cdn}/pages/markdown/js.js") {}
             }
-        }.replace("<p>rmkdr</p>", runBlocking { parseMarkdown(file) })
+        }.replace("<p>rmkdr</p>", runBlocking { getGitHubPage(file) })
     }
 
     companion object {
@@ -78,19 +77,19 @@ class MarkdownPage(private val file: String) {
         val PAGES = ArrayList<String>()
 
         /**
-         * Parse a markdown string into HTML.
+         * Get a GitHub pages and parse into a markdown page.
          */
-        suspend fun parseMarkdown(file: String): String {
+        suspend fun getGitHubPage(file: String): String {
             val cacheObj = Mojor.APP.getCache().getObject<String>(file)
 
             if (cacheObj != null) {
-                LOGGER.debug("Successfully found $file in cache.")
+                Mojor.APP.getLogger().debug("Successfully found $file in cache.")
                 return cacheObj.getValue()
             }
 
             val url = "https://raw.githubusercontent.com/Shoganeko/mojor-pages/master/$file"
 
-            LOGGER.debug("Made a request to {}.", url)
+            Mojor.APP.getLogger().debug("Made a request to {}.", url)
 
             val fi = try {
                 HttpClient().get<String>(url)
@@ -98,7 +97,7 @@ class MarkdownPage(private val file: String) {
                 return "<h1>Invalid File!</h1)"
             }
 
-            val result = fi modify MarkdownModifier
+            val result = fi modify MARKDOWN
             val cache = Mojor.APP.getCache().createObject(file, result)
 
             return cache?.getValue() ?: "Failed to retrieve content."

@@ -37,7 +37,7 @@ fun html(html: TagConsumer<Document>.() -> Document): Document =
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")
-    link("${Mojor.CDN}/favicon.jpg", "icon", "image/jpeg")
+    link("${Mojor.URLS.cdn}/favicon.jpg", "icon", "image/jpeg")
     meta("viewport", "width=device-width, initial-scale=1.0")
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
@@ -53,7 +53,7 @@ fun getStatisticsOfSystem(): String {
             "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
             "\nMojor Version: ${Mojor.APP.getVersion()}" +
-            "\nMojor URLs: ${Mojor.API} - ${Mojor.CDN} - ${Mojor.MAIN}"
+            "\nMojor URLs: ${Mojor.URLS.api} - ${Mojor.URLS.cdn} - ${Mojor.URLS.main}"
 }
 
 /** Get a JSON array from an [ObjectPermissions]. */
@@ -71,34 +71,32 @@ fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
 }
 
 /** Add markdown pages with name [pageName]. */
-fun Routing.addMarkdownPages(vararg pageName: String) {
-    pageName.forEach { name ->
-        addPages("/${name.removeSuffix(".md")}")
+fun Routing.addMarkdownPages(vararg pageName: String) =
+        pageName.asSequence()
+                .forEach { name ->
+                    addPages("/${name.removeSuffix(".md")}")
 
-        get("/${name.removeSuffix(".md")}") {
-            call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
-        }
-    }
-}
+                    get("/${name.removeSuffix(".md")}") {
+                        call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
+                    }
+                }
 
 /** Add each [page] to [MarkdownPage.PAGES]. */
-fun addPages(vararg page: String) {
-    page.forEach { pg ->
-        MarkdownPage.PAGES.add(pg)
-    }
-}
+fun addPages(vararg page: String) =
+        page.asSequence()
+                .forEach { pg -> MarkdownPage.PAGES.add(pg) }
 
 /** Register [pages]. */
-fun Routing.registerPages(vararg pages: Pair<String, Page>) {
-    pages.forEach { page ->
-        if (page.second.displayTree)
-            addPages(page.first)
+fun Routing.registerPages(vararg pages: Pair<String, Page>) =
+        pages.asSequence()
+                .forEach { page ->
+                    if (page.second.displayTree)
+                        addPages(page.first)
 
-        get(page.first) {
-            page.second.exec(call)
-        }
-    }
-}
+                    get(page.first) {
+                        page.second.exec(call)
+                    }
+                }
 
 /** Get the session */
 fun ApplicationCall.getSession(): Session? =

@@ -5,7 +5,7 @@ import dev.shog.mojor.addMarkdownPages
 import dev.shog.mojor.auth.AuthenticationException
 import dev.shog.mojor.auth.obj.Session
 import dev.shog.mojor.auth.token.TokenHolder
-import dev.shog.mojor.handle.MarkdownModifier
+import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
 import dev.shog.mojor.registerPages
@@ -71,7 +71,7 @@ private fun Application.mainModule() {
                     .sendMessage("There has been an error on the Main server!\n$errorString")
                     .subscribe()
 
-            Error(500, "There's an issue with our backend. **If you have a chance, please report this [here](https://shog.dev/discord).**" modify MarkdownModifier).exec(call)
+            Error(500, "There's an issue with our backend. **If you have a chance, please report this [here](https://shog.dev/discord).**" modify MARKDOWN).exec(call)
         }
 
         status(HttpStatusCode.NotFound) {
@@ -105,7 +105,7 @@ private fun Application.mainModule() {
 
         get("/logout") {
             call.sessions.clear<Session>()
-            call.respondRedirect("${Mojor.MAIN}/account", true)
+            call.respondRedirect("${Mojor.URLS.main}/account", true)
         }
 
         registerPages(
