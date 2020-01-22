@@ -25,7 +25,7 @@ internal object ButaSwearPage {
      */
     suspend fun getPage(): JSONArray {
         if (content == null)
-            refresh()
+            content = refresh()
 
         return content ?: JSONArray()
     }
