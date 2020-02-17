@@ -26,9 +26,7 @@ import java.lang.management.ManagementFactory
 
 /** See what [first] is missing from [second] */
 fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
-        first
-                .filterNot { second.contains(it) }
-                .toMutableList()
+        second.filterNot { first.contains(it) }
 
 /** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document =

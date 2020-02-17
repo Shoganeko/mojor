@@ -17,8 +17,8 @@ open class AuthenticationException(reason: String) :
 /**
  * A token is missing permissions
  */
-class TokenMissingPermissions(permissions: ArrayList<Permissions>) :
-        AuthenticationException("token missing permissions $permissions")
+class TokenMissingPermissions(tokenPerms: Collection<Permissions>, missingPerms: Collection<Permissions>) :
+        AuthenticationException("token missing permissions. (HAS: $tokenPerms, MISSING: $missingPerms)")
 
 /**
  * An invalid token type was inputted

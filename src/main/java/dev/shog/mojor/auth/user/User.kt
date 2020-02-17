@@ -37,4 +37,10 @@ data class User(
     /** Check [captchaVerified] */
     fun isCaptchaVerified(): Boolean =
             captchaVerified
+
+    /**
+     * Create a [SimpleUser]
+     */
+    fun simplify(): SimpleUser =
+            SimpleUser.fromUser(this)
 }

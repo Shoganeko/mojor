@@ -10,6 +10,7 @@ import dev.shog.mojor.handle.file.Config
 import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
 import dev.shog.mojor.servers.mainServer
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import kotlinx.coroutines.runBlocking
 import reactor.core.publisher.Hooks
 import java.text.SimpleDateFormat
@@ -36,6 +37,8 @@ object Mojor {
      */
     var URLS = UrlSet("http://localhost:8090", "http://localhost:8080", "http://localhost:8070")
 
+    @KtorExperimentalLocationsAPI
+    @ExperimentalStdlibApi
     internal fun main(args: Array<String>) = runBlocking<Unit> {
         val ah = ArgsHandler()
 
@@ -85,4 +88,6 @@ object Mojor {
     }
 }
 
+@KtorExperimentalLocationsAPI
+@ExperimentalStdlibApi
 fun main(args: Array<String>) = Mojor.main(args)

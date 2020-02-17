@@ -2,6 +2,7 @@ package dev.shog.mojor.pages
 
 import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.auth.obj.Permissions
 import dev.shog.mojor.auth.obj.Session
 import dev.shog.mojor.auth.token.TokenHolder
@@ -13,8 +14,7 @@ import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
 import io.ktor.sessions.clear
 import io.ktor.sessions.sessions
-import java.time.Instant
-import java.util.*
+import kotlinx.coroutines.runBlocking
 
 object Account : RegPage {
     private val ELEVATED_SIGN_IN = MarkdownPage("account/elevated-account.md").respond()
@@ -72,6 +72,15 @@ object Account : RegPage {
                         .replace("{sign-in-date}", ses.signInDate.defaultFormat())
                         .replace("{sign-in-ip}", ses.signInIp)
                         .replace("{permissions}", getPermissions(owner))
+                        .replace("{notifications}", buildString {
+                            val notifs = runBlocking { NotificationService.getNotificationsForUser(owner.id) }
+
+                            for (notif in notifs) {
+                                append("\n### ${notif.data}")
+                                append("\n${notif.postedAt.defaultFormat()}")
+                                append("\n<button>Dismiss</button>\n\n")
+                            }
+                        })
             }
         }
     }

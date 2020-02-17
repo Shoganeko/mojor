@@ -1,5 +1,6 @@
 package dev.shog.mojor.api.users
 
+import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.auth.*
 import dev.shog.mojor.auth.token.TokenManager
@@ -31,6 +32,17 @@ fun Routing.userInteractionPages() {
     }
 
     /**
+     * Get a user's notifications
+     */
+    get("/v1/user/notifs") {
+        call.isAuthorized()
+
+        val token = call.getTokenFromCall()
+
+        call.respond(Response(payload = NotificationService.getNotificationsForUser(token.owner)))
+    }
+
+    /**
      * Login to a user's account.
      */
     post("/v1/user") {
@@ -57,10 +69,8 @@ fun Routing.userInteractionPages() {
                 if (user != null) {
                     call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenManager.createToken(user))))
                     return@post
-                }
-            }
-
-            call.respond(HttpStatusCode.BadRequest)
+                } else call.respond(HttpStatusCode.BadRequest, Response("Invalid username or password"))
+            } else call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
         } else {
             val user = UserManager.loginUsing(username, password, false)
 

@@ -33,7 +33,7 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permissions, avoidExpire: B
         val tokenPerms = token.permissions
 
         if (!tokenPerms.containsAll(permissions.toList()))
-            throw TokenMissingPermissions(arrayListOf(*getMissing(tokenPerms, permissions.toList()).toTypedArray()))
+            throw TokenMissingPermissions(tokenPerms, getMissing(tokenPerms, permissions.toList()))
     }
 }
 

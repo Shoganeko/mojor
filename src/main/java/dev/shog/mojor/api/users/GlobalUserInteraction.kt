@@ -1,5 +1,6 @@
 package dev.shog.mojor.api.users
 
+import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.auth.isAuthorized
 import dev.shog.mojor.auth.obj.Permissions
@@ -11,11 +12,9 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
+import io.ktor.request.receiveParameters
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.patch
+import io.ktor.routing.*
 
 /**
  * Add the pages.
@@ -24,7 +23,7 @@ fun Routing.globalUserInteractionPages() {
     /** Get all users. */
     get("/v1/users") {
         call.isAuthorized(Permissions.USER_MANAGER)
-        call.respond(Response(payload = UserHolder.USERS.values))
+        call.respond(Response(payload = UserHolder.USERS.values.asSequence().map { it.simplify() }))
     }
 
     /** Update a selected user with new user data. */
@@ -69,6 +68,28 @@ fun Routing.globalUserInteractionPages() {
         if (user == null)
             call.respond(HttpStatusCode.BadRequest, Response("Invalid User"))
         else call.respond(Response(payload = SimpleUser.fromUser(user)))
+    }
+
+    /**
+     * Give a user a notification
+     */
+    put("/v1/user/{id}/notif") {
+        call.isAuthorized(Permissions.USER_MANAGER)
+
+        val id = call.parameters["id"]?.toLongOrNull() ?: -1L
+        val content = call.receiveParameters()["content"]
+        val user = UserHolder.getUser(id)
+
+        if (user == null)
+            call.respond(HttpStatusCode.BadRequest, Response("Invalid User"))
+        else {
+            if (content == null)
+                call.respond(HttpStatusCode.BadRequest, Response("Invalid Data"))
+            else {
+                NotificationService.postNotification(content, id)
+                call.respond(Response())
+            }
+        }
     }
 }
 
