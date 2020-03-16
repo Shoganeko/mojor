@@ -12,6 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Routing
+import io.ktor.routing.delete
 import io.ktor.routing.get
 import io.ktor.routing.post
 
@@ -40,6 +41,19 @@ fun Routing.userInteractionPages() {
         val token = call.getTokenFromCall()
 
         call.respond(Response(payload = NotificationService.getNotificationsForUser(token.owner)))
+    }
+
+    /**
+     * Delete a notification
+     */
+    delete("/v1/user/notifs/{id}") {
+        call.isAuthorized()
+
+        val token = call.getTokenFromCall()
+
+        NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
+
+        call.respond(Response())
     }
 
     /**

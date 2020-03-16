@@ -113,14 +113,34 @@ object NotificationService {
          * Delete the notification.
          */
         suspend fun close() = coroutineScope {
-            val pre = PostgreSql.createConnection()
-                    .prepareStatement("DELETE FROM notif.notif WHERE id = ?")
-
-            pre.setString(1, id)
-
-            saved[intendedFor]?.remove(this@Notification)
-
-            launch { pre.executeUpdate() }
+            closeNotification(id, intendedFor)
         }
+    }
+
+    /**
+     * Close a notification.
+     *
+     * @param id The notification ID.
+     * @param intendedFor The intended user for the notification. This insures that only the owner can delete the notification.
+     */
+    suspend fun closeNotification(id: String, intendedFor: Long) = coroutineScope {
+        val pre = PostgreSql.createConnection()
+                .prepareStatement("DELETE FROM notif.notif WHERE id = ? and intendedFor = ?")
+
+        pre.setString(1, id)
+        pre.setLong(2, intendedFor)
+
+        val intended = saved[intendedFor]
+
+        if (intended != null) {
+            val value = intended
+                    .single { notif -> notif.id == id }
+
+            intended.remove(value)
+
+            saved[intendedFor] = intended
+        }
+
+        launch { pre.executeUpdate() }
     }
 }
