@@ -1,9 +1,9 @@
-package dev.shog.mojor.auth.user
+package dev.shog.mojor.handle.auth.user
 
-import dev.shog.mojor.auth.obj.ObjectPermissions
-import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.auth.token.Token
-import dev.shog.mojor.auth.token.TokenManager
+import dev.shog.mojor.handle.auth.obj.ObjectPermissions
+import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.token.Token
+import dev.shog.mojor.handle.auth.token.TokenManager
 import dev.shog.mojor.getJsonArray
 import org.json.JSONArray
 

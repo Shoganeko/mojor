@@ -1,6 +1,6 @@
-package dev.shog.mojor.auth.user
+package dev.shog.mojor.handle.auth.user
 
-import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.handle.auth.obj.ObjectPermissions
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

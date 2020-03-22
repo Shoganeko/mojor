@@ -7,7 +7,7 @@ import dev.shog.mojor.pages.obj.RegPage
 import io.ktor.application.ApplicationCall
 
 object SiteTree : RegPage {
-    private val TREE = MarkdownPage("tree.md").respond()
+    private val TREE = MarkdownPage.getPage("tree.md")
     private var BUILT_TREE: String? = null
 
     override fun getPage(call: ApplicationCall): String {
@@ -15,8 +15,8 @@ object SiteTree : RegPage {
             return BUILT_TREE ?: ""
 
         BUILT_TREE = TREE
-                .replace("{tree}", buildTree())
-                .replace("{last-built}", System.currentTimeMillis().defaultFormat())
+                .replace("\$\$TREE", buildTree())
+                .replace("\$\$LAST_BUILT", System.currentTimeMillis().defaultFormat())
 
         return BUILT_TREE ?: ""
     }

@@ -1,25 +1,25 @@
 package dev.shog.mojor.pages
 
 import dev.shog.lib.util.defaultFormat
-import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.notif.NotificationService
-import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.auth.obj.Session
-import dev.shog.mojor.auth.token.TokenHolder
-import dev.shog.mojor.auth.user.User
-import dev.shog.mojor.auth.user.UserHolder
+import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Session
+import dev.shog.mojor.handle.auth.token.TokenHolder
+import dev.shog.mojor.handle.auth.user.User
+import dev.shog.mojor.handle.auth.user.UserHolder
 import dev.shog.mojor.getSession
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.RegPage
+import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
 import io.ktor.sessions.clear
 import io.ktor.sessions.sessions
 import kotlinx.coroutines.runBlocking
 
 object Account : RegPage {
-    private val ELEVATED_SIGN_IN = MarkdownPage("account/elevated-account.md").respond()
-    private val SIGNED_IN = MarkdownPage("account/signed-in.md").respond()
-    private val SIGNED_OUT = MarkdownPage("account/signed-out.md").respond()
+    private val ELEVATED_SIGN_IN = MarkdownPage.getPage("account/elevated-account.md")
+    private val SIGNED_IN = MarkdownPage.getPage("account/signed-in.md")
+    private val SIGNED_OUT = MarkdownPage.getPage("account/signed-out.md")
 
     override fun getPage(call: ApplicationCall): String {
         if (call.getSession() != null)
@@ -35,7 +35,7 @@ object Account : RegPage {
                         Permissions.APP_MANAGER -> append("You have the elevated dashboard. <br/>")
                         Permissions.BUTA_MANAGER -> append("You have permission to manage Buta. <br/>")
                         Permissions.USER_MANAGER -> append("You have permission to manage Users. <br/>")
-                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${Mojor.URLS.main}/motd/update).")
+                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${UrlUtils.URLS.main}/motd/update).")
                     }
                 }
             }
@@ -68,11 +68,11 @@ object Account : RegPage {
                 val page = if (owner.permissions.contains(Permissions.APP_MANAGER)) ELEVATED_SIGN_IN else SIGNED_IN
 
                 return page
-                        .replace("{name}", owner.username)
-                        .replace("{sign-in-date}", ses.signInDate.defaultFormat())
-                        .replace("{sign-in-ip}", ses.signInIp)
-                        .replace("{permissions}", getPermissions(owner))
-                        .replace("{notifications}", buildString {
+                        .replace("\$\$NAME", owner.username)
+                        .replace("\$\$DATE", ses.signInDate.defaultFormat())
+                        .replace("\$\$IP", ses.signInIp)
+                        .replace("\$\$PERM", getPermissions(owner))
+                        .replace("\$\$NOTIF", buildString {
                             val notifs = runBlocking { NotificationService.getNotificationsForUser(owner.id) }
 
                             for (notif in notifs) {

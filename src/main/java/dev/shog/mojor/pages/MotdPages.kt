@@ -1,15 +1,15 @@
 package dev.shog.mojor.pages
 
-import dev.shog.mojor.Mojor
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.handle.motd.MotdHandler
 import dev.shog.mojor.pages.obj.RegPage
+import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
 
 object MotdPages {
-    private val INVALID_MOTD = MarkdownPage("motd/invalidMotd.md").respond()
-    private val VALID_MOTD = MarkdownPage("motd/validMotd.md").respond()
-    private val MOTD_HISTORY = MarkdownPage("motd/motdHistory.md").respond()
+    private val INVALID_MOTD = MarkdownPage.getPage("motd/invalidMotd.md")
+    private val VALID_MOTD = MarkdownPage.getPage("motd/validMotd.md")
+    private val MOTD_HISTORY = MarkdownPage.getPage("motd/motdHistory.md")
 
     /**
      * Motd history using [getMotdHistory].
@@ -39,7 +39,7 @@ object MotdPages {
         return VALID_MOTD
                 .replace("{content}", motd.getProperData())
                 .replace("{author}", motd.getOwnerName())
-                .replace("{date}", motd.getProperDate())
+                .replace("{date}", motd.getDate())
     }
 
     /** Get the MOTD history */
@@ -50,15 +50,15 @@ object MotdPages {
             for (motd in MotdHandler.motds.reversed()) {
                 append("<div>")
                 append("<h4>${motd.getProperData()}<br/>")
-                append("<span class=\"unh\">On ${motd.getProperDate()} by ${motd.getOwnerName()}. ")
-                append("<a href=\"${Mojor.URLS.cdn}/motd/${motd.date}\">View this MOTD</a></span></h4>")
+                append("<span class=\"unh\">On ${motd.getDate()} by ${motd.getOwnerName()}. ")
+                append("<a href=\"${UrlUtils.URLS.cdn}/motd/${motd.date}\">View this MOTD</a></span></h4>")
                 append("</div>")
             }
         }
 
         return MOTD_HISTORY
-                .replace("{most-recent-motd}", MotdHandler.getMostRecentMotd().getProperDate())
-                .replace("{oldest-motd}", MotdHandler.getOldestMotd().getProperDate())
-                .replace("{content}", motds)
+                .replace("\$\$MOST_RECENT_MOTD", MotdHandler.getMostRecentMotd().getDate())
+                .replace("\$\$OLDEST_MOTD", MotdHandler.getOldestMotd().getDate())
+                .replace("\$\$CONTENT", motds)
     }
 }

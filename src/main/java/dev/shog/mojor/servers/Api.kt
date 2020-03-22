@@ -7,9 +7,9 @@ import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
 import dev.shog.mojor.api.users.userInteractionPages
-import dev.shog.mojor.auth.AuthenticationException
-import dev.shog.mojor.getErrorMessage
+import dev.shog.mojor.handle.auth.AuthenticationException
 import dev.shog.mojor.handle.motd.MotdHandler
+import dev.shog.mojor.util.serverError
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -70,10 +70,7 @@ private fun Application.mainModule() {
 
         exception<Throwable> {
             it.printStackTrace()
-
-            Mojor.APP
-                    .sendMessage("API: " + getErrorMessage(it, true))
-                    .subscribe()
+            serverError("API", it)
 
             call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
         }

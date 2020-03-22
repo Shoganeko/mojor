@@ -2,13 +2,16 @@ package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
-import dev.shog.mojor.auth.AuthenticationException
-import dev.shog.mojor.auth.obj.Session
-import dev.shog.mojor.auth.token.TokenHolder
+import dev.shog.mojor.handle.auth.AuthenticationException
+import dev.shog.mojor.handle.auth.obj.Session
+import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
+import dev.shog.mojor.pages.Clock
 import dev.shog.mojor.registerPages
+import dev.shog.mojor.util.UrlUtils
+import dev.shog.mojor.util.serverError
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -64,12 +67,7 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
-            it.printStackTrace()
-            val errorString = it.message ?: "Error"
-
-            Mojor.APP
-                    .sendMessage("There has been an error on the Main server!\n$errorString")
-                    .subscribe()
+            serverError("MAIN", it)
 
             Error(500, "There's an issue with our backend. **If you have a chance, please report this [here](https://shog.dev/discord).**" modify MARKDOWN).exec(call)
         }
@@ -105,7 +103,7 @@ private fun Application.mainModule() {
 
         get("/logout") {
             call.sessions.clear<Session>()
-            call.respondRedirect("${Mojor.URLS.main}/account", true)
+            call.respondRedirect("${UrlUtils.URLS.main}/account", true)
         }
 
         registerPages(
@@ -123,9 +121,14 @@ private fun Application.mainModule() {
                 "/induce/error" to InduceError,
                 "/login" to Login,
                 "/account" to Account,
-                "/debug" to Debug
+                "/debug" to Debug,
+                "/discord/buta" to ButaInvite
         )
 
-        addMarkdownPages("privacy.md")
+        addMarkdownPages(
+                "privacy.md",
+                "utilities.md",
+                "projects.md"
+        )
     }
 }

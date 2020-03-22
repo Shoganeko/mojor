@@ -20,6 +20,15 @@ a {
     color: #9b9b9b;
 }
 
+.links {
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+}
+
+.links a {
+    text-decoration: none;
+}
+
 .contact {
     font-family: 'Roboto Mono', monospace;
 }
@@ -44,6 +53,7 @@ ul {
     font-family: 'Lexend Deca', sans-serif;
     font-size: 72px;
     animation-delay: 1s;
+    margin-top: 16rem;
 }
 
 /** MOTD Stuff */
@@ -69,4 +79,8 @@ ul {
     font-family: 'Roboto', sans-serif;
     font-size: 20px;
     margin-top: -1rem;
+}
+
+.ic-pack {
+    font-size: 20px;
 }

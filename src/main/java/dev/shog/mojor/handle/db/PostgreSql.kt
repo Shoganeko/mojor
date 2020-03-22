@@ -11,14 +11,20 @@ import java.sql.DriverManager
  * The SQL manager.
  */
 object PostgreSql {
-    private val cfg = Mojor.APP.getConfigObject<Config>()
+    private val URL: String
+    private val USERNAME: String
+    private val PASSWORD: String
 
-    private val URL = cfg.postgre.url
-    private val USERNAME = cfg.postgre.username
-    private val PASSWORD = cfg.postgre.password
+    init {
+        val cfg = Mojor.APP.getConfigObject<Config>()
+
+        URL = cfg.postgre.url
+        USERNAME = cfg.postgre.username
+        PASSWORD = cfg.postgre.password
+    }
 
     /**
-     * Create a connection to the AWS.
+     * Create a connection to AWS.
      */
     suspend fun createConnection(): Connection = coroutineScope {
         Class.forName("org.postgresql.Driver")

@@ -1,4 +1,4 @@
-package dev.shog.mojor.auth.user
+package dev.shog.mojor.handle.auth.user
 
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.Dispatchers

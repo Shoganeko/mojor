@@ -2,11 +2,11 @@ package dev.shog.mojor.api.users
 
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.auth.*
-import dev.shog.mojor.auth.token.TokenManager
-import dev.shog.mojor.auth.user.UserHolder
-import dev.shog.mojor.auth.user.UserManager
-import dev.shog.mojor.auth.user.result.UserLoginPayload
+import dev.shog.mojor.handle.auth.*
+import dev.shog.mojor.handle.auth.token.TokenManager
+import dev.shog.mojor.handle.auth.user.UserHolder
+import dev.shog.mojor.handle.auth.user.UserManager
+import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters

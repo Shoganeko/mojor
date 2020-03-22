@@ -64,6 +64,13 @@ h2, h3, h4, h5, h6, p {
 a {
     color: #9b9b9b;
 }
-ul {
-    list-style-type: none;
+
+.liEntry {
+    margin-right: .5rem;
+}
+
+.titleA {
+    font-size: 36px !important;
+    text-decoration: none;
+    color: white;
 }

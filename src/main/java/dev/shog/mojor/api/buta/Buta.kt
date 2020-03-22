@@ -3,8 +3,8 @@ package dev.shog.mojor.api.buta
 import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.auth.isAuthorized
-import dev.shog.mojor.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.isAuthorized
+import dev.shog.mojor.handle.auth.obj.Permissions
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive

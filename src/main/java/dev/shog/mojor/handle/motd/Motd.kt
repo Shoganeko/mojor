@@ -1,7 +1,7 @@
 package dev.shog.mojor.handle.motd
 
 import dev.shog.lib.util.defaultFormat
-import dev.shog.mojor.auth.user.UserHolder
+import dev.shog.mojor.handle.auth.user.UserHolder
 import dev.shog.mojor.handle.MARKDOWN
 import dev.shog.mojor.handle.modify
 
@@ -22,7 +22,7 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
     /**
      * Get [date] as a [String]
      */
-    fun getProperDate(): String =
+    fun getDate(): String =
             date.defaultFormat()
 
     /**

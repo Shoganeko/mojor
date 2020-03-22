@@ -3,6 +3,7 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.HtmlPage
+import dev.shog.mojor.util.UrlUtils
 import kotlinx.html.*
 
 object StringLengthCalculator : HtmlPage {
@@ -11,13 +12,13 @@ object StringLengthCalculator : HtmlPage {
             title("String Length Calculator")
             link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
             link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css", "stylesheet", "text/css")
-            link("${Mojor.URLS.cdn}/pages/utility/strlen/strlen.css", "stylesheet", "text/css")
+            link("${UrlUtils.URLS.cdn}/pages/utility/strlen/strlen.css", "stylesheet", "text/css")
 
             applyMeta()
         }
 
         body {
-            a(Mojor.URLS.main) {
+            a(UrlUtils.URLS.main) {
                 i("material-icons") { +"arrow_back" }
             }
 
@@ -35,7 +36,9 @@ object StringLengthCalculator : HtmlPage {
                         type = ButtonType.submit
                         +"Execute"
                     }
+
                     br
+
                     label {
                         textArea {
                             id = "str"
@@ -45,12 +48,10 @@ object StringLengthCalculator : HtmlPage {
                     }
                 }
 
-                p {
-                    id = "result"
-                }
+                p { id = "result" }
             }
 
-            script(src = "${Mojor.URLS.cdn}/pages/utility/strlen/strlen.js") {}
+            script(src = "${UrlUtils.URLS.cdn}/pages/utility/strlen/strlen.js") {}
         }
     }
 }

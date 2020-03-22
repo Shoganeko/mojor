@@ -1,9 +1,9 @@
-package dev.shog.mojor.auth
+package dev.shog.mojor.handle.auth
 
-import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.auth.token.Token
-import dev.shog.mojor.auth.token.TokenHolder
-import dev.shog.mojor.auth.token.isExpired
+import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.token.Token
+import dev.shog.mojor.handle.auth.token.TokenHolder
+import dev.shog.mojor.handle.auth.token.isExpired
 import dev.shog.mojor.getMissing
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader

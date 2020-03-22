@@ -1,5 +1,6 @@
 package dev.shog.mojor.handle
 
+import dev.shog.mojor.Mojor
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 
@@ -27,7 +28,6 @@ interface Modifier<A> {
     }
 }
 
-
 val MARKDOWN = Modifier.newModifier<String> {
     val document = Parser.builder()
             .build()
@@ -38,6 +38,7 @@ val MARKDOWN = Modifier.newModifier<String> {
             .build()
             .render(document)
 }
+
 val CAPITALIZE = Modifier.newModifier(String::capitalize)
 val UPPERCASE = Modifier.newModifier(String::toUpperCase)
 val LOWERCASE = Modifier.newModifier(String::toLowerCase)

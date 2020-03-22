@@ -16,25 +16,30 @@ object Discord : RedirectPage {
             "https://discord.gg/YCfeQB"
 }
 
+/** Buta Discord bot Invite. */
+object ButaInvite : RedirectPage {
+    override fun redirect(call: ApplicationCall): String =
+            "https://discordapp.com/api/oauth2/authorize?client_id=605255185308319805&permissions=8&scope=bot"
+}
+
 /** The robots.txt */
 object RobotsTxt : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            "<pre>User-Agent: *\nDisallow: /discord\nDisallow: /motd/*</pre>"
+            "<pre>User-Agent: *\nDisallow: /discord\nDisallow: /motd/*</pre>\nDisallow: /discord/buta"
 }
 
 /** NaM */
 object Nam : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            "# NaM<br/>## IT IS NaM O'CLOCK" modify MARKDOWN
+            "# NaM\n\n## IT IS NaM O'CLOCK" modify MARKDOWN
 }
 
 /** Error page with code */
 class Error(private val code: Int, private val possibleFix: String = "") : RegPage {
     override fun getPage(call: ApplicationCall): String =
-            MarkdownPage("error.md")
-                    .respond()
-                    .replace("{error-code}", code.toString())
-                    .replace("{possible-fix}", possibleFix)
+            MarkdownPage.getPage("error.md")
+                    .replace("\$\$ERROR_CODE", code.toString())
+                    .replace("\$\$POSSIBLE_FIX", possibleFix)
 
     override val statusCode: HttpStatusCode = HttpStatusCode.fromValue(code)
 }

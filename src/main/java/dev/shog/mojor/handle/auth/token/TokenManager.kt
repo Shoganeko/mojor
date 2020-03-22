@@ -1,8 +1,8 @@
-package dev.shog.mojor.auth.token
+package dev.shog.mojor.handle.auth.token
 
-import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.auth.token.result.TokenRenewResult
-import dev.shog.mojor.auth.user.User
+import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.token.result.TokenRenewResult
+import dev.shog.mojor.handle.auth.user.User
 import dev.shog.mojor.getJsonArray
 import dev.shog.mojor.handle.db.PostgreSql
 import org.apache.commons.codec.digest.DigestUtils

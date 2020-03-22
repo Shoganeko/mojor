@@ -11,7 +11,7 @@ object RandomEmote {
     /**
      * The emotes yoinked from FrankerFaceZ
      */
-    suspend fun refreshEmotes() {
+    private suspend fun refreshEmotes() {
         val req = HttpClient().get<String>("https://api.frankerfacez.com/v1/emoticons?sort=count&per_page=200")
 
         val array = JSONObject(req).getJSONArray("emoticons")

@@ -3,6 +3,7 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.pages.obj.RegPage
+import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -13,7 +14,7 @@ object Login : RegPage {
             head {
                 title("shog.dev login")
 
-                link("${Mojor.URLS.cdn}/pages/login/login.css", "stylesheet", "text/css")
+                link("${UrlUtils.URLS.cdn}/pages/login/login.css", "stylesheet", "text/css")
                 link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
@@ -23,7 +24,7 @@ object Login : RegPage {
             body("animated fadeIn head") {
                 div {
                     id = "nav"
-                    a(Mojor.URLS.main) {
+                    a(UrlUtils.URLS.main) {
                         id = "back-button"
                         i("material-icons") { +"arrow_back" }
                     }
@@ -69,9 +70,9 @@ object Login : RegPage {
                     async = true
                     defer = true
                 }
-                script(src = "${Mojor.URLS.cdn}/js/util.js") {}
-                script(src = "${Mojor.URLS.cdn}/js/sha.js") {}
-                script(src = "${Mojor.URLS.cdn}/pages/login/login.js") {}
+                script(src = "${UrlUtils.URLS.cdn}/js/util.js") {}
+                script(src = "${UrlUtils.URLS.cdn}/js/sha.js") {}
+                script(src = "${UrlUtils.URLS.cdn}/pages/login/login.js") {}
             }
         }
     }

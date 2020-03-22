@@ -1,6 +1,6 @@
-package dev.shog.mojor.auth.token
+package dev.shog.mojor.handle.auth.token
 
-import dev.shog.mojor.auth.obj.ObjectPermissions
+import dev.shog.mojor.handle.auth.obj.ObjectPermissions
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray

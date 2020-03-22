@@ -4,6 +4,7 @@ import dev.shog.mojor.Mojor
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.handle.motd.MotdHandler
 import dev.shog.mojor.pages.obj.RegPage
+import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
 import kotlinx.html.*
 import kotlinx.html.stream.createHTML
@@ -14,7 +15,7 @@ object Homepage : RegPage {
             head {
                 title("shog.dev")
 
-                link("${Mojor.URLS.cdn}/pages/homepage/homepage.css", "stylesheet", "text/css")
+                link("${UrlUtils.URLS.cdn}/pages/homepage/homepage.css", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
                 applyMeta()
@@ -34,75 +35,24 @@ object Homepage : RegPage {
                             br
 
                             span("data") {
-                                +"${motd.getProperDate()} by ${motd.getOwnerName()}"
+                                +"${motd.getDate()} by ${motd.getOwnerName()}"
                                 br
-                                a(Mojor.URLS.main + "/motd/history") { +"View History" }
+                                a(UrlUtils.URLS.main + "/motd/history") { +"View History" }
                             }
                         }
                     }
 
-                    div("topic") {
-                        h1("topic-header") { +"projects" }
-
-                        div("topic-info") {
-                            ul {
-                                li {
-                                    p("list-entry") {
-                                        a("https://github.com/shoganeko/buta") { +"Buta" }
-
-                                        +" A multi-purpose Discord bot."
-                                    }
-
-                                    p("list-entry") {
-                                        a("https://github.com/shoganeko/spotkey") { +"SpotKey" }
-
-                                        +" A lightweight Spotify hot-key manager."
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    div("topic") {
-                        h1("topic-header") { +"utility" }
-
-                        div("topic-info") {
-                            ul {
-                                li {
-                                    p("list-entry") {
-                                        a("${Mojor.URLS.main}/strlen") { +"String Length Calculator" }
-
-                                        +" Find the length of a string."
-                                    }
-
-                                    p("list-entry") {
-                                        a("${Mojor.URLS.main}/clock") { +"Clock" }
-
-                                        +" An online clock."
-                                    }
-
-                                    p("list-entry") {
-                                        a("${Mojor.URLS.main}/argen") { +"Array Generator" }
-
-                                        +" Generate an array for Kotlin or Javascript."
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    div("topic") {
-                        h1("topic-header") { +"contact" }
-
-                        div("topic-info") {
-                            a("${Mojor.URLS.main}/discord", "_blank", "contact") {
-                                +"SHO#0001"
-                            }
-                        }
+                    p("links") {
+                        a("https://discord.gg/R8n3T2v", "_BLANK") { +"discord" }
+                        +", "
+                        a("${UrlUtils.URLS.main}/utilities") { +"utilities" }
+                        +", "
+                        a("${UrlUtils.URLS.main}/projects") { +"projects" }
+                        +"."
                     }
                 }
-                script(src = "${Mojor.URLS.cdn}/js/util.js") {}
-                script(src = "${Mojor.URLS.cdn}/pages/homepage/homepage.js") {}
+                script(src = "${UrlUtils.URLS.cdn}/js/util.js") {}
+                script(src = "${UrlUtils.URLS.cdn}/pages/homepage/homepage.js") {}
             }
         }.replace("{motd-content}", MotdHandler.getMostRecentMotd().getProperData())
     }

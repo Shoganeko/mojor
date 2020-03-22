@@ -1,6 +1,6 @@
-package dev.shog.mojor.auth
+package dev.shog.mojor.handle.auth
 
-import dev.shog.mojor.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permissions
 
 /**
  * An authentication exception

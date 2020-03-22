@@ -1,6 +1,7 @@
 package dev.shog.mojor.servers
 
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.util.serverError
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -43,11 +44,7 @@ private fun Application.mainModule() {
 
     install(StatusPages) {
         exception<Throwable> {
-            val errorString = it.message ?: "Error"
-
-            Mojor.APP
-                    .sendMessage("There has been an error on the CDN server!\n$errorString")
-                    .subscribe()
+            serverError("CDN", it)
 
             call.respond(HttpStatusCode.InternalServerError)
         }

@@ -1,10 +1,10 @@
 package dev.shog.mojor.api
 
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.auth.getTokenFromCall
-import dev.shog.mojor.auth.isAuthorized
-import dev.shog.mojor.auth.token.disable
-import dev.shog.mojor.auth.token.renew
+import dev.shog.mojor.handle.auth.getTokenFromCall
+import dev.shog.mojor.handle.auth.isAuthorized
+import dev.shog.mojor.handle.auth.token.disable
+import dev.shog.mojor.handle.auth.token.renew
 import io.ktor.application.call
 import io.ktor.response.respond
 import io.ktor.routing.Routing

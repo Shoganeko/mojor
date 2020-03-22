@@ -1,4 +1,4 @@
-package dev.shog.mojor.auth.user
+package dev.shog.mojor.handle.auth.user
 
 /**
  * A simple user. This is a public representation of all users.

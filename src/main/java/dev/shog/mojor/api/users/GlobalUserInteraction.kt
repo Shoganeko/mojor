@@ -2,12 +2,12 @@ package dev.shog.mojor.api.users
 
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.auth.isAuthorized
-import dev.shog.mojor.auth.obj.Permissions
-import dev.shog.mojor.auth.user.SimpleUser
-import dev.shog.mojor.auth.user.User
-import dev.shog.mojor.auth.user.UserHolder
-import dev.shog.mojor.auth.user.delete
+import dev.shog.mojor.handle.auth.isAuthorized
+import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.user.SimpleUser
+import dev.shog.mojor.handle.auth.user.User
+import dev.shog.mojor.handle.auth.user.UserHolder
+import dev.shog.mojor.handle.auth.user.delete
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode

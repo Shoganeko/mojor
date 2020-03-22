@@ -2,10 +2,11 @@ package dev.shog.mojor
 
 import dev.shog.lib.util.asBytes
 import dev.shog.lib.util.asPercentage
-import dev.shog.mojor.auth.obj.ObjectPermissions
-import dev.shog.mojor.auth.obj.Session
+import dev.shog.mojor.handle.auth.obj.ObjectPermissions
+import dev.shog.mojor.handle.auth.obj.Session
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.Page
+import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -35,7 +36,7 @@ fun html(html: TagConsumer<Document>.() -> Document): Document =
 /** Apply meta to the head. */
 fun HEAD.applyMeta() {
     meta("description", "welcome to shog.dev!")
-    link("${Mojor.URLS.cdn}/favicon.jpg", "icon", "image/jpeg")
+    link("${UrlUtils.URLS.cdn}/favicon.jpg", "icon", "image/jpeg")
     meta("viewport", "width=device-width, initial-scale=1.0")
     meta("author", "shoganeko")
     meta("keywords", "shog,kotlin,java,shoganeko,dev,sho")
@@ -51,7 +52,7 @@ fun getStatisticsOfSystem(): String {
             "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
             "\nMojor Version: ${Mojor.APP.getVersion()}" +
-            "\nMojor URLs: ${Mojor.URLS.api} - ${Mojor.URLS.cdn} - ${Mojor.URLS.main}"
+            "\nMojor URLs: ${UrlUtils.URLS.api} - ${UrlUtils.URLS.cdn} - ${UrlUtils.URLS.main}"
 }
 
 /** Get a JSON array from an [ObjectPermissions]. */
@@ -59,14 +60,12 @@ fun ObjectPermissions.getJsonArray(): JSONArray =
         JSONArray(this)
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */
-fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String {
-    var msg = if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```"
-
-    msg += ExceptionUtils.getStackTrace(throwable) + "```\n\n"
-    msg += getStatisticsOfSystem()
-
-    return msg
-}
+fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String =
+        buildString {
+            append(if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```")
+            append(ExceptionUtils.getStackTrace(throwable) + "```\n\n")
+            append(getStatisticsOfSystem())
+        }
 
 /** Add markdown pages with name [pageName]. */
 fun Routing.addMarkdownPages(vararg pageName: String) =
@@ -75,7 +74,7 @@ fun Routing.addMarkdownPages(vararg pageName: String) =
                     addPages("/${name.removeSuffix(".md")}")
 
                     get("/${name.removeSuffix(".md")}") {
-                        call.respondText(MarkdownPage(name).respond(), ContentType.parse("text/html"))
+                        call.respondText(MarkdownPage.getPage(name), ContentType.parse("text/html"))
                     }
                 }
 
