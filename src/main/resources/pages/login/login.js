@@ -12,7 +12,7 @@ var onloadCallback = function () {
         let status = document.querySelector("#status");
 
         $.ajax({
-            url: 'http://localhost:8080/v1/user',
+            url: 'https://api.shog.dev/v1/user',
             type: 'POST',
             data: {
                 username: $("#username").val(),
@@ -23,11 +23,11 @@ var onloadCallback = function () {
                 status.textContent = "Signed in, updating session...";
 
                 $.ajax({
-                    url: 'http://localhost:8080/session',
+                    url: 'https://shog.dev/session',
                     type: 'POST',
                     data: { token: data.token.token },
                     success: function (e) {
-                        window.location = "http://localhost:8080/account";
+                        window.location = "https://shog.dev/account";
                     },
                     error: function (e) {
                         status.textContent = "Failed to update session! Please try again."

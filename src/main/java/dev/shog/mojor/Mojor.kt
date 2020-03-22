@@ -22,7 +22,7 @@ import reactor.core.publisher.Hooks
  * Mojor
  */
 object Mojor {
-    const val MOJOR_VERSION = 1.4F
+    const val MOJOR_VERSION = 1.5F
 
     val APP = AppBuilder()
             .withName("mojor")
