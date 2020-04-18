@@ -1,8 +1,9 @@
 package dev.shog.mojor
 
+import dev.shog.lib.FileHandler
+import dev.shog.lib.app.cache.Cache
 import dev.shog.lib.util.asBytes
 import dev.shog.lib.util.asPercentage
-import dev.shog.mojor.handle.auth.obj.ObjectPermissions
 import dev.shog.mojor.handle.auth.obj.Session
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.Page
@@ -23,11 +24,22 @@ import kotlinx.html.meta
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.json.JSONArray
 import org.w3c.dom.Document
+import java.lang.Exception
 import java.lang.management.ManagementFactory
+import java.util.*
+
+fun getUuid(id: String?): UUID? {
+    try {
+        return UUID.fromString(id ?: return null)
+    } catch (ex: Exception) {
+        return null
+    }
+}
+
 
 /** See what [first] is missing from [second] */
 fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
-        second.filterNot { first.contains(it) }
+        first.filter { !second.contains(it) }
 
 /** Creates an HTML document */
 fun html(html: TagConsumer<Document>.() -> Document): Document =
@@ -54,10 +66,6 @@ fun getStatisticsOfSystem(): String {
             "\nMojor Version: ${Mojor.APP.getVersion()}" +
             "\nMojor URLs: ${UrlUtils.URLS.api} - ${UrlUtils.URLS.cdn} - ${UrlUtils.URLS.main}"
 }
-
-/** Get a JSON array from an [ObjectPermissions]. */
-fun ObjectPermissions.getJsonArray(): JSONArray =
-        JSONArray(this)
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String =
@@ -98,3 +106,11 @@ fun Routing.registerPages(vararg pages: Pair<String, Page>) =
 /** Get the session */
 fun ApplicationCall.getSession(): Session? =
         sessions.get<Session>()
+
+/**
+ * Clear all files in the cache.
+ */
+fun clearCache() {
+    FileHandler.getApplicationFolder("mojor").listFiles()
+            ?.forEach { file -> file.delete() }
+}

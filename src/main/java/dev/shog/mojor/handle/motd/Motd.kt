@@ -1,14 +1,15 @@
 package dev.shog.mojor.handle.motd
 
 import dev.shog.lib.util.defaultFormat
-import dev.shog.mojor.handle.auth.user.UserHolder
 import dev.shog.mojor.handle.MARKDOWN
+import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.modify
+import java.util.*
 
 /**
  * A motd class
  */
-data class Motd(val data: String, val owner: Long, val date: Long) {
+data class Motd(val data: String, val owner: UUID, val date: Long) {
     /**
      * Get the markdown rendered motd.
      */
@@ -29,5 +30,5 @@ data class Motd(val data: String, val owner: Long, val date: Long) {
      * Get the name of [owner].
      */
     fun getOwnerName(): String =
-            UserHolder.getUser(owner)?.username ?: "admin"
+            UserManager.getUser(owner)?.username ?: "admin"
 }

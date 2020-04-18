@@ -1,9 +1,10 @@
 package dev.shog.mojor.handle.auth.token
 
-import dev.shog.mojor.handle.auth.obj.ObjectPermissions
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.runBlocking
-import org.json.JSONArray
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -22,12 +23,16 @@ object TokenHolder {
                 .executeQuery()
 
         while (rs.next()) {
+            val mapper = ObjectMapper()
+            val perms = mapper.readValue<Collection<Permission>>(rs.getString("permissions"), mapper.typeFactory.constructCollectionType(
+                    Collection::class.java,
+                    Permission::class.java
+            ))
+
             val token = Token(
                     rs.getString("token"),
-                    rs.getLong("owner"),
-                    ObjectPermissions.fromJsonArray(
-                            JSONArray(rs.getString("permissions"))
-                    ),
+                    UUID.fromString(rs.getString("owner")),
+                    perms,
                     rs.getLong("createdOn")
             )
 

@@ -1,7 +1,7 @@
 package dev.shog.mojor.servers
 
+import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.Mojor
-import dev.shog.mojor.util.serverError
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -44,7 +44,7 @@ private fun Application.mainModule() {
 
     install(StatusPages) {
         exception<Throwable> {
-            serverError("CDN", it)
+            it.logDiscord(Mojor.APP)
 
             call.respond(HttpStatusCode.InternalServerError)
         }

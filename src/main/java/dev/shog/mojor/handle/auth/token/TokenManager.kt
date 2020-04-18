@@ -1,9 +1,9 @@
 package dev.shog.mojor.handle.auth.token
 
-import dev.shog.mojor.handle.auth.obj.Permissions
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.token.result.TokenRenewResult
-import dev.shog.mojor.handle.auth.user.User
-import dev.shog.mojor.getJsonArray
+import dev.shog.mojor.handle.auth.user.obj.User
 import dev.shog.mojor.handle.db.PostgreSql
 import org.apache.commons.codec.digest.DigestUtils
 import java.util.*
@@ -21,7 +21,7 @@ object TokenManager {
     /**
      * The default permissions for a [Token].
      */
-    private val DEFAULT_PERMISSIONS = arrayListOf<Permissions>()
+    private val DEFAULT_PERMISSIONS = arrayListOf<Permission>()
 
     /**
      * Tokens queued to be removed
@@ -59,7 +59,7 @@ object TokenManager {
     /**
      * If the [token] has [permissions].
      */
-    fun hasPermissions(token: Token, permissions: ArrayList<Permissions>): Boolean =
+    fun hasPermissions(token: Token, permissions: ArrayList<Permission>): Boolean =
             token.permissions.containsAll(permissions)
 
     /**
@@ -134,9 +134,9 @@ object TokenManager {
                 .prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)")
 
         prepared.setString(1, token.token)
-        prepared.setLong(2, token.owner)
+        prepared.setString(2, token.owner.toString())
         prepared.setLong(3, token.createdOn)
-        prepared.setString(4, token.permissions.getJsonArray().toString())
+        prepared.setString(4, ObjectMapper().writeValueAsString(token.permissions))
 
         prepared.execute()
 

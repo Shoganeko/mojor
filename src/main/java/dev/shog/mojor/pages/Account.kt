@@ -2,12 +2,12 @@ package dev.shog.mojor.pages
 
 import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.api.notif.NotificationService
-import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.obj.Session
 import dev.shog.mojor.handle.auth.token.TokenHolder
-import dev.shog.mojor.handle.auth.user.User
-import dev.shog.mojor.handle.auth.user.UserHolder
 import dev.shog.mojor.getSession
+import dev.shog.mojor.handle.auth.user.handle.UserManager
+import dev.shog.mojor.handle.auth.user.obj.User
 import dev.shog.mojor.handle.markdown.MarkdownPage
 import dev.shog.mojor.pages.obj.RegPage
 import dev.shog.mojor.util.UrlUtils
@@ -20,68 +20,93 @@ object Account : RegPage {
     private val ELEVATED_SIGN_IN = MarkdownPage.getPage("account/elevated-account.md")
     private val SIGNED_IN = MarkdownPage.getPage("account/signed-in.md")
     private val SIGNED_OUT = MarkdownPage.getPage("account/signed-out.md")
+    private val OTHER_USER = MarkdownPage.getPage("account/other/other.md")
+    private val ELEVATED_OTHER_USER = MarkdownPage.getPage("account/other/elevated-other.md")
 
+    /**
+     * Sort into the different pages.
+     */
     override fun getPage(call: ApplicationCall): String {
-        if (call.getSession() != null)
-            return SignedIn.getPage(call)
+        val username = call.parameters["user"]
 
-        return SignedOut.getPage(call)
+        when {
+            username.isNullOrBlank() ->
+                return Error(404, "Check for issues in the username.").getPage(call)
+
+            username.equals("self", true) ->{
+                if (call.getSession() != null)
+                    return getSignedIn(call)
+
+                return SIGNED_OUT
+            }
+
+            else ->
+                return getOtherUser(call, username)
+        }
     }
 
-    fun getPermissions(user: User): String =
+    /**
+     * Get [name]'s account page.
+     */
+    private fun getOtherUser(call: ApplicationCall, name: String): String {
+        val user = UserManager.getUser(name)
+                ?: return Error(404, "Check for issues in the username \"$name\".").getPage(call)
+
+        return if (user.permissions.contains(Permission.MOJOR_ADMIN)) {
+            OTHER_USER
+                    .replace("\$\$NAME", user.username)
+        } else {
+            ELEVATED_OTHER_USER
+                    .replace("\$\$NAME", "<p style=\"color: red;\">${user.username}</p>")
+        }
+    }
+
+    /**
+     * Get a user's permission messages.
+     */
+    private fun getPermissions(user: User): String =
             buildString {
-                user.permissions.forEach { permissions ->
-                    when (permissions) {
-                        Permissions.APP_MANAGER -> append("You have the elevated dashboard. <br/>")
-                        Permissions.BUTA_MANAGER -> append("You have permission to manage Buta. <br/>")
-                        Permissions.USER_MANAGER -> append("You have permission to manage Users. <br/>")
-                        Permissions.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${UrlUtils.URLS.main}/motd/update).")
+                user.permissions.forEach { permission ->
+                    when (permission) {
+                        Permission.MOJOR_ADMIN -> append("You have the elevated dashboard. <br/>")
+                        Permission.BUTA_MANAGER -> append("You have permission to manage Buta. <br/>")
+                        Permission.USER_MANAGER -> append("You have permission to manage Users. <br/>")
+                        Permission.MOTD_MANAGER -> append("You have permission to manage MOTDS. You can do this [here](${UrlUtils.URLS.main}/motd/update).")
                     }
                 }
             }
 
     /**
-     * A signed out user.
+     * Get the signed in page for [name] using [call].
      */
-    object SignedOut : RegPage {
-        override fun getPage(call: ApplicationCall): String =
-                SIGNED_OUT
-    }
+    private fun getSignedIn(call: ApplicationCall): String {
+        val ses = call.getSession() ?: throw Exception()
 
-    /**
-     * A signed in user.
-     */
-    object SignedIn : RegPage {
-        override fun getPage(call: ApplicationCall): String {
-            val ses = call.getSession()
-                    ?: throw Exception()
+        val token = TokenHolder.getToken(ses.tokenIdentifier)
 
-            val token = TokenHolder.getToken(ses.tokenIdentifier)
+        if (token == null) {
+            call.sessions.clear<Session>()
+            return SIGNED_OUT
+        } else {
+            val owner = UserManager.getUser(token.owner)
+                    ?: return SIGNED_OUT // shouldn't ever happen
 
-            if (token == null) {
-                call.sessions.clear<Session>()
-                return SIGNED_OUT
-            } else {
-                val owner = UserHolder.getUser(token.owner)
-                        ?: return SIGNED_OUT // shouldn't ever happen
+            val page = if (owner.permissions.contains(Permission.MOJOR_ADMIN)) ELEVATED_SIGN_IN else SIGNED_IN
 
-                val page = if (owner.permissions.contains(Permissions.APP_MANAGER)) ELEVATED_SIGN_IN else SIGNED_IN
+            return page
+                    .replace("\$\$NAME", owner.username)
+                    .replace("\$\$DATE", ses.signInDate.defaultFormat())
+                    .replace("\$\$IP", ses.signInIp)
+                    .replace("\$\$PERM", getPermissions(owner))
+                    .replace("\$\$NOTIF", buildString {
+                        val notifs = runBlocking { NotificationService.getNotificationsForUser(owner.id) }
 
-                return page
-                        .replace("\$\$NAME", owner.username)
-                        .replace("\$\$DATE", ses.signInDate.defaultFormat())
-                        .replace("\$\$IP", ses.signInIp)
-                        .replace("\$\$PERM", getPermissions(owner))
-                        .replace("\$\$NOTIF", buildString {
-                            val notifs = runBlocking { NotificationService.getNotificationsForUser(owner.id) }
-
-                            for (notif in notifs) {
-                                append("\n### ${notif.data}")
-                                append("\n${notif.postedAt.defaultFormat()}")
-                                append("\n<button>Dismiss</button>\n\n")
-                            }
-                        })
-            }
+                        for (notif in notifs) {
+                            append("\n### ${notif.data}")
+                            append("\n${notif.postedAt.defaultFormat()}")
+                            append("\n<button>Dismiss</button>\n\n")
+                        }
+                    })
         }
     }
 }

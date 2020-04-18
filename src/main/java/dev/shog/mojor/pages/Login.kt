@@ -18,6 +18,7 @@ object Login : RegPage {
                 link("https://fonts.googleapis.com/icon?family=Material+Icons", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
+
                 applyMeta()
             }
 

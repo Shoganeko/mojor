@@ -13,7 +13,7 @@ import io.ktor.http.HttpStatusCode
 /** The Discord server. */
 object Discord : RedirectPage {
     override fun redirect(call: ApplicationCall): String =
-            "https://discord.gg/YCfeQB"
+            "https://discord.gg/cgGfMCd"
 }
 
 /** Buta Discord bot Invite. */

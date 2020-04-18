@@ -1,8 +1,9 @@
 package dev.shog.mojor.handle.motd
 
 import dev.shog.mojor.api.response.Response
+import dev.shog.mojor.getUuid
 import dev.shog.mojor.handle.auth.isAuthorized
-import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.db.PostgreSql
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -15,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * The MOTD
@@ -32,11 +35,11 @@ object MotdHandler {
         routing.options("/motd") { call.respond(Response(payload = "CORS PepeLaugh")) }
 
         routing.post("/motd") {
-            call.isAuthorized(Permissions.MOTD_MANAGER)
+            call.isAuthorized(Permission.MOTD_MANAGER)
 
             val params = call.receiveParameters()
 
-            val owner = params["owner"]?.toLongOrNull()
+            val owner = getUuid(params["owner"])
             val text = params["text"]
             val date = System.currentTimeMillis()
 
@@ -49,18 +52,6 @@ object MotdHandler {
             call.respond(Response())
         }
     }
-
-    /**
-     * Get the recent motd.
-     */
-    fun getMostRecentMotd(): Motd =
-            motds.last()
-
-    /**
-     * Get the oldest motd.
-     */
-    fun getOldestMotd(): Motd =
-            motds.first()
 
     /**
      * Get a [Motd] by their [date].
@@ -78,7 +69,7 @@ object MotdHandler {
                 .prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?)")
 
         pre.setString(1, properMotd.data)
-        pre.setLong(2, properMotd.owner)
+        pre.setString(2, properMotd.owner.toString())
         pre.setLong(3, properMotd.date)
 
         motds.add(properMotd)
@@ -95,7 +86,11 @@ object MotdHandler {
             }
 
             while (rs.next()) {
-                motds.add(Motd(rs.getString("data"), rs.getLong("owner"), rs.getLong("date")))
+                motds.add(Motd(
+                        rs.getString("data"),
+                        UUID.fromString(rs.getString("owner")),
+                        rs.getLong("date")
+                ))
             }
         }
     }

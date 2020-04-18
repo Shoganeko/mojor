@@ -1,6 +1,6 @@
 package dev.shog.mojor.handle.auth
 
-import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permission
 
 /**
  * An authentication exception
@@ -17,7 +17,7 @@ open class AuthenticationException(reason: String) :
 /**
  * A token is missing permissions
  */
-class TokenMissingPermissions(tokenPerms: Collection<Permissions>, missingPerms: Collection<Permissions>) :
+class TokenMissingPermissions(tokenPerms: Collection<Permission>, missingPerms: Collection<Permission>) :
         AuthenticationException("token missing permissions. (HAS: $tokenPerms, MISSING: $missingPerms)")
 
 /**

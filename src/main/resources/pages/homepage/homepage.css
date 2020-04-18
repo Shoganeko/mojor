@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat|Roboto|Roboto+Mono|Lexend+Deca|Lexend+Exa');
+@import url('https://fonts.googleapis.com/css?family=Manrope:wght@300;400;500;600');
 
 body {
     background-color: #1f1f1f;
@@ -10,10 +10,17 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .motd span {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
     font-size: 14px;
     color: gray;
-    font-weight: normal;
+}
+
+.topic-info {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    margin-top: -1rem;
 }
 
 a {
@@ -21,7 +28,9 @@ a {
 }
 
 .links {
-    font-family: 'Roboto', sans-serif;
+    margin-top: -2rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 300;
     font-size: 18px;
 }
 
@@ -29,20 +38,6 @@ a {
     text-decoration: none;
 }
 
-.contact {
-    font-family: 'Roboto Mono', monospace;
-}
-
-ul {
-    list-style-type: none;
-}
-
-/* Makes the entries closer together */
-.list-entry {
-    margin-top: -1rem;
-}
-
-/** Head of the page. */
 .head {
     text-align: center;
     margin-top: 2rem;
@@ -50,8 +45,9 @@ ul {
 }
 
 .title {
-    font-family: 'Lexend Deca', sans-serif;
+    font-family: 'Manrope', sans-serif;
     font-size: 72px;
+    font-weight: 600;
     animation-delay: 1s;
     margin-top: 16rem;
 }
@@ -63,24 +59,4 @@ ul {
 
 .motd-topic {
     margin-bottom: 5rem;
-}
-
-/* topic stuff */
-.topic {
-    margin-top: 4rem;
-}
-
-.topic-header {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 42px;
-}
-
-.topic-info {
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    margin-top: -1rem;
-}
-
-.ic-pack {
-    font-size: 20px;
 }

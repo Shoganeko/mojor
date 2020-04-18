@@ -1,7 +1,7 @@
 package dev.shog.mojor.handle.auth.user.result
 
 import dev.shog.mojor.handle.auth.token.Token
-import dev.shog.mojor.handle.auth.user.User
+import dev.shog.mojor.handle.auth.user.obj.User
 
 /**
  * A login payload.

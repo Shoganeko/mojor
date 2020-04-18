@@ -4,7 +4,7 @@ import dev.shog.mojor.api.buta.obj.Guild
 import dev.shog.mojor.api.buta.obj.User
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.auth.isAuthorized
-import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permission
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
@@ -20,33 +20,33 @@ suspend fun Routing.butaPages() {
 
     // The swears page.
     get("/v2/buta/swears") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
         call.respond(Response(payload = ButaSwearPage.getPage().toString()))
     }
 
     // Refresh swears
     post("/v2/buta/swears") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
         ButaSwearPage.refresh()
         call.respond(Response())
     }
 
     // Refresh presences.
     post("/v2/buta/presences") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
         ButaPresencesPage.refresh()
         call.respond(Response())
     }
 
     // The presences page.
     get("/v2/buta/presences") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
         call.respond(Response(payload = ButaPresencesPage.getPage().toString()))
     }
 
     // Get a ButaObject using an ID and Type
     get("/v2/buta/{id}/{type}") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
 
         val id = call.parameters["id"]?.toLongOrNull() ?: -1L
         val type = call.parameters["type"]?.toIntOrNull() ?: -1
@@ -59,7 +59,7 @@ suspend fun Routing.butaPages() {
 
     // Create a ButaObject using an ID and a Type.
     put("/v2/buta/{id}/{type}") {
-        call.isAuthorized(Permissions.BUTA_MANAGER)
+        call.isAuthorized(Permission.BUTA_MANAGER)
 
         val id = call.parameters["id"]?.toLongOrNull() ?: -1L
         val type = call.parameters["type"]?.toIntOrNull() ?: -1

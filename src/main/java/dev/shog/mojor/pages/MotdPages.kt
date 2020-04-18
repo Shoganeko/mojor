@@ -57,8 +57,8 @@ object MotdPages {
         }
 
         return MOTD_HISTORY
-                .replace("\$\$MOST_RECENT_MOTD", MotdHandler.getMostRecentMotd().getDate())
-                .replace("\$\$OLDEST_MOTD", MotdHandler.getOldestMotd().getDate())
+                .replace("\$\$MOST_RECENT_MOTD", MotdHandler.motds.last().getDate())
+                .replace("\$\$OLDEST_MOTD", MotdHandler.motds.first().getDate())
                 .replace("\$\$CONTENT", motds)
     }
 }

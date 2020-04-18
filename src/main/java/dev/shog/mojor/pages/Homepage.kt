@@ -18,6 +18,7 @@ object Homepage : RegPage {
                 link("${UrlUtils.URLS.cdn}/pages/homepage/homepage.css", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
+
                 applyMeta()
             }
 
@@ -29,7 +30,7 @@ object Homepage : RegPage {
                         div("topic-info motd") {
                             id = "motd"
 
-                            val motd = MotdHandler.getMostRecentMotd()
+                            val motd = MotdHandler.motds.last()
                             +"{motd-content}"
 
                             br
@@ -54,6 +55,6 @@ object Homepage : RegPage {
                 script(src = "${UrlUtils.URLS.cdn}/js/util.js") {}
                 script(src = "${UrlUtils.URLS.cdn}/pages/homepage/homepage.js") {}
             }
-        }.replace("{motd-content}", MotdHandler.getMostRecentMotd().getProperData())
+        }.replace("{motd-content}", MotdHandler.motds.last().getProperData())
     }
 }

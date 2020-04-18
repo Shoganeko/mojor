@@ -4,8 +4,7 @@ import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.auth.*
 import dev.shog.mojor.handle.auth.token.TokenManager
-import dev.shog.mojor.handle.auth.user.UserHolder
-import dev.shog.mojor.handle.auth.user.UserManager
+import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -27,7 +26,7 @@ fun Routing.userInteractionPages() {
         call.isAuthorized()
 
         val token = call.getTokenFromCall()
-        val user = UserHolder.getUser(token.owner)
+        val user = UserManager.getUser(token.owner)
 
         call.respond(Response(payload = user))
     }

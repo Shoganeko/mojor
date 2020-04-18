@@ -1,6 +1,6 @@
 package dev.shog.mojor.handle.auth
 
-import dev.shog.mojor.handle.auth.obj.Permissions
+import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.token.Token
 import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.handle.auth.token.isExpired
@@ -23,7 +23,7 @@ fun ApplicationCall.getTokenFromCall(): Token {
 /**
  * Check if a incoming connection is authorized and has [permissions].
  */
-fun ApplicationCall.isAuthorized(vararg permissions: Permissions, avoidExpire: Boolean = false) {
+fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Boolean = false) {
     val token = getTokenFromCall()
 
     if (token.isExpired() && !avoidExpire)
@@ -32,7 +32,7 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permissions, avoidExpire: B
     if (permissions.isNotEmpty()) {
         val tokenPerms = token.permissions
 
-        if (!tokenPerms.containsAll(permissions.toList()))
+        if (!permissions.any { perm -> !tokenPerms.contains(perm) })
             throw TokenMissingPermissions(tokenPerms, getMissing(tokenPerms, permissions.toList()))
     }
 }
@@ -40,7 +40,7 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permissions, avoidExpire: B
 /**
  * Check if an incoming request is authorized, and if it is return true.
  */
-fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permissions): Boolean {
+fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permission): Boolean {
     return try {
         isAuthorized(*permissions)
 

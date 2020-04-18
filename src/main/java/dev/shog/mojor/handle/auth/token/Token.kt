@@ -1,6 +1,7 @@
 package dev.shog.mojor.handle.auth.token
 
-import dev.shog.mojor.handle.auth.obj.ObjectPermissions
+import dev.shog.mojor.handle.auth.obj.Permission
+import java.util.*
 
 /**
  * An authorization token.
@@ -10,8 +11,8 @@ import dev.shog.mojor.handle.auth.obj.ObjectPermissions
  */
 data class Token(
         val token: String,
-        val owner: Long,
-        val permissions: ObjectPermissions,
+        val owner: UUID,
+        val permissions: Collection<Permission>,
         val createdOn: Long,
         val expiresOn: Long = createdOn + TokenManager.EXPIRE_AFTER
 ) {

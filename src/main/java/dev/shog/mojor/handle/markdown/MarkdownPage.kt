@@ -29,6 +29,7 @@ object MarkdownPage {
                 link("${UrlUtils.URLS.cdn}/pages/markdown/css.css", "stylesheet", "text/css")
                 link("https://use.fontawesome.com/releases/v5.7.2/css/all.css", "stylesheet", "text/css")
                 link("https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css", "stylesheet", "text/css")
+
                 applyMeta()
             }
 
@@ -42,7 +43,7 @@ object MarkdownPage {
 
                             li(classes = "liEntry") { a(UrlUtils.URLS.main + "/motd/history") { +"MOTD History" } }
                             li(classes = "liEntry") { a(UrlUtils.URLS.main + "/site-tree") { +"Site Tree" } }
-                            li(classes = "liEntry") { a(UrlUtils.URLS.main + "/account") { +"Account" } }
+                            li(classes = "liEntry") { a(UrlUtils.URLS.main + "/@self") { +"Account" } }
                         }
                     }
 
@@ -80,15 +81,15 @@ object MarkdownPage {
 
         Mojor.APP.getLogger().debug("Made a request to {}.", url)
 
-        val fi = try {
-            HttpClient().get<String>(url)
+        return try {
+            val fi = HttpClient().get<String>(url)
+
+            val result = fi modify MARKDOWN
+            val cache = Mojor.APP.getCache().createObject(file, result)
+
+            cache?.getValue() ?: "Failed to retrieve content."
         } catch (ex: Exception) {
-            return "<h1>Invalid File!</h1)"
+            "<h1>Invalid File!</h1>"
         }
-
-        val result = fi modify MARKDOWN
-        val cache = Mojor.APP.getCache().createObject(file, result)
-
-        return cache?.getValue() ?: "Failed to retrieve content."
     }
 }

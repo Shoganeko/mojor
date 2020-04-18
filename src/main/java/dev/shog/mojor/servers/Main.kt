@@ -1,17 +1,18 @@
 package dev.shog.mojor.servers
 
+import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
 import dev.shog.mojor.handle.auth.AuthenticationException
 import dev.shog.mojor.handle.auth.obj.Session
 import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.handle.MARKDOWN
+import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
 import dev.shog.mojor.pages.Clock
 import dev.shog.mojor.registerPages
 import dev.shog.mojor.util.UrlUtils
-import dev.shog.mojor.util.serverError
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -25,6 +26,7 @@ import io.ktor.locations.Locations
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
+import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
@@ -67,7 +69,8 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
-            serverError("MAIN", it)
+            it.logDiscord(Mojor.APP)
+            it.printStackTrace()
 
             Error(500, "There's an issue with our backend. **If you have a chance, please report this [here](https://shog.dev/discord).**" modify MARKDOWN).exec(call)
         }
@@ -101,6 +104,10 @@ private fun Application.mainModule() {
             } else call.respond(HttpStatusCode.BadRequest, "${params["token"]} is an invalid token!")
         }
 
+        get("/@{user}") {
+            call.respondText(contentType = ContentType.Text.Html, provider = { Account.getPage(call) })
+        }
+
         get("/logout") {
             call.sessions.clear<Session>()
             call.respondRedirect("${UrlUtils.URLS.main}/account", true)
@@ -120,7 +127,6 @@ private fun Application.mainModule() {
                 "/nam" to Nam,
                 "/induce/error" to InduceError,
                 "/login" to Login,
-                "/account" to Account,
                 "/debug" to Debug,
                 "/discord/buta" to ButaInvite
         )
