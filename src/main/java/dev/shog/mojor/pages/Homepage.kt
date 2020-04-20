@@ -49,6 +49,8 @@ object Homepage : RegPage {
                         a("${UrlUtils.URLS.main}/utilities") { +"utilities" }
                         +", "
                         a("${UrlUtils.URLS.main}/projects") { +"projects" }
+                        +", "
+                        a("${UrlUtils.URLS.main}/clock") { +"clock" }
                         +"."
                     }
                 }
