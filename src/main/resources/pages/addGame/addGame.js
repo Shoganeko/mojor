@@ -4,7 +4,7 @@
 let win = document.querySelector("#win");
 
 let overwatch = document.querySelector("#overwatch");
-let csgo = document.querySelector("#overwatch");
+let csgo = document.querySelector("#csgo");
 let valorant = document.querySelector("#valorant");
 
 let score = document.querySelector("#score");
