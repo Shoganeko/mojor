@@ -12,14 +12,14 @@ let map = document.querySelector("#map");
 let status = document.querySelector("#status");
 
 (function () {
-    let game = 1
-
-    if (overwatch.checked)
-        game = 2
-    else if (valorant.checked)
-        game = 3
-
     $("#submit").click(function () {
+        let game = 1
+
+        if (overwatch.checked)
+            game = 2
+        else if (valorant.checked)
+            game = 3
+
         $.ajax({
             url: `https://api.shog.dev/v1/user/games`,
             type: 'POST',
