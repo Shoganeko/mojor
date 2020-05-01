@@ -21,11 +21,11 @@ let status = document.querySelector("#status");
 
     $("#submit").click(function () {
         $.ajax({
-            url: `http://localhost:8080/v1/user/games`,
+            url: `https://api.shog.dev/v1/user/games`,
             type: 'POST',
             beforeSend: function(xhr) {
                 $.ajax({
-                    url: `http://localhost:8090/session`,
+                    url: `https://shog.dev/session`,
                     async: false,
                     success: function (data) {
                         xhr.setRequestHeader('Authorization', `token ${data}`);
