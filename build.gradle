@@ -75,6 +75,6 @@ dependencies {
     compile "io.ktor:ktor-client-cio:$ktor_version"
     compile "io.ktor:ktor-serialization:$ktor_version"
     compile 'com.konghq:unirest-java:3.1.02'
-    compile 'com.github.Shoganeko:lib:8f181aad1e'
+    compile 'com.github.Shoganeko:lib:09bed25913'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.9'
 }
