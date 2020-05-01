@@ -52,13 +52,6 @@ object Login : RegPage {
                         input(InputType.password, classes = "input") { id = "password" }
                     }
 
-
-                    div("center") {
-                        div {
-                            id = "recaptcha"
-                        }
-                    }
-
                     br
 
                     button(type = ButtonType.submit) { +"Login" }
@@ -67,10 +60,7 @@ object Login : RegPage {
                 p { id = "status" }
 
                 script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
-                script(src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit") {
-                    async = true
-                    defer = true
-                }
+                script(src = "https://www.google.com/recaptcha/api.js?render=6LckFPEUAAAAAHiDiRMPokGKUnfyEmdMiTE4Gq5S") {}
                 script(src = "${UrlUtils.URLS.cdn}/js/util.js") {}
                 script(src = "${UrlUtils.URLS.cdn}/js/sha.js") {}
                 script(src = "${UrlUtils.URLS.cdn}/pages/login/login.js") {}

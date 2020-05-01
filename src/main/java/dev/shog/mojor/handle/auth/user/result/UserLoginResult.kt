@@ -1,6 +1,6 @@
 package dev.shog.mojor.handle.auth.user.result
 
-import dev.shog.mojor.handle.auth.token.Token
+import dev.shog.mojor.handle.auth.token.obj.Token
 import dev.shog.mojor.handle.auth.user.obj.User
 
 /**

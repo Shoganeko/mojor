@@ -1,10 +1,9 @@
 package dev.shog.mojor.handle.auth
 
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.token.Token
-import dev.shog.mojor.handle.auth.token.TokenHolder
-import dev.shog.mojor.handle.auth.token.isExpired
+import dev.shog.mojor.handle.auth.token.obj.Token
 import dev.shog.mojor.getMissing
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
 
@@ -13,7 +12,7 @@ fun ApplicationCall.getTokenFromCall(): Token {
     val header = getHeader(this) ?: throw AuthenticationException("no authentication")
 
     when (header.first.toLowerCase()) {
-        "token" -> return TokenHolder.getToken(header.second)
+        "token" -> return TokenHandler.getCachedToken(header.second)
                 ?: throw AuthenticationException("invalid token")
 
         else -> throw InvalidAuthenticationType(header.first)
@@ -26,13 +25,13 @@ fun ApplicationCall.getTokenFromCall(): Token {
 fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Boolean = false) {
     val token = getTokenFromCall()
 
-    if (token.isExpired() && !avoidExpire)
+    if (TokenHandler.isTokenExpired(token) && !avoidExpire)
         throw TokenExpiredException()
 
     if (permissions.isNotEmpty()) {
         val tokenPerms = token.permissions
 
-        if (!permissions.any { perm -> !tokenPerms.contains(perm) })
+        if (permissions.any { perm -> !tokenPerms.contains(perm) })
             throw TokenMissingPermissions(tokenPerms, getMissing(tokenPerms, permissions.toList()))
     }
 }

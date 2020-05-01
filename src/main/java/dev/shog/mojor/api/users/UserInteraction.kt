@@ -1,19 +1,18 @@
 package dev.shog.mojor.api.users
 
+import dev.shog.lib.util.eitherOr
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.auth.*
-import dev.shog.mojor.handle.auth.token.TokenManager
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
+import dev.shog.mojor.handle.game.GameHandler
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
-import io.ktor.routing.Routing
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.post
+import io.ktor.routing.*
 
 /**
  * Add the pages.
@@ -29,6 +28,45 @@ fun Routing.userInteractionPages() {
         val user = UserManager.getUser(token.owner)
 
         call.respond(Response(payload = user))
+    }
+
+    /**
+     * Get a user's game record.
+     */
+    get("/v1/user/games") {
+        call.isAuthorized()
+
+        val token = call.getTokenFromCall()
+        val user = UserManager.getUser(token.owner)
+
+        call.respond(Response(payload = GameHandler.getUserGameRecord(user?.id!!).records))
+    }
+
+    /**
+     * Add to a user's game record.
+     */
+    post("/v1/user/games") {
+        call.isAuthorized()
+
+        val token = call.getTokenFromCall()
+        val params = call.receiveParameters()
+
+        if (
+                !params.contains("map")
+                || !params.contains("win")
+                || !params.contains("score")
+                || !params.contains("game")
+        ) {
+            call.respond(HttpStatusCode.BadRequest, Response("Map, Win or Score was not found."))
+        } else {
+            val win = params["win"]?.toBoolean()?.eitherOr(1, 0)!!
+            val map = params["map"]!!
+            val score = params["score"]!!
+            val game = params["game"]!!.toInt()
+
+            GameHandler.uploadUserRecord(token.owner, game, win.toShort(), score, map)
+            call.respond(HttpStatusCode.OK, Response())
+        }
     }
 
     /**
@@ -74,13 +112,13 @@ fun Routing.userInteractionPages() {
 
         val captcha = params["captcha"]
         if (captcha != null) {
-            val captchaResult = Captcha.verifyReCaptcha(captcha)
+            val captchaResult = Captcha.verifyReCaptcha(captcha).join()
 
             if (captchaResult) {
                 val user = UserManager.loginUsing(username, password, true)
 
                 if (user != null) {
-                    call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenManager.createToken(user))))
+                    call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenHandler.createToken(user))))
                     return@post
                 } else call.respond(HttpStatusCode.BadRequest, Response("Invalid username or password"))
             } else call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
@@ -89,7 +127,7 @@ fun Routing.userInteractionPages() {
 
             if (user == null)
                 call.respond(HttpStatusCode.BadRequest, Response("Invalid Username or Password", UserLoginPayload()))
-            else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenManager.createToken(user))))
+            else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenHandler.createToken(user))))
         }
     }
 }

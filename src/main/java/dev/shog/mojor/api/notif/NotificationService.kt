@@ -84,12 +84,11 @@ object NotificationService {
      * @return The list of notifications.
      */
     private suspend fun getNotificationsUsingDatabase(id: UUID): MutableList<Notification> = coroutineScope {
-        val pre = PostgreSql.createConnection()
+        val rs = PostgreSql.createConnection()
                 .prepareStatement("SELECT * FROM notif.notif WHERE intended = ?")
+                .apply { setString(1, id.toString()) }
+                .executeQuery()
 
-        pre.setString(1, id.toString())
-
-        val rs = withContext(Dispatchers.Unconfined) { pre.executeQuery() }
         val list = mutableListOf<Notification>()
 
         while (rs.next()) {
@@ -131,7 +130,7 @@ object NotificationService {
      */
     suspend fun closeNotification(id: String, intendedFor: UUID) = coroutineScope {
         val pre = PostgreSql.createConnection()
-                .prepareStatement("DELETE FROM notif.notif WHERE id = ? and intendedFor = ?")
+                .prepareStatement("DELETE FROM notif.notif WHERE id = ? and intended = ?")
 
         pre.setString(1, id)
         pre.setString(2, intendedFor.toString())

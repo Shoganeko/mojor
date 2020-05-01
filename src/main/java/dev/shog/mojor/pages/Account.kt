@@ -4,11 +4,12 @@ import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.obj.Session
-import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.getSession
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.auth.user.obj.User
 import dev.shog.mojor.handle.markdown.MarkdownPage
+import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.obj.RegPage
 import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
@@ -33,15 +34,14 @@ object Account : RegPage {
             username.isNullOrBlank() ->
                 return Error(404, "Check for issues in the username.").getPage(call)
 
-            username.equals("self", true) ->{
+            username.equals("self", true) -> {
                 if (call.getSession() != null)
                     return getSignedIn(call)
 
-                return SIGNED_OUT
+                return SIGNED_OUT modify UrlUtils.FORMAT
             }
 
-            else ->
-                return getOtherUser(call, username)
+            else -> return getOtherUser(call, username)
         }
     }
 
@@ -77,12 +77,12 @@ object Account : RegPage {
             }
 
     /**
-     * Get the signed in page for [name] using [call].
+     * Get the signed in page for someone using [call].
      */
     private fun getSignedIn(call: ApplicationCall): String {
         val ses = call.getSession() ?: throw Exception()
 
-        val token = TokenHolder.getToken(ses.tokenIdentifier)
+        val token = TokenHandler.getCachedToken(ses.tokenIdentifier)
 
         if (token == null) {
             call.sessions.clear<Session>()

@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body {
+    background-color: #1f1f1f;
+    animation-duration: 3s;
+    text-align: center;
+}
+
+#nav {
+    float: left !important;
+}
+
+#back-button {
+    color: white;
+    text-decoration: none;
+}
+
+p, h1, h2, h3, h4, h5, h6, span, label {
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+
+.radio-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-score div {
+    margin: 16px;
+}
+
+.map-score {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}

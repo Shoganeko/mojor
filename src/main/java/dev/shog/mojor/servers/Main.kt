@@ -3,10 +3,11 @@ package dev.shog.mojor.servers
 import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.addMarkdownPages
+import dev.shog.mojor.getSession
 import dev.shog.mojor.handle.auth.AuthenticationException
 import dev.shog.mojor.handle.auth.obj.Session
-import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.handle.MARKDOWN
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.modify
 import dev.shog.mojor.pages.*
@@ -17,8 +18,10 @@ import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.*
+import io.ktor.html.respondHtml
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.CachingOptions
 import io.ktor.locations.KtorExperimentalLocationsAPI
@@ -98,10 +101,14 @@ private fun Application.mainModule() {
         post("/session") {
             val params = call.receiveParameters()
 
-            if (params.contains("token") && TokenHolder.hasToken(params["token"])) {
+            if (params.contains("token") && TokenHandler.getCachedToken(params["token"] ?: "") != null) {
                 call.sessions.set(Session(params["token"]!!, System.currentTimeMillis(), call.request.origin.remoteHost))
                 call.respond("Token has been updated with the proper token.")
             } else call.respond(HttpStatusCode.BadRequest, "${params["token"]} is an invalid token!")
+        }
+
+        get("/session") {
+            call.respond(call.getSession()?.tokenIdentifier ?: "none")
         }
 
         get("/@{user}") {
@@ -110,7 +117,7 @@ private fun Application.mainModule() {
 
         get("/logout") {
             call.sessions.clear<Session>()
-            call.respondRedirect("${UrlUtils.URLS.main}/account", true)
+            call.respondRedirect("${UrlUtils.URLS.main}/@self", true)
         }
 
         registerPages(
@@ -128,7 +135,9 @@ private fun Application.mainModule() {
                 "/induce/error" to InduceError,
                 "/login" to Login,
                 "/debug" to Debug,
-                "/discord/buta" to ButaInvite
+                "/discord/buta" to ButaInvite,
+                "/@{user}/record" to GameRecord,
+                "/@self/record/add" to AddGame
         )
 
         addMarkdownPages(

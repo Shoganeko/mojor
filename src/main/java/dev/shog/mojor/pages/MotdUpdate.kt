@@ -3,8 +3,8 @@ package dev.shog.mojor.pages
 import dev.shog.mojor.applyMeta
 import dev.shog.mojor.handle.auth.AuthenticationException
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.token.TokenHolder
 import dev.shog.mojor.getSession
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import dev.shog.mojor.pages.obj.RegPage
 import dev.shog.mojor.util.UrlUtils
 import io.ktor.application.ApplicationCall
@@ -15,7 +15,7 @@ import java.util.*
 object MotdUpdate : RegPage {
     override fun getPage(call: ApplicationCall): String {
         val session = call.getSession()
-        val token = TokenHolder.getToken(session?.tokenIdentifier ?: "")
+        val token = TokenHandler.getCachedToken(session?.tokenIdentifier ?: "")
 
         if (token == null || session == null)
             throw AuthenticationException("Null")

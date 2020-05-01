@@ -3,8 +3,7 @@ package dev.shog.mojor.api
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.auth.getTokenFromCall
 import dev.shog.mojor.handle.auth.isAuthorized
-import dev.shog.mojor.handle.auth.token.disable
-import dev.shog.mojor.handle.auth.token.renew
+import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import io.ktor.application.call
 import io.ktor.response.respond
 import io.ktor.routing.Routing
@@ -25,12 +24,12 @@ fun Routing.tokenInteractionPages() {
     /** Renew a token. */
     patch("/v1/token") {
         call.isAuthorized(avoidExpire = true)
-        call.respond(Response(payload = call.getTokenFromCall().renew()))
+        call.respond(Response(payload = TokenHandler.renewToken(call.getTokenFromCall())))
     }
 
     /** Disable/Delete a token. */
     delete("/v1/token") {
         call.isAuthorized()
-        call.respond(Response(payload = call.getTokenFromCall().disable()))
+        call.respond(Response(payload = TokenHandler.removeToken(call.getTokenFromCall())))
     }
 }

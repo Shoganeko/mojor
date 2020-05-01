@@ -1,6 +1,6 @@
 package dev.shog.mojor.handle.auth.token.result
 
-import dev.shog.mojor.handle.auth.token.Token
+import dev.shog.mojor.handle.auth.token.obj.Token
 
 /**
  * A token disable result.

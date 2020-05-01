@@ -3,6 +3,7 @@ package dev.shog.mojor.handle.auth.user.obj
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.db.PostgreSql
+import dev.shog.mojor.handle.game.GameRecord
 import kotlinx.coroutines.runBlocking
 import java.util.*
 

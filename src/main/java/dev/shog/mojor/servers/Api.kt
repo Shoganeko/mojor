@@ -69,6 +69,7 @@ private fun Application.mainModule() {
         }
 
         exception<Throwable> {
+            it.printStackTrace()
             it.logDiscord(Mojor.APP)
 
             call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
