@@ -19,7 +19,7 @@ import kotlin.concurrent.timerTask
  * Manages tokens.
  */
 object TokenHandler {
-    const val EXPIRE_AFTER = 1000L * 60L * 24L * 6L // 6 hours.
+    const val EXPIRE_AFTER = 1000L * 60L * 24L * 24L // 24 hours.
 
     init {
         Timer().schedule(timerTask {
