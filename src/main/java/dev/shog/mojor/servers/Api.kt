@@ -3,7 +3,6 @@ package dev.shog.mojor.servers
 import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.RandomEmote
-import dev.shog.mojor.api.buta.butaPages
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
@@ -121,7 +120,6 @@ private suspend fun Routing.root() {
         call.respondText("User-Agent: *\nDisallow: /")
     }
 
-    butaPages()
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()

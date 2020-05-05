@@ -5,7 +5,6 @@ import dev.shog.lib.app.cfg.ConfigHandler
 import dev.shog.lib.hook.DiscordWebhook
 import dev.shog.lib.util.ArgsHandler
 import dev.shog.lib.util.defaultFormat
-import dev.shog.mojor.api.buta.ButaObjectHandler
 import dev.shog.mojor.handle.file.Config
 import dev.shog.mojor.servers.apiServer
 import dev.shog.mojor.servers.cdnServer
@@ -39,15 +38,11 @@ object Mojor {
         val ah = ArgsHandler()
 
         // Mojor Dev and Prod modes
-        ah.multiHook("--prod", {
-            runBlocking { ButaObjectHandler.devInit() }
-        }, {
+        ah.hook("--prod") {
             URLS.api = "https://api.shog.dev"
             URLS.cdn = "https://cdn.shog.dev"
             URLS.main = "https://shog.dev"
-
-            runBlocking { ButaObjectHandler.init() }
-        })
+        }
 
         ah.hook("--cc", ::clearCache)
 
