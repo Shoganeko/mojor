@@ -39,6 +39,24 @@ object GameHandler {
     }
 
     /**
+     * Delete a [user]'s record using a [date].
+     */
+    suspend fun removeUserRecord(user: UUID, date: Long) {
+        PostgreSql.createConnection()
+                .prepareStatement("DELETE FROM users.games WHERE id=? & date=?")
+                .apply {
+                    setString(1, user.toString())
+                    setLong(2, date)
+                }
+                .executeUpdate()
+
+        val record = CACHE[user]?.records?.filter { it -> it.date == date }
+
+        if (record != null)
+            CACHE[user]?.records?.remove(record.single())
+    }
+
+    /**
      * Get [user]'s game record.
      */
     suspend fun getUserGameRecord(user: UUID): GameRecordHolder {

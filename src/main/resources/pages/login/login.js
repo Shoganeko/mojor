@@ -8,8 +8,8 @@ grecaptcha.ready(function() {
 
 
 (function () {
-    const baseUrl = "https://shog.dev"
-    const apiBaseUrl = "https://api.shog.dev"
+    const baseUrl = "http://localhost:8090"
+    const apiBaseUrl = "http://localhost:8080" // TODO prod
 
     document.querySelector("#login").addEventListener("submit", function (e) {
         e.preventDefault();

@@ -70,6 +70,25 @@ fun Routing.userInteractionPages() {
     }
 
     /**
+     * Remove from a user's game record.
+     */
+    delete("/v1/user/games") {
+        call.isAuthorized()
+
+        val token = call.getTokenFromCall()
+        val params = call.receiveParameters()
+
+        val date = params["date"]?.toLongOrNull()
+
+        if (date == null) {
+            call.respond(HttpStatusCode.BadRequest, Response("Date was not found or isn't an integer!"))
+        } else {
+            GameHandler.removeUserRecord(token.owner, date)
+            call.respond(HttpStatusCode.OK, Response())
+        }
+    }
+
+    /**
      * Get a user's notifications
      */
     get("/v1/user/notifs") {

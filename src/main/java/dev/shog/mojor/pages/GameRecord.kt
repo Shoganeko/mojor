@@ -46,36 +46,27 @@ object GameRecord : Page {
                 }
 
                 h1 { +"${name}'s game record" }
+
                 div {
-                    id = "games"
+                    id = "controls"
 
-                    val record = runBlocking { GameHandler.getUserGameRecord(uuid) }
-
-                    record.records.forEach { r ->
-                        when (r.win) {
-                            1.toShort() -> {
-                                div("game") {
-                                    div("game-border")
-                                    h1("game-win") { +"W" }
-                                    h3("game-text") { +"${r.getGameAsString()}: ${r.score} on ${r.map}" }
-                                    span("game-date") { +r.date.defaultFormat() }
-                                }
-                            }
-
-                            0.toShort() -> {
-                                div("game") {
-                                    div("game-border")
-                                    h1("game-loss") { +"L" }
-                                    h3("game-text") { +"${r.getGameAsString()}: ${r.score} on ${r.map}" }
-                                    span("game-date") { +r.date.defaultFormat() }
-                                }
-                            }
-                        }
+                    a {
+                        id = "refresh"
+                        span("material-icons") { +"refresh" }
                     }
 
-                    p { +"Last refreshed on ${record.lastRefresh.defaultFormat()}" }
+                    a {
+                        id = "add"
+                        span("material-icons") { +"add" }
+                    }
+
                 }
 
+                div {
+                    id = "games"
+                }
+
+                script(src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js") {}
                 script(src = "${UrlUtils.URLS.cdn}/js/util.js") {}
                 script(src = "${UrlUtils.URLS.cdn}/pages/gameRecord/gameRecord.js") {}
             }
