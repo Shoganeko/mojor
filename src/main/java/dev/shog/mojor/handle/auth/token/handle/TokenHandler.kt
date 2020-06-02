@@ -40,7 +40,7 @@ object TokenHandler {
         init {
             runBlocking {
                 val rs = PostgreSql
-                        .createConnection()
+                        .getConnection()
                         .prepareStatement("SELECT * FROM token.tokens")
                         .executeQuery()
 
@@ -82,7 +82,7 @@ object TokenHandler {
     suspend fun removeToken(token: Token) {
         TOKEN_CACHE.remove(token.token)
 
-        PostgreSql.createConnection()
+        PostgreSql.getConnection()
                 .prepareStatement("DELETE FROM token.tokens WHERE token=?")
                 .apply { setString(1, token.token) }
                 .executeUpdate()
@@ -105,7 +105,7 @@ object TokenHandler {
      * Renew the [token].
      */
     suspend fun renewToken(token: Token, time: Long = System.currentTimeMillis()): TokenRenewResult {
-        PostgreSql.createConnection()
+        PostgreSql.getConnection()
                 .prepareStatement("UPDATE token.tokens SET createdon=? WHERE token=?")
                 .apply {
                     setLong(1, time)
@@ -134,7 +134,7 @@ object TokenHandler {
         SEC_RAND.nextBytes(bytes)
         val token = DigestUtils.sha256Hex(String(bytes))
 
-        val query = PostgreSql.createConnection()
+        val query = PostgreSql.getConnection()
                 .prepareStatement("SELECT * FROM token.tokens WHERE token = ?")
                 .apply { setString(1, token) }
                 .executeQuery()
@@ -151,7 +151,7 @@ object TokenHandler {
 
         TOKEN_CACHE[token.token] = token
 
-        val prepared = PostgreSql.createConnection()
+        val prepared = PostgreSql.getConnection()
                 .prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)")
 
         prepared.setString(1, token.token)

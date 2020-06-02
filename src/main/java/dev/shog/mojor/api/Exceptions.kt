@@ -7,5 +7,5 @@ open class ApiException(message: String)
     : Exception(message)
 
 /** Missing [missingArguments] */
-class MissingArguments(vararg missingArguments: String)
+class InvalidArguments(vararg missingArguments: String)
     : ApiException("Missing arguments ${missingArguments.toList().stream().collect(Collectors.joining())}")

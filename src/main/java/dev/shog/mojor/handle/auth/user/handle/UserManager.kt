@@ -18,7 +18,7 @@ object UserManager {
     val USER_LOGIN_ATTEMPTS = object : ArrayList<UserLastLogin>() {
         init {
             runBlocking {
-                val rs = PostgreSql.createConnection()
+                val rs = PostgreSql.getConnection()
                         .prepareStatement("SELECT * FROM users.signin")
                         .executeQuery()
 
@@ -41,7 +41,7 @@ object UserManager {
     val USER_CACHE = object : ArrayList<User>() {
         init {
             runBlocking {
-                val rs = PostgreSql.createConnection()
+                val rs = PostgreSql.getConnection()
                         .prepareStatement("SELECT * FROM users.users")
                         .executeQuery()
 
@@ -106,7 +106,7 @@ object UserManager {
         if (userIn != null) {
             USER_CACHE.remove(userIn)
 
-            val pre = PostgreSql.createConnection()
+            val pre = PostgreSql.getConnection()
                     .prepareStatement("DELETE FROM users.users WHERE id = ?")
 
             pre.setString(1, user.toString())
@@ -159,7 +159,7 @@ object UserManager {
     }
 
     private suspend fun uploadUser(user: User, password: String) = coroutineScope {
-        val pre = PostgreSql.createConnection()
+        val pre = PostgreSql.getConnection()
                 .prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)")
 
         pre.setString(1, user.id.toString())

@@ -21,7 +21,7 @@ object GameHandler {
      * Upload [user]'s record.
      */
     suspend fun uploadUserRecord(user: UUID, game: Int, win: Short, score: String, map: String, date: Long = System.currentTimeMillis()) {
-        PostgreSql.createConnection()
+        PostgreSql.getConnection()
                 .prepareStatement("INSERT INTO users.games (id, game, win, score, map, date) VALUES (?, ?, ?, ?, ?, ?)")
                 .apply {
                     setString(1, user.toString())
@@ -60,7 +60,7 @@ object GameHandler {
      */
     private suspend fun refreshUserRecords(user: UUID): GameRecordHolder {
         val rs = PostgreSql
-                .createConnection()
+                .getConnection()
                 .prepareStatement("SELECT * FROM users.games WHERE id=?")
                 .apply { setString(1, user.toString()) }
                 .executeQuery()

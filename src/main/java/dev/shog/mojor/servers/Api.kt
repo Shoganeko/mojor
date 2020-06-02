@@ -2,13 +2,14 @@ package dev.shog.mojor.servers
 
 import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.api.InvalidArguments
 import dev.shog.mojor.api.RandomEmote
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
 import dev.shog.mojor.api.users.userInteractionPages
 import dev.shog.mojor.handle.auth.AuthenticationException
-import dev.shog.mojor.handle.motd.MotdHandler
+import dev.shog.mojor.api.motd.motdPages
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -67,6 +68,10 @@ private fun Application.mainModule() {
             call.respond(HttpStatusCode.Unauthorized, Response(it.message ?: "Authentication Exception"))
         }
 
+        exception<InvalidArguments> {
+            call.respond(HttpStatusCode.BadRequest, Response(it.message ?: "Invalid arguments."))
+        }
+
         exception<Throwable> {
             it.printStackTrace()
             it.logDiscord(Mojor.APP)
@@ -123,5 +128,5 @@ private suspend fun Routing.root() {
     userInteractionPages()
     tokenInteractionPages()
     globalUserInteractionPages()
-    MotdHandler.registerPages(this)
+    motdPages()
 }

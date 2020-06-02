@@ -6,7 +6,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.codec.digest.DigestUtils
-import org.postgresql.util.PSQLException
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
@@ -36,7 +35,7 @@ object NotificationService {
      */
     private suspend fun createId(): String = coroutineScope {
         val id = DigestUtils.md5Hex(String(Random.nextBytes(64)))
-        val pre = PostgreSql.createConnection()
+        val pre = PostgreSql.getConnection()
                 .prepareStatement("SELECT * FROM notif.notif WHERE id = ?")
 
         pre.setString(1, id)
@@ -66,7 +65,7 @@ object NotificationService {
             this@NotificationService.saved[forUser] = saved
         }
 
-        val pre = PostgreSql.createConnection()
+        val pre = PostgreSql.getConnection()
                 .prepareStatement("INSERT INTO notif.notif (postedat, id, data, intended) VALUES (?, ?, ?, ?)")
 
         pre.setLong(1, notif.postedAt)
@@ -84,7 +83,7 @@ object NotificationService {
      * @return The list of notifications.
      */
     private suspend fun getNotificationsUsingDatabase(id: UUID): MutableList<Notification> = coroutineScope {
-        val rs = PostgreSql.createConnection()
+        val rs = PostgreSql.getConnection()
                 .prepareStatement("SELECT * FROM notif.notif WHERE intended = ?")
                 .apply { setString(1, id.toString()) }
                 .executeQuery()
@@ -129,7 +128,7 @@ object NotificationService {
      * @param intendedFor The intended user for the notification. This insures that only the owner can delete the notification.
      */
     suspend fun closeNotification(id: String, intendedFor: UUID) = coroutineScope {
-        val pre = PostgreSql.createConnection()
+        val pre = PostgreSql.getConnection()
                 .prepareStatement("DELETE FROM notif.notif WHERE id = ? and intended = ?")
 
         pre.setString(1, id)

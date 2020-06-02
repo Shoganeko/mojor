@@ -6,11 +6,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.sql.Connection
 import java.sql.DriverManager
+import java.util.*
 
 /**
  * The SQL manager.
  */
 object PostgreSql {
+    private val connection: Connection
+
     private val URL: String
     private val USERNAME: String
     private val PASSWORD: String
@@ -21,13 +24,15 @@ object PostgreSql {
         URL = cfg.postgre.url
         USERNAME = cfg.postgre.username
         PASSWORD = cfg.postgre.password
+
+
+        Class.forName("org.postgresql.Driver")
+        connection = DriverManager.getConnection(URL, USERNAME, PASSWORD)
     }
 
     /**
      * Create a connection to AWS.
      */
-    suspend fun createConnection(): Connection = coroutineScope {
-        Class.forName("org.postgresql.Driver")
-        async { DriverManager.getConnection(URL, USERNAME, PASSWORD) }
-    }.await()
+    fun getConnection(): Connection =
+            connection
 }
