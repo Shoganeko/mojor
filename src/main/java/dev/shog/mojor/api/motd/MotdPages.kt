@@ -4,7 +4,6 @@ import dev.shog.mojor.api.ApiException
 import dev.shog.mojor.api.InvalidArguments
 import dev.shog.mojor.api.motd.response.MotdResponse
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.getUuid
 import dev.shog.mojor.handle.auth.isAuthorized
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.user.handle.UserManager
@@ -53,18 +52,17 @@ fun Routing.motdPages() {
         }
 
         post {
-            call.isAuthorized(Permission.MOTD_MANAGER)
+            val token = call.isAuthorized(Permission.MOTD_MANAGER)
 
             val params = call.receiveParameters()
 
-            val owner = getUuid(params["owner"])
             val text = params["text"]
             val date = System.currentTimeMillis()
 
-            if (text == null || owner == null)
-                throw InvalidArguments("text", "owner")
+            if (text == null)
+                throw InvalidArguments("owner")
 
-            MotdHandler.insertMotd(Motd(text, owner, date))
+            MotdHandler.insertMotd(Motd(text, token.owner, date))
             call.respond(Response())
         }
     }

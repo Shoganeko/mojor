@@ -8,4 +8,4 @@ open class ApiException(message: String)
 
 /** Missing [missingArguments] */
 class InvalidArguments(vararg missingArguments: String)
-    : ApiException("Missing arguments ${missingArguments.toList().stream().collect(Collectors.joining())}")
+    : ApiException("Missing arguments ${missingArguments.joinToString()}}")

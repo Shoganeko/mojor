@@ -22,7 +22,7 @@ fun ApplicationCall.getTokenFromCall(): Token {
 /**
  * Check if a incoming connection is authorized and has [permissions].
  */
-fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Boolean = false) {
+fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Boolean = false): Token {
     val token = getTokenFromCall()
 
     if (TokenHandler.isTokenExpired(token) && !avoidExpire)
@@ -34,6 +34,8 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Bo
         if (permissions.any { perm -> !tokenPerms.contains(perm) })
             throw TokenMissingPermissions(tokenPerms, getMissing(tokenPerms, permissions.toList()))
     }
+
+    return token
 }
 
 /**
