@@ -20,13 +20,13 @@ import io.ktor.routing.*
  */
 fun Routing.globalUserInteractionPages() {
     /** Get all users. */
-    get("/v1/users") {
+    get("/users") {
         call.isAuthorized(Permission.USER_MANAGER)
         call.respond(Response(payload = UserManager.USER_CACHE))
     }
 
     /** Update a selected user with new user data. */
-    patch("/v1/user/{id}") {
+    patch("/user/{id}") {
         call.isAuthorized(Permission.USER_MANAGER)
 
         val id = call.parameters["id"]
@@ -42,7 +42,7 @@ fun Routing.globalUserInteractionPages() {
     }
 
     /** Delete a selected user. */
-    delete("/v1/user/{id}") {
+    delete("/user/{id}") {
         call.isAuthorized(Permission.USER_MANAGER)
 
         val id = call.parameters["id"]
@@ -59,7 +59,7 @@ fun Routing.globalUserInteractionPages() {
     /**
      * Get a selected user.
      */
-    get("/v1/user/{id}") {
+    get("/user/{id}") {
         call.isAuthorized(Permission.USER_MANAGER)
         val id = call.parameters["id"]
         val user = UserManager.getUser(getUuid(id))
@@ -72,7 +72,7 @@ fun Routing.globalUserInteractionPages() {
     /**
      * Give a user a notification
      */
-    put("/v1/user/{id}/notif") {
+    put("/user/{id}/notif") {
         call.isAuthorized(Permission.USER_MANAGER)
 
         val id = call.parameters["id"]

@@ -14,7 +14,6 @@ import io.ktor.response.respond
 import io.ktor.routing.*
 
 fun Routing.motdPages() {
-
     route("/motd") {
         get {
             call.respond(

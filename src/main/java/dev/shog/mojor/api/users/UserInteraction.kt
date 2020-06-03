@@ -18,116 +18,118 @@ import io.ktor.routing.*
  * Add the pages.
  */
 fun Routing.userInteractionPages() {
-    /**
-     * Get a user's account information, excluding their password.
-     */
-    get("/v1/user") {
-        call.isAuthorized()
+    route("/user") {
+        /**
+         * Get a user's account information, excluding their password.
+         */
+        get {
+            call.isAuthorized()
 
-        val token = call.getTokenFromCall()
-        val user = UserManager.getUser(token.owner)
+            val token = call.getTokenFromCall()
+            val user = UserManager.getUser(token.owner)
 
-        call.respond(Response(payload = user))
-    }
-
-    /**
-     * Get a user's game record.
-     */
-    get("/v1/user/games") {
-        call.isAuthorized()
-
-        val token = call.getTokenFromCall()
-        val user = UserManager.getUser(token.owner)
-
-        call.respond(Response(payload = GameHandler.getUserGameRecord(user?.id!!).records))
-    }
-
-    /**
-     * Add to a user's game record.
-     */
-    post("/v1/user/games") {
-        call.isAuthorized()
-
-        val token = call.getTokenFromCall()
-        val params = call.receiveParameters()
-
-        if (
-                !params.contains("map")
-                || !params.contains("win")
-                || !params.contains("score")
-                || !params.contains("game")
-        ) {
-            call.respond(HttpStatusCode.BadRequest, Response("Map, Win or Score was not found."))
-        } else {
-            val win = params["win"]?.toBoolean()?.eitherOr(1, 0)!!
-            val map = params["map"]!!
-            val score = params["score"]!!
-            val game = params["game"]!!.toInt()
-
-            GameHandler.uploadUserRecord(token.owner, game, win.toShort(), score, map)
-            call.respond(HttpStatusCode.OK, Response())
-        }
-    }
-
-    /**
-     * Get a user's notifications
-     */
-    get("/v1/user/notifs") {
-        call.isAuthorized()
-
-        val token = call.getTokenFromCall()
-
-        call.respond(Response(payload = NotificationService.getNotificationsForUser(token.owner)))
-    }
-
-    /**
-     * Delete a notification
-     */
-    delete("/v1/user/notifs/{id}") {
-        call.isAuthorized()
-
-        val token = call.getTokenFromCall()
-
-        NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
-
-        call.respond(Response())
-    }
-
-    /**
-     * Login to a user's account.
-     */
-    post("/v1/user") {
-        if (call.isAuthorizedBoolean())
-            throw AlreadyLoggedInException()
-
-        val params = call.receiveParameters()
-
-        val username = params["username"]
-        val password = params["password"]
-
-        if (username == null || password == null) {
-            call.respond(HttpStatusCode.BadRequest, Response("Username or Password was not included", UserLoginPayload()))
-            return@post
+            call.respond(Response(payload = user))
         }
 
-        val captcha = params["captcha"]
-        if (captcha != null) {
-            val captchaResult = Captcha.verifyReCaptcha(captcha).join()
+        /**
+         * Get a user's game record.
+         */
+        get("/games") {
+            call.isAuthorized()
 
-            if (captchaResult) {
-                val user = UserManager.loginUsing(username, password, true)
+            val token = call.getTokenFromCall()
+            val user = UserManager.getUser(token.owner)
 
-                if (user != null) {
-                    call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenHandler.createToken(user))))
-                    return@post
-                } else call.respond(HttpStatusCode.BadRequest, Response("Invalid username or password"))
-            } else call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
-        } else {
-            val user = UserManager.loginUsing(username, password, false)
+            call.respond(Response(payload = GameHandler.getUserGameRecord(user?.id!!).records))
+        }
 
-            if (user == null)
-                call.respond(HttpStatusCode.BadRequest, Response("Invalid Username or Password", UserLoginPayload()))
-            else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenHandler.createToken(user))))
+        /**
+         * Add to a user's game record.
+         */
+        post("/games") {
+            call.isAuthorized()
+
+            val token = call.getTokenFromCall()
+            val params = call.receiveParameters()
+
+            if (
+                    !params.contains("map")
+                    || !params.contains("win")
+                    || !params.contains("score")
+                    || !params.contains("game")
+            ) {
+                call.respond(HttpStatusCode.BadRequest, Response("Map, Win or Score was not found."))
+            } else {
+                val win = params["win"]?.toBoolean()?.eitherOr(1, 0)!!
+                val map = params["map"]!!
+                val score = params["score"]!!
+                val game = params["game"]!!.toInt()
+
+                GameHandler.uploadUserRecord(token.owner, game, win.toShort(), score, map)
+                call.respond(HttpStatusCode.OK, Response())
+            }
+        }
+
+        /**
+         * Get a user's notifications
+         */
+        get("/notifs") {
+            call.isAuthorized()
+
+            val token = call.getTokenFromCall()
+
+            call.respond(Response(payload = NotificationService.getNotificationsForUser(token.owner)))
+        }
+
+        /**
+         * Delete a notification
+         */
+        delete("/notifs/{id}") {
+            call.isAuthorized()
+
+            val token = call.getTokenFromCall()
+
+            NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
+
+            call.respond(Response())
+        }
+
+        /**
+         * Login to a user's account.
+         */
+        post {
+            if (call.isAuthorizedBoolean())
+                throw AlreadyLoggedInException()
+
+            val params = call.receiveParameters()
+
+            val username = params["username"]
+            val password = params["password"]
+
+            if (username == null || password == null) {
+                call.respond(HttpStatusCode.BadRequest, Response("Username or Password was not included", UserLoginPayload()))
+                return@post
+            }
+
+            val captcha = params["captcha"]
+            if (captcha != null) {
+                val captchaResult = Captcha.verifyReCaptcha(captcha).join()
+
+                if (captchaResult) {
+                    val user = UserManager.loginUsing(username, password, true)
+
+                    if (user != null) {
+                        call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenHandler.createToken(user))))
+                        return@post
+                    } else call.respond(HttpStatusCode.BadRequest, Response("Invalid username or password"))
+                } else call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
+            } else {
+                val user = UserManager.loginUsing(username, password, false)
+
+                if (user == null)
+                    call.respond(HttpStatusCode.BadRequest, Response("Invalid Username or Password", UserLoginPayload()))
+                else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenHandler.createToken(user))))
+            }
         }
     }
 }
