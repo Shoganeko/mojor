@@ -2,21 +2,23 @@ package dev.shog.mojor.handle.auth
 
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.token.obj.Token
-import dev.shog.mojor.getMissing
+import dev.shog.mojor.handle.InvalidAuthorization
+import dev.shog.mojor.handle.TokenExpiredException
+import dev.shog.mojor.handle.TokenMissingPermissions
 import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
 
 /** Get a [Token] from an [ApplicationCall] */
 fun ApplicationCall.getTokenFromCall(): Token {
-    val header = getHeader(this) ?: throw AuthenticationException("no authentication")
+    val header = getHeader(this)
 
     when (header.first.toLowerCase()) {
-        "token" -> return TokenHandler.getCachedToken(header.second)
-                ?: throw AuthenticationException("invalid token")
-
-        else -> throw InvalidAuthenticationType(header.first)
+        "bearer" -> return TokenHandler.getCachedToken(header.second)
+                ?: throw InvalidAuthorization()
     }
+
+    throw InvalidAuthorization()
 }
 
 /**
@@ -32,7 +34,7 @@ fun ApplicationCall.isAuthorized(vararg permissions: Permission, avoidExpire: Bo
         val tokenPerms = token.permissions
 
         if (permissions.any { perm -> !tokenPerms.contains(perm) })
-            throw TokenMissingPermissions(tokenPerms, getMissing(tokenPerms, permissions.toList()))
+            throw TokenMissingPermissions(tokenPerms, permissions.toList())
     }
 
     return token
@@ -46,7 +48,7 @@ fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permission): Boolean
         isAuthorized(*permissions)
 
         true
-    } catch (ex: AuthenticationException) {
+    } catch (ex: InvalidAuthorization) {
         false
     }
 }
@@ -55,11 +57,11 @@ fun ApplicationCall.isAuthorizedBoolean(vararg permissions: Permission): Boolean
  * Turn the [ApplicationCall]'s authorization header into a pair.
  * It is the type and token.
  */
-internal fun getHeader(call: ApplicationCall): Pair<String, String>? {
+internal fun getHeader(call: ApplicationCall): Pair<String, String> {
     val header = call.request.parseAuthorizationHeader()
             ?.render()
             ?.split(" ")
-            ?: return null
+            ?: throw InvalidAuthorization()
 
     return Pair(header[0], header[1])
 }

@@ -1,30 +1,39 @@
 package dev.shog.mojor.handle.auth
 
 import dev.shog.mojor.Mojor
+import dev.shog.mojor.handle.InvalidCaptcha
 import dev.shog.mojor.handle.file.Config
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.submitForm
 import io.ktor.http.Parameters
 import kong.unirest.Unirest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.concurrent.CompletableFuture
 
-/** The Captcha manager. */
+/**
+ *  The Captcha manager.
+ */
 object Captcha {
     /**
      * Verifies the [captcha] string.
      */
-    fun verifyReCaptcha(captcha: String, minScore: Float = 0.5F): CompletableFuture<Boolean> =
+    suspend fun verifyReCaptcha(captcha: String): Boolean = coroutineScope {
+        val resp = withContext(Dispatchers.Unconfined) {
             Unirest.post("https://www.google.com/recaptcha/api/siteverify")
                     .field("secret", Mojor.APP.getConfigObject<Config>().captchaSecret)
                     .field("response", captcha)
-                    .asJsonAsync()
-                    .handleAsync { t, u ->
-                        if (t.isSuccess) {
-                            val obj = t.body.`object`
+                    .asJson()
+        }
 
-                            obj.getBoolean("success") && obj.getFloat("score") >= minScore
-                        } else false
-                    }
+        if (resp.isSuccess) {
+            val obj = resp.body.`object`
+
+            obj.getBoolean("success")
+        } else throw InvalidCaptcha()
+    }
 }

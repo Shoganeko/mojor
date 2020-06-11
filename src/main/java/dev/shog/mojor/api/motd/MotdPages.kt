@@ -1,9 +1,9 @@
 package dev.shog.mojor.api.motd
 
-import dev.shog.mojor.api.ApiException
-import dev.shog.mojor.api.InvalidArguments
 import dev.shog.mojor.api.motd.response.MotdResponse
 import dev.shog.mojor.api.response.Response
+import dev.shog.mojor.handle.InvalidArguments
+import dev.shog.mojor.handle.NotFound
 import dev.shog.mojor.handle.auth.isAuthorized
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.user.handle.UserManager
@@ -32,7 +32,7 @@ fun Routing.motdPages() {
                     ?: throw InvalidArguments("p_motd")
 
             val motd = MotdHandler.getMotdByDate(date)
-                    ?: throw ApiException("MOTD could not be found!")
+                    ?: throw NotFound("motd")
 
             call.respond(MotdResponse(motd, UserManager.getUser(motd.owner)))
         }
@@ -44,7 +44,7 @@ fun Routing.motdPages() {
                     ?: throw InvalidArguments("p_motd")
 
             val motd = MotdHandler.getMotdByDate(date)
-                    ?: throw ApiException("MOTD could not be found!")
+                    ?: throw NotFound("motd")
 
             MotdHandler.deleteMotd(motd.date)
 

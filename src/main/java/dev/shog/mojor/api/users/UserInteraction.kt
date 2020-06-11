@@ -3,12 +3,16 @@ package dev.shog.mojor.api.users
 import dev.shog.lib.util.eitherOr
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
+import dev.shog.mojor.handle.AlreadyLoggedInException
+import dev.shog.mojor.handle.InvalidArguments
+import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.auth.*
 import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
 import dev.shog.mojor.handle.game.GameHandler
 import io.ktor.application.call
+import io.ktor.features.origin
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
@@ -105,30 +109,23 @@ fun Routing.userInteractionPages() {
 
             val username = params["username"]
             val password = params["password"]
-
-            if (username == null || password == null) {
-                call.respond(HttpStatusCode.BadRequest, Response("Username or Password was not included", UserLoginPayload()))
-                return@post
-            }
-
             val captcha = params["captcha"]
-            if (captcha != null) {
-                val captchaResult = Captcha.verifyReCaptcha(captcha).join()
 
-                if (captchaResult) {
-                    val user = UserManager.loginUsing(username, password, true)
+            when {
+                username == null || password == null || captcha == null ->
+                    throw InvalidArguments("username", "password", "captcha")
+
+                !Captcha.verifyReCaptcha(captcha) ->
+                    call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
+
+                else -> {
+                    val user = UserManager.loginUsing(username, password, call.request.origin.remoteHost)
 
                     if (user != null) {
-                        call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(true, user, TokenHandler.createToken(user))))
-                        return@post
-                    } else call.respond(HttpStatusCode.BadRequest, Response("Invalid username or password"))
-                } else call.respond(HttpStatusCode.BadRequest, Response("Invalid reCAPTCHA"))
-            } else {
-                val user = UserManager.loginUsing(username, password, false)
-
-                if (user == null)
-                    call.respond(HttpStatusCode.BadRequest, Response("Invalid Username or Password", UserLoginPayload()))
-                else call.respond(HttpStatusCode.OK, Response(payload = UserLoginPayload(false, user, TokenHandler.createToken(user))))
+                        call.respond(Response(payload = UserLoginPayload(user, TokenHandler.createToken(user))))
+                    } else
+                        throw InvalidAuthorization()
+                }
             }
         }
     }

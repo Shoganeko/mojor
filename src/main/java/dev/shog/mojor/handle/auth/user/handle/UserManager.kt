@@ -1,89 +1,91 @@
 package dev.shog.mojor.handle.auth.user.handle
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.uuid.Generators
+import dev.shog.mojor.handle.ArgumentDoesntMeet
+import dev.shog.mojor.handle.NotFound
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.handle.auth.user.obj.User
-import dev.shog.mojor.handle.auth.user.obj.UserLastLogin
+import dev.shog.mojor.handle.auth.user.obj.UserLoginAttempt
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.*
-import org.apache.commons.codec.digest.DigestUtils
+import kotlinx.serialization.serializer
+import org.mindrot.jbcrypt.BCrypt
+import java.sql.ResultSet
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Manages users.
  */
 object UserManager {
-    private val DEFAULT_PERMISSIONS = arrayListOf<Permission>()
-    val USER_LOGIN_ATTEMPTS = object : ArrayList<UserLastLogin>() {
-        init {
-            runBlocking {
-                val rs = PostgreSql.getConnection()
-                        .prepareStatement("SELECT * FROM users.signin")
-                        .executeQuery()
+    /**
+     * Get all users from the database.
+     */
+    suspend fun getUsers(limit: Int = 100): MutableList<User> {
+        val rs = PostgreSql.getConnection()
+                .prepareStatement("SELECT * FROM users.users LIMIT ?")
+                .apply { setInt(1, limit) }
+                .executeQuery()
 
-                launch {
-                    while (rs.next()) {
-                        val login = UserLastLogin(
-                                UUID.fromString(rs.getString("id")),
-                                rs.getString("ip"),
-                                rs.getLong("date"),
-                                rs.getBoolean("success")
-                        )
+        val users = mutableListOf<User>()
 
-                        add(login)
-                    }
-                }
-            }
-        }
-    }
+        while (rs.next())
+            users.add(getUser(rs))
 
-    val USER_CACHE = object : ArrayList<User>() {
-        init {
-            runBlocking {
-                val rs = PostgreSql.getConnection()
-                        .prepareStatement("SELECT * FROM users.users")
-                        .executeQuery()
-
-                launch {
-                    val mapper = ObjectMapper()
-
-                    while (rs.next()) {
-                        val id = UUID.fromString(rs.getString("id"))
-
-                        val user = User(
-                                rs.getString("name"),
-                                rs.getString("password"),
-                                mapper.readValue(
-                                        rs.getString("permissions"),
-                                        mapper.typeFactory.constructCollectionType(
-                                                Collection::class.java,
-                                                Permission::class.java
-                                        )
-                                ),
-                                USER_LOGIN_ATTEMPTS.singleOrNull { attempt -> attempt.success && attempt.id == id },
-                                id,
-                                rs.getLong("createdon")
-                        )
-
-                        add(user)
-                    }
-                }
-            }
-        }
+        return users
     }
 
     /**
      * Get a user by their [username].
      */
-    fun getUser(username: String?): User? =
-            USER_CACHE.singleOrNull { user -> user.username.equals(username, true) }
+    suspend fun getUser(username: String?): User? {
+        val rs = PostgreSql.getConnection()
+                .prepareStatement("SELECT * FROM users.users WHERE name = ?")
+                .apply { setString(1, username) }
+                .executeQuery()
+
+        if (rs.next())
+            return getUser(rs)
+        else throw NotFound("user")
+    }
 
     /**
      * Get a user by their [uuid].
      */
-    fun getUser(uuid: UUID?): User? =
-            USER_CACHE.singleOrNull { user -> user.id == uuid }
+    @Throws(NotFound::class)
+    suspend fun getUser(uuid: UUID?): User? {
+        val rs = PostgreSql.getConnection()
+                .prepareStatement("SELECT * FROM users.users WHERE id = ?")
+                .apply { setString(1, uuid.toString()) }
+                .executeQuery()
+
+        if (rs.next())
+            return getUser(rs)
+        else throw NotFound("user")
+    }
+
+    /**
+     * Parse a user from [ResultSet]
+     */
+    private suspend fun getUser(rs: ResultSet): User {
+        val mapper = ObjectMapper()
+        val id = UUID.fromString(rs.getString("id"))
+
+        return User(
+                rs.getString("name"),
+                rs.getString("password"),
+                mapper.readValue(
+                        rs.getString("permissions"),
+                        mapper.typeFactory.constructCollectionType(
+                                Collection::class.java,
+                                Permission::class.java
+                        )
+                ),
+                UserLoginManager.getMostRecentLoginAttempt(id),
+                id,
+                rs.getLong("createdon")
+        )
+    }
 
     /**
      * See if [user] has [permissions].
@@ -100,76 +102,96 @@ object UserManager {
     /**
      * Delete a user by their UUID.
      */
-    suspend fun deleteUser(user: UUID) = coroutineScope {
+    @Throws(NotFound::class)
+    suspend fun deleteUser(user: UUID) {
         val userIn = getUser(user)
 
         if (userIn != null) {
-            USER_CACHE.remove(userIn)
-
-            val pre = PostgreSql.getConnection()
-                    .prepareStatement("DELETE FROM users.users WHERE id = ?")
-
-            pre.setString(1, user.toString())
-
-            launch { pre.executeUpdate() }
-        } else throw Exception("Tried deleting a user that doesn't exist!")
+            withContext(Dispatchers.Unconfined) {
+                PostgreSql.getConnection()
+                        .prepareStatement("DELETE FROM users.users WHERE id = ?")
+                        .apply { setString(1, user.toString()) }
+                        .executeUpdate()
+            }
+        } else throw NotFound("user")
     }
 
     /**
      * Create a user with a [username] an a [password].
+     *
+     * TODO create login attempt
      */
-    suspend fun createUser(
-            username: String,
-            password: String,
-            requiresHash: Boolean = false,
-            permissions: ArrayList<Permission> = DEFAULT_PERMISSIONS
-    ): User = coroutineScope {
-        if (USER_CACHE.any { user -> user.username.equals(username, true) })
-            throw Exception("Username $username already exists!")
+    @Throws(ArgumentDoesntMeet::class)
+    suspend fun createUser(username: String, password: String): User {
+        when {
+            !UserRequirements.usernameMeets(username) ->
+                throw ArgumentDoesntMeet("username")
 
-        val hashedPassword = if (requiresHash)
-            DigestUtils.sha512Hex(password)
-        else password
+            !UserRequirements.passwordMeets(password) ->
+                throw ArgumentDoesntMeet("password")
+        }
 
-        val id = UUID.randomUUID()
+        val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+
+        val id = Generators.randomBasedGenerator().generate()
         val user = User(
                 username,
                 hashedPassword,
-                permissions,
-                UserLastLogin(id, "0.0.0.0", System.currentTimeMillis(), true),
+                arrayListOf(),
+                UserLoginAttempt(id, "0.0.0.0", System.currentTimeMillis(), true),
                 id,
                 System.currentTimeMillis()
         )
 
-        USER_CACHE.add(user)
-
-        launch { uploadUser(user, hashedPassword) }
-
-        return@coroutineScope user
-    }
-
-    fun loginUsing(username: String, password: String, usingCaptcha: Boolean, requiresHash: Boolean = false): User? {
-        val hashedPassword = if (requiresHash) DigestUtils.sha512Hex(password) else password
-        val user = getUser(username)
-
-        if (user != null && user.isCorrectPassword(hashedPassword))
-            return user
-
-        return null
-    }
-
-    private suspend fun uploadUser(user: User, password: String) = coroutineScope {
-        val pre = PostgreSql.getConnection()
-                .prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)")
-
-        pre.setString(1, user.id.toString())
-        pre.setString(2, user.username)
-        pre.setString(3, password)
-        pre.setString(4, ObjectMapper().writeValueAsString(user.permissions))
-        pre.setLong(5, user.createdOn)
-
-        return@coroutineScope withContext(Dispatchers.Unconfined) {
-            pre.executeUpdate()
+        withContext(Dispatchers.Unconfined) {
+            uploadUser(user, hashedPassword)
         }
+
+        return user
+    }
+
+    /**
+     * Login using a [username] and [password].
+     */
+    suspend fun loginUsing(username: String, password: String, ip: String): User? {
+        val user = getUser(username)
+                ?: return null
+
+        val correct = user.isCorrectPassword(password)
+
+        UserLoginManager.attemptLogin(user.id, ip, correct)
+
+        return if (correct)
+            user
+        else
+            null
+    }
+
+    /**
+     * Upload [user] to the database.
+     */
+    private fun uploadUser(user: User, password: String) {
+        PostgreSql.getConnection()
+                .prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)")
+                .apply {
+                    setString(1, user.id.toString())
+                    setString(2, user.username)
+                    setString(3, password)
+                    setString(4, ObjectMapper().writeValueAsString(user.permissions))
+                    setLong(5, user.createdOn)
+                }
+                .executeUpdate()
+    }
+
+    /**
+     * If a user already has the [name].
+     */
+    fun nameExists(name: String): Boolean {
+        val rs = PostgreSql.getConnection()
+                .prepareStatement("SELECT id FROM users.users WHERE name = ?")
+                .apply { setString(1, name) }
+                .executeQuery()
+
+        return rs.next()
     }
 }

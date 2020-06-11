@@ -24,7 +24,7 @@ fun getUuid(id: String?): UUID? {
 
 
 /** See what [first] is missing from [second] */
-fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
+public fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
         first.filter { !second.contains(it) }
 
 /** Creates an HTML document */

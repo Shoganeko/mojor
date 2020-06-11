@@ -33,6 +33,10 @@ object PostgreSql {
     /**
      * Create a connection to AWS.
      */
-    fun getConnection(): Connection =
-            connection
+    fun getConnection(): Connection {
+        if (connection.isValid(5))
+            return connection
+
+        throw Exception("SQL connection timed out!")
+    }
 }

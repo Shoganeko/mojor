@@ -5,9 +5,8 @@ import dev.shog.lib.app.cfg.ConfigHandler
 import dev.shog.lib.hook.DiscordWebhook
 import dev.shog.lib.util.ArgsHandler
 import dev.shog.lib.util.defaultFormat
+import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.file.Config
-import dev.shog.mojor.servers.apiServer
-import dev.shog.mojor.servers.cdnServer
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
@@ -46,8 +45,7 @@ object Mojor {
 
         ah.initWith(args)
 
-        apiServer.start()
-        cdnServer.start(wait = true)
+        apiServer.start(wait = true)
     }
 }
 
