@@ -9,7 +9,6 @@ import dev.shog.mojor.handle.auth.user.obj.User
 import dev.shog.mojor.handle.auth.user.obj.UserLoginAttempt
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.*
-import kotlinx.serialization.serializer
 import org.mindrot.jbcrypt.BCrypt
 import java.sql.ResultSet
 import java.util.*
@@ -143,6 +142,8 @@ object UserManager {
                 System.currentTimeMillis()
         )
 
+        UserLoginManager.attemptLogin(id, "0.0.0.0", true)
+
         withContext(Dispatchers.Unconfined) {
             uploadUser(user, hashedPassword)
         }
@@ -193,5 +194,39 @@ object UserManager {
                 .executeQuery()
 
         return rs.next()
+    }
+
+    /**
+     * Change a user's password.
+     */
+    fun changePassword(user: UUID, password: String) {
+        if (!UserRequirements.passwordMeets(password))
+            throw ArgumentDoesntMeet("password")
+
+        val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
+
+        PostgreSql.getConnection()
+                .prepareStatement("UPDATE users.users SET password = ? WHERE id = ? ")
+                .apply {
+                    setString(1, hashedPassword)
+                    setString(2, user.toString())
+                }
+                .executeUpdate()
+    }
+
+    /**
+     * Change a user's username.
+     */
+    fun changeUsername(user: UUID, username: String) {
+        if (!UserRequirements.usernameMeets(username) || nameExists(username))
+            throw ArgumentDoesntMeet("username")
+
+        PostgreSql.getConnection()
+                .prepareStatement("UPDATE users.users SET name = ? WHERE id = ? ")
+                .apply {
+                    setString(1, username)
+                    setString(2, user.toString())
+                }
+                .executeUpdate()
     }
 }

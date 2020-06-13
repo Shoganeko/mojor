@@ -51,11 +51,14 @@ object UserLoginManager {
     /**
      * Get a user's login attempts
      */
-    suspend fun getLoginAttempts(id: UUID): List<UserLoginAttempt> {
+    suspend fun getLoginAttempts(id: UUID, limit: Int = 100): List<UserLoginAttempt> {
         val rs = withContext(Dispatchers.Unconfined) {
             PostgreSql.getConnection()
-                    .prepareStatement("SELECT ip, date, success FROM users.signin WHERE id = ?")
-                    .apply { setString(1, id.toString()) }
+                    .prepareStatement("SELECT ip, date, success FROM users.signin WHERE id = ? LIMIT ?")
+                    .apply {
+                        setString(1, id.toString())
+                        setInt(2, limit)
+                    }
                     .executeQuery()
         }
 

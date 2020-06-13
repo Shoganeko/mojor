@@ -4,10 +4,12 @@ import dev.shog.lib.util.eitherOr
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.AlreadyLoggedInException
+import dev.shog.mojor.handle.ArgumentDoesntMeet
 import dev.shog.mojor.handle.InvalidArguments
 import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.auth.*
 import dev.shog.mojor.handle.auth.token.handle.TokenHandler
+import dev.shog.mojor.handle.auth.user.handle.UserLoginManager
 import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
 import dev.shog.mojor.handle.game.GameHandler
@@ -27,12 +29,38 @@ fun Routing.userInteractionPages() {
          * Get a user's account information, excluding their password.
          */
         get {
-            call.isAuthorized()
-
-            val token = call.getTokenFromCall()
+            val token = call.isAuthorized()
             val user = UserManager.getUser(token.owner)
 
             call.respond(Response(payload = user))
+        }
+
+        /**
+         * Change your own username.
+         */
+        post("/username") {
+            val token = call.isAuthorized()
+            val params = call.receiveParameters()
+
+            if (!params.contains("username"))
+                throw InvalidArguments("username")
+
+            UserManager.changeUsername(token.owner, params["username"]!!)
+            call.respond(Response())
+        }
+
+        /**
+         * Change your own password.
+         */
+        post("/password") {
+            val token = call.isAuthorized()
+            val params = call.receiveParameters()
+
+            if (!params.contains("password"))
+                throw InvalidArguments("password")
+
+            UserManager.changePassword(token.owner, params["password"]!!)
+            call.respond(Response())
         }
 
         /**
@@ -96,6 +124,26 @@ fun Routing.userInteractionPages() {
             NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
 
             call.respond(Response())
+        }
+
+        /**
+         * Get a user's login attempts
+         */
+        get("/attempts") {
+            val user = call.isAuthorized()
+            val params = call.request.queryParameters
+
+            if (params.contains("limit")) {
+                val limit = params["limit"]?.toIntOrNull()
+                        ?: throw InvalidArguments("limit")
+
+                if (limit > 500)
+                    throw ArgumentDoesntMeet("limit")
+
+                call.respond(UserLoginManager.getLoginAttempts(user.owner, limit))
+            }
+
+            call.respond(UserLoginManager.getLoginAttempts(user.owner))
         }
 
         /**

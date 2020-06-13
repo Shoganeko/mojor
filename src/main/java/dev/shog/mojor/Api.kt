@@ -89,6 +89,8 @@ private fun Application.mainModule() {
     install(CORS) {
         anyHost()
         method(HttpMethod.Options)
+        method(HttpMethod.Put)
+        allowSameOrigin = true
         header("Authorization")
         allowCredentials = true
         allowNonSimpleContentTypes = true
