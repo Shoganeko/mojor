@@ -34,6 +34,8 @@ object PostgreSql {
      * Create a connection to AWS.
      */
     fun getConnection(): Connection {
+        println("Got connection")
+
         if (connection.isValid(5))
             return connection
 

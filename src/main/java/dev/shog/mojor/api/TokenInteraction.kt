@@ -17,8 +17,7 @@ fun Routing.tokenInteractionPages() {
          * Get a token's full data from their identifier.
          */
         get {
-            call.isAuthorized()
-            call.respond(Response(payload = call.getTokenFromCall()))
+            call.respond(Response(call.isAuthorized()))
         }
 
         /**
@@ -26,15 +25,14 @@ fun Routing.tokenInteractionPages() {
          */
         patch {
             call.isAuthorized(avoidExpire = true)
-            call.respond(Response(payload = TokenHandler.renewToken(call.getTokenFromCall())))
+            call.respond(Response(TokenHandler.renewToken(call.getTokenFromCall())))
         }
 
         /**
          * Disable/Delete a token.
          */
         delete {
-            call.isAuthorized()
-            call.respond(Response(payload = TokenHandler.removeToken(call.getTokenFromCall())))
+            call.respond(Response(TokenHandler.removeToken(call.isAuthorized())))
         }
     }
 }

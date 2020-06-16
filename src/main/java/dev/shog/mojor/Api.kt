@@ -2,6 +2,7 @@ package dev.shog.mojor
 
 import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.api.RandomEmote
+import dev.shog.mojor.api.blog.blogPages
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
@@ -88,8 +89,11 @@ private fun Application.mainModule() {
 
     install(CORS) {
         anyHost()
+
         method(HttpMethod.Options)
         method(HttpMethod.Put)
+        method(HttpMethod.Delete)
+
         allowSameOrigin = true
         header("Authorization")
         allowCredentials = true
@@ -108,11 +112,11 @@ private fun Application.mainModule() {
  */
 private suspend fun Routing.root() {
     get("/") {
-        call.respond(Response(payload = RandomEmote.getEmote()))
+        call.respond(Response(RandomEmote.getEmote()))
     }
 
     get("/version") {
-        call.respond(Response(payload = Mojor.APP.getVersion()))
+        call.respond(Response(Mojor.APP.getVersion()))
     }
 
     get("/robots.txt") {
@@ -123,4 +127,5 @@ private suspend fun Routing.root() {
     tokenInteractionPages()
     globalUserInteractionPages()
     motdPages()
+    blogPages()
 }

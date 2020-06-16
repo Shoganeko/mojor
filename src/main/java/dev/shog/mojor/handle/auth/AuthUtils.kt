@@ -9,7 +9,9 @@ import dev.shog.mojor.handle.auth.token.handle.TokenHandler
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
 
-/** Get a [Token] from an [ApplicationCall] */
+/**
+ * Get a [Token] from an [ApplicationCall]
+ */
 fun ApplicationCall.getTokenFromCall(): Token {
     val header = getHeader(this)
 

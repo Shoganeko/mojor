@@ -32,7 +32,7 @@ fun Routing.userInteractionPages() {
             val token = call.isAuthorized()
             val user = UserManager.getUser(token.owner)
 
-            call.respond(Response(payload = user))
+            call.respond(user)
         }
 
         /**
@@ -72,7 +72,7 @@ fun Routing.userInteractionPages() {
             val token = call.getTokenFromCall()
             val user = UserManager.getUser(token.owner)
 
-            call.respond(Response(payload = GameHandler.getUserGameRecord(user?.id!!).records))
+            call.respond(GameHandler.getUserGameRecord(user.id).records)
         }
 
         /**
@@ -84,46 +84,42 @@ fun Routing.userInteractionPages() {
             val token = call.getTokenFromCall()
             val params = call.receiveParameters()
 
-            if (
-                    !params.contains("map")
-                    || !params.contains("win")
-                    || !params.contains("score")
-                    || !params.contains("game")
-            ) {
-                call.respond(HttpStatusCode.BadRequest, Response("Map, Win or Score was not found."))
-            } else {
-                val win = params["win"]?.toBoolean()?.eitherOr(1, 0)!!
-                val map = params["map"]!!
-                val score = params["score"]!!
-                val game = params["game"]!!.toInt()
+            val win = params["win"]?.toBoolean()?.eitherOr(1, 0)
+            val map = params["map"]
+            val score = params["score"]
+            val game = params["game"]?.toInt()
 
-                GameHandler.uploadUserRecord(token.owner, game, win.toShort(), score, map)
-                call.respond(HttpStatusCode.OK, Response())
+            if (win == null || map == null || score == null || game == null)
+                throw InvalidArguments("win", "map", "score", "game")
+
+            GameHandler.uploadUserRecord(token.owner, game, win.toShort(), score, map)
+            call.respond(HttpStatusCode.OK, Response())
+        }
+
+        route("/notifs") {
+            /**
+             * Get a user's notifications
+             */
+            get {
+                val token = call.isAuthorized()
+
+                call.respond(NotificationService.getNotificationsForUser(token.owner))
             }
-        }
 
-        /**
-         * Get a user's notifications
-         */
-        get("/notifs") {
-            call.isAuthorized()
+            route("/{id}") {
+                /**
+                 * Delete a notification
+                 */
+                delete {
+                    call.isAuthorized()
 
-            val token = call.getTokenFromCall()
+                    val token = call.getTokenFromCall()
 
-            call.respond(Response(payload = NotificationService.getNotificationsForUser(token.owner)))
-        }
+                    NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
 
-        /**
-         * Delete a notification
-         */
-        delete("/notifs/{id}") {
-            call.isAuthorized()
-
-            val token = call.getTokenFromCall()
-
-            NotificationService.closeNotification(call.parameters["id"].orEmpty(), token.owner)
-
-            call.respond(Response())
+                    call.respond(Response())
+                }
+            }
         }
 
         /**
@@ -170,7 +166,7 @@ fun Routing.userInteractionPages() {
                     val user = UserManager.loginUsing(username, password, call.request.origin.remoteHost)
 
                     if (user != null) {
-                        call.respond(Response(payload = UserLoginPayload(user, TokenHandler.createToken(user))))
+                        call.respond(UserLoginPayload(user, TokenHandler.createToken(user)))
                     } else
                         throw InvalidAuthorization()
                 }

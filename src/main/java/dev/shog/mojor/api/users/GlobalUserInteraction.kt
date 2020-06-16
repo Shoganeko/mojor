@@ -23,7 +23,7 @@ fun Routing.globalUserInteractionPages() {
     /** Get all users. */
     get("/users") {
         call.isAuthorized(Permission.USER_MANAGER)
-        call.respond(Response(payload = UserManager.getUsers()))
+        call.respond(UserManager.getUsers())
     }
 
     route("/user") {
@@ -60,7 +60,8 @@ fun Routing.globalUserInteractionPages() {
 
                 if (user == null)
                     call.respond(HttpStatusCode.BadRequest, Response("Invalid User"))
-                else call.respond(Response(payload = user))
+                else
+                    call.respond(Response(user))
             }
 
             /**

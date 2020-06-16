@@ -21,6 +21,8 @@ class InvalidCaptcha : Exception()
 
 class ArgumentDoesntMeet(val arg: String) : Exception()
 
+class AlreadyExists(val type: String) : Exception()
+
 class NotFound(val type: String) : Exception()
 
 /**
@@ -29,6 +31,10 @@ class NotFound(val type: String) : Exception()
 fun StatusPages.Configuration.registerExceptions() {
     exception<NotFound> {
         call.respond(HttpStatusCode.BadRequest, Response(response = "That ${it.type} could not be found!"))
+    }
+
+    exception<AlreadyExists> {
+        call.respond(HttpStatusCode.BadRequest, Response(response = "That ${it.type} already exists!"))
     }
 
     exception<TokenExpiredException> { ex ->

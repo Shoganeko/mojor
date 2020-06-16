@@ -52,7 +52,7 @@ object UserManager {
      * Get a user by their [uuid].
      */
     @Throws(NotFound::class)
-    suspend fun getUser(uuid: UUID?): User? {
+    suspend fun getUser(uuid: UUID?): User {
         val rs = PostgreSql.getConnection()
                 .prepareStatement("SELECT * FROM users.users WHERE id = ?")
                 .apply { setString(1, uuid.toString()) }
