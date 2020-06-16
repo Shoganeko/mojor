@@ -19,7 +19,7 @@ import java.util.*
  * Mojor
  */
 object Mojor {
-    const val MOJOR_VERSION = 1.5F
+    const val MOJOR_VERSION = 1.6F
 
     val APP = AppBuilder("mojor", MOJOR_VERSION)
             .usingConfig(ConfigHandler.createConfig(ConfigHandler.ConfigType.YML, "mojor", Config()))

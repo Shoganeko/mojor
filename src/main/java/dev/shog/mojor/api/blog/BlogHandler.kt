@@ -13,9 +13,6 @@ import org.jsoup.Jsoup
 import java.sql.ResultSet
 import java.util.*
 
-/**
- * TODO cache.
- */
 object BlogHandler {
     /**
      * Get blogs from the database.
