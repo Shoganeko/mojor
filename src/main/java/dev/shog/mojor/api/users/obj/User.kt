@@ -1,7 +1,11 @@
-package dev.shog.mojor.handle.auth.user.obj
+package dev.shog.mojor.api.users.obj
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.shog.mojor.handle.ArgumentDoesntMeet
 import dev.shog.mojor.handle.auth.obj.Permission
+import dev.shog.mojor.api.users.handle.UserManager
+import dev.shog.mojor.api.users.handle.UserRequirements
 import dev.shog.mojor.handle.db.PostgreSql
 import kotlinx.coroutines.runBlocking
 import org.mindrot.jbcrypt.BCrypt
@@ -24,7 +28,10 @@ class User(
     var username = username
         set(value) {
             runBlocking {
-                val pre = PostgreSql.getConnection()
+                if (!UserRequirements.usernameMeets(username) || UserManager.nameExists(username))
+                    throw ArgumentDoesntMeet("username")
+
+                val pre = PostgreSql.getConnection("Set $id's username")
                         .prepareStatement("UPDATE users.users SET 'name'=? WHERE 'id'=?")
 
                 pre.setString(1, field)
@@ -38,10 +45,11 @@ class User(
     /**
      * A hashed password.
      */
-    private var password = password
+    @JsonIgnore
+    var password = password
         set(value) {
             runBlocking {
-                val pre = PostgreSql.getConnection()
+                val pre = PostgreSql.getConnection("Set $id's password")
                         .prepareStatement("UPDATE users.users SET 'password'=? WHERE 'id'=?")
 
                 pre.setString(1, field)
@@ -58,7 +66,7 @@ class User(
     var permissions = permissions
         set(value) {
             runBlocking {
-                val pre = PostgreSql.getConnection()
+                val pre = PostgreSql.getConnection("Set $id's permissions")
                         .prepareStatement("UPDATE users.users SET 'permissions'=? WHERE 'id'=?")
 
                 pre.setString(1, ObjectMapper().writeValueAsString(field))

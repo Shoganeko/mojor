@@ -1,4 +1,4 @@
-package dev.shog.mojor.handle.game
+package dev.shog.mojor.api.users.game
 
 /**
  * Holds [GameRecord]s

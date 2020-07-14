@@ -1,17 +1,18 @@
 package dev.shog.mojor
 
-import dev.shog.lib.app.AppBuilder
+import dev.shog.lib.app.Application
 import dev.shog.lib.app.cfg.ConfigHandler
-import dev.shog.lib.hook.DiscordWebhook
+import dev.shog.lib.app.cfg.ConfigType
+import dev.shog.lib.discord.DiscordWebhook
+import dev.shog.lib.discord.WebhookUser
 import dev.shog.lib.util.ArgsHandler
 import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.api.blog.BlogHandler
-import dev.shog.mojor.handle.auth.user.handle.UserManager
 import dev.shog.mojor.handle.file.Config
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
-import org.slf4j.LoggerFactory
+import org.json.JSONArray
 import java.time.Instant
 import java.util.*
 
@@ -19,16 +20,11 @@ import java.util.*
  * Mojor
  */
 object Mojor {
-    const val MOJOR_VERSION = 1.6F
-
-    val APP = AppBuilder("mojor", MOJOR_VERSION)
-            .usingConfig(ConfigHandler.createConfig(ConfigHandler.ConfigType.YML, "mojor", Config()))
-            .configureConfig { cfg ->
-                logger = LoggerFactory.getLogger("mojor")
-                webhook = DiscordWebhook(cfg.asObject<Config>().discordUrl)
-                useCache = true
-            }
-            .build()
+    val APP = Application(
+            "mojor",
+            "1.7.0",
+            ConfigHandler.useConfig(ConfigType.YML, "mojor", Config())
+    ) { _, _, cfg -> DiscordWebhook(cfg.asObject<Config>().discordUrl, WebhookUser("Mojor", "https://shog.dev/favicon.png")) }
 
     @KtorExperimentalAPI
     @KtorExperimentalLocationsAPI

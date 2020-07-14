@@ -1,11 +1,10 @@
 package dev.shog.mojor.api.blog.response
 
 import dev.shog.mojor.api.blog.Blog
-import dev.shog.mojor.handle.auth.user.obj.User
+import dev.shog.mojor.api.users.obj.User
 
 /**
- * A blog response.
- *
+ * A response to getting a blog.
  */
 data class BlogResponse(
         val blog: Blog,

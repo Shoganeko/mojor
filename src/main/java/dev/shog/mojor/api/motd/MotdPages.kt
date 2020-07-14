@@ -6,7 +6,7 @@ import dev.shog.mojor.handle.InvalidArguments
 import dev.shog.mojor.handle.NotFound
 import dev.shog.mojor.handle.auth.isAuthorized
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.user.handle.UserManager
+import dev.shog.mojor.api.users.handle.UserManager
 import io.ktor.application.call
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond

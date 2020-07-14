@@ -6,10 +6,6 @@ import dev.shog.mojor.Mojor
  * The configuration file for Mojor.
  */
 class Config {
-    /**
-     * The version this configuration file was intended for
-     */
-    var version: Float = Mojor.MOJOR_VERSION
 
     /**
      * The PostgreSQL configuration
@@ -32,4 +28,14 @@ class Config {
      * The URL for the Discord web-hook
      */
     var discordUrl: String = ""
+
+    /**
+     * The discord app secret
+     */
+    var discordSecret: String = ""
+
+    /**
+     * The discord client ID
+     */
+    var discordId: String = ""
 }

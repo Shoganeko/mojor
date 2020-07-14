@@ -6,8 +6,8 @@ import dev.shog.mojor.getUuid
 import dev.shog.mojor.handle.NotFound
 import dev.shog.mojor.handle.auth.isAuthorized
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.user.handle.UserManager
-import dev.shog.mojor.handle.auth.user.obj.User
+import dev.shog.mojor.api.users.handle.UserManager
+import dev.shog.mojor.api.users.obj.User
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode

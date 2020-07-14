@@ -8,7 +8,7 @@ plugins {
 mainClassName = 'dev.shog.mojor.MojorKt'
 
 group 'dev.shog'
-version '1.6.1'
+version '1.7.0'
 ext.ktor_version = '1.2.4'
 
 sourceCompatibility = 1.8
@@ -32,6 +32,9 @@ repositories {
 }
 
 dependencies {
+    implementation "org.java-websocket:Java-WebSocket:1.5.1"
+    implementation 'org.dmfs:oauth2-essentials:0.18'
+    implementation 'org.dmfs:httpurlconnection-executor:0.20'
     implementation group: 'junit', name: 'junit', version: '4.12'
     implementation 'com.atlassian.commonmark:commonmark:0.13.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -45,17 +48,16 @@ dependencies {
     implementation "io.ktor:ktor-jackson:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-locations:$ktor_version"
-    implementation "io.ktor:ktor-html-builder:$ktor_version"
-    implementation "io.ktor:ktor-metrics-micrometer:$ktor_version"
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-client-auth-jvm:$ktor_version"
     implementation "io.ktor:ktor-client-cio:$ktor_version"
     implementation "io.ktor:ktor-serialization:$ktor_version"
     implementation 'com.konghq:unirest-java:3.1.02'
-    implementation 'com.github.Shoganeko:lib:09bed25913'
+    implementation 'com.github.Shoganeko:lib:df14326110'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.9'
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'com.fasterxml.uuid:java-uuid-generator:4.0'
     implementation 'com.atlassian.commonmark:commonmark:0.15.0'
     implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.11.0'
 }

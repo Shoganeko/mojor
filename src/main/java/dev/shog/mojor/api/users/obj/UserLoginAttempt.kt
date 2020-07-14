@@ -1,4 +1,4 @@
-package dev.shog.mojor.handle.auth.user.obj
+package dev.shog.mojor.api.users.obj
 
 import java.util.*
 

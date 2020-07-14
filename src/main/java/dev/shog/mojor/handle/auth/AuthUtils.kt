@@ -1,11 +1,11 @@
 package dev.shog.mojor.handle.auth
 
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.token.obj.Token
+import dev.shog.mojor.api.users.token.obj.Token
 import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.TokenExpiredException
 import dev.shog.mojor.handle.TokenMissingPermissions
-import dev.shog.mojor.handle.auth.token.handle.TokenHandler
+import dev.shog.mojor.api.users.token.handle.TokenHandler
 import io.ktor.application.ApplicationCall
 import io.ktor.auth.parseAuthorizationHeader
 
@@ -16,11 +16,10 @@ fun ApplicationCall.getTokenFromCall(): Token {
     val header = getHeader(this)
 
     when (header.first.toLowerCase()) {
-        "bearer" -> return TokenHandler.getCachedToken(header.second)
-                ?: throw InvalidAuthorization()
+        "bearer" -> return TokenHandler.getToken(header.second)
     }
 
-    throw InvalidAuthorization()
+    throw InvalidAuthorization("invalid token type")
 }
 
 /**
@@ -63,7 +62,7 @@ internal fun getHeader(call: ApplicationCall): Pair<String, String> {
     val header = call.request.parseAuthorizationHeader()
             ?.render()
             ?.split(" ")
-            ?: throw InvalidAuthorization()
+            ?: throw InvalidAuthorization("invalid header")
 
     return Pair(header[0], header[1])
 }

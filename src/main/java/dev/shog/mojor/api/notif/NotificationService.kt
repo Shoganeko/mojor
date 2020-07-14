@@ -35,7 +35,8 @@ object NotificationService {
      */
     private suspend fun createId(): String = coroutineScope {
         val id = DigestUtils.md5Hex(String(Random.nextBytes(64)))
-        val pre = PostgreSql.getConnection()
+
+        val pre = PostgreSql.getConnection("Checking if notification ID already exists")
                 .prepareStatement("SELECT * FROM notif.notif WHERE id = ?")
 
         pre.setString(1, id)
@@ -65,7 +66,7 @@ object NotificationService {
             this@NotificationService.saved[forUser] = saved
         }
 
-        val pre = PostgreSql.getConnection()
+        val pre = PostgreSql.getConnection("Inserting a notification")
                 .prepareStatement("INSERT INTO notif.notif (postedat, id, data, intended) VALUES (?, ?, ?, ?)")
 
         pre.setLong(1, notif.postedAt)

@@ -1,8 +1,10 @@
 package dev.shog.mojor
 
+import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule
 import dev.shog.lib.util.logDiscord
 import dev.shog.mojor.api.RandomEmote
 import dev.shog.mojor.api.blog.blogPages
+import dev.shog.mojor.api.buta.butaPages
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.api.tokenInteractionPages
 import dev.shog.mojor.api.users.globalUserInteractionPages
@@ -48,6 +50,8 @@ private fun Application.mainModule() {
     install(ContentNegotiation) {
         jackson {
             dateFormat = DateFormat.getDateInstance()
+
+            registerModule(JsonOrgModule())
         }
 
         register(ContentType.Application.Json, JacksonConverter())
@@ -84,7 +88,7 @@ private fun Application.mainModule() {
     install(Locations)
 
     install(DefaultHeaders) {
-        header("Server", "Mojor/${Mojor.APP.getVersion()}")
+        header("Server", "Mojor/${Mojor.APP.version}")
     }
 
     install(CORS) {
@@ -93,6 +97,7 @@ private fun Application.mainModule() {
         method(HttpMethod.Options)
         method(HttpMethod.Put)
         method(HttpMethod.Delete)
+        method(HttpMethod.Patch)
 
         allowSameOrigin = true
         header("Authorization")
@@ -116,7 +121,7 @@ private suspend fun Routing.root() {
     }
 
     get("/version") {
-        call.respond(Response(Mojor.APP.getVersion()))
+        call.respond(Response(Mojor.APP.version))
     }
 
     get("/robots.txt") {
@@ -128,4 +133,5 @@ private suspend fun Routing.root() {
     globalUserInteractionPages()
     motdPages()
     blogPages()
+    butaPages()
 }

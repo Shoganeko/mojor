@@ -3,16 +3,12 @@ package dev.shog.mojor.api.users
 import dev.shog.lib.util.eitherOr
 import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.handle.AlreadyLoggedInException
-import dev.shog.mojor.handle.ArgumentDoesntMeet
-import dev.shog.mojor.handle.InvalidArguments
-import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.auth.*
-import dev.shog.mojor.handle.auth.token.handle.TokenHandler
-import dev.shog.mojor.handle.auth.user.handle.UserLoginManager
-import dev.shog.mojor.handle.auth.user.handle.UserManager
-import dev.shog.mojor.handle.auth.user.result.UserLoginPayload
-import dev.shog.mojor.handle.game.GameHandler
+import dev.shog.mojor.api.users.token.handle.TokenHandler
+import dev.shog.mojor.api.users.handle.UserLoginManager
+import dev.shog.mojor.api.users.handle.UserManager
+import dev.shog.mojor.api.users.game.GameHandler
+import dev.shog.mojor.handle.*
 import io.ktor.application.call
 import io.ktor.features.origin
 import io.ktor.http.HttpStatusCode
@@ -42,10 +38,11 @@ fun Routing.userInteractionPages() {
             val token = call.isAuthorized()
             val params = call.receiveParameters()
 
-            if (!params.contains("username"))
-                throw InvalidArguments("username")
+            val username = params["username"]
+                    ?: throw InvalidArguments("username")
 
-            UserManager.changeUsername(token.owner, params["username"]!!)
+            UserManager.getUser(token.owner).username = username
+
             call.respond(Response())
         }
 
@@ -56,10 +53,11 @@ fun Routing.userInteractionPages() {
             val token = call.isAuthorized()
             val params = call.receiveParameters()
 
-            if (!params.contains("password"))
-                throw InvalidArguments("password")
+            val password = params["password"]
+                    ?: throw InvalidArguments("password")
 
-            UserManager.changePassword(token.owner, params["password"]!!)
+            UserManager.getUser(token.owner).password = password
+
             call.respond(Response())
         }
 
@@ -168,7 +166,7 @@ fun Routing.userInteractionPages() {
                     if (user != null) {
                         call.respond(UserLoginPayload(user, TokenHandler.createToken(user)))
                     } else
-                        throw InvalidAuthorization()
+                        throw InvalidAuthorization("invalid username or password")
                 }
             }
         }

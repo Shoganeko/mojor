@@ -1,4 +1,4 @@
-package dev.shog.mojor.handle.auth.user.handle
+package dev.shog.mojor.api.users.handle
 
 object UserRequirements {
     //    private val PASSWORD_REGEX = Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@\$%^&*-]).{8,}\$") TODO

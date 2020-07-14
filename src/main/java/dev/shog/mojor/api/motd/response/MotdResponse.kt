@@ -1,7 +1,7 @@
 package dev.shog.mojor.api.motd.response
 
 import dev.shog.mojor.api.motd.Motd
-import dev.shog.mojor.handle.auth.user.obj.User
+import dev.shog.mojor.api.users.obj.User
 
 /**
  * A response for getting an MOTD.

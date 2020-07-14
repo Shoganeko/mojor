@@ -1,4 +1,4 @@
-package dev.shog.mojor.handle.game
+package dev.shog.mojor.api.users.game
 
 import dev.shog.lib.util.getAge
 import dev.shog.mojor.handle.db.PostgreSql
@@ -59,8 +59,7 @@ object GameHandler {
      * Refresh [user]'s record and return the new record.
      */
     private suspend fun refreshUserRecords(user: UUID): GameRecordHolder {
-        val rs = PostgreSql
-                .getConnection()
+        val rs = PostgreSql.getConnection("Refresh $user's game records")
                 .prepareStatement("SELECT * FROM users.games WHERE id=?")
                 .apply { setString(1, user.toString()) }
                 .executeQuery()

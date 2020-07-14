@@ -11,7 +11,7 @@ class TokenExpiredException : Exception()
 
 class TokenMissingPermissions(val tokenPerms: Collection<Permission>, val requiredPerms: Collection<Permission>) : Exception()
 
-class InvalidAuthorization : Exception()
+class InvalidAuthorization(val reason: String) : Exception()
 
 class AlreadyLoggedInException : Exception()
 
@@ -60,7 +60,7 @@ fun StatusPages.Configuration.registerExceptions() {
     }
 
     exception<InvalidAuthorization> {
-        call.respond(HttpStatusCode.Unauthorized, Response(response = "Invalid authorization"))
+        call.respond(HttpStatusCode.Unauthorized, Response(response = "Invalid authorization, reason: ${it.reason}"))
     }
 
     exception<InvalidCaptcha> {

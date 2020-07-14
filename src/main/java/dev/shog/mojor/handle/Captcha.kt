@@ -1,4 +1,4 @@
-package dev.shog.mojor.handle.auth
+package dev.shog.mojor.handle
 
 import dev.shog.mojor.Mojor
 import dev.shog.mojor.handle.InvalidCaptcha

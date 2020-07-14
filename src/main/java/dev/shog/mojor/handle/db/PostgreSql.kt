@@ -33,8 +33,8 @@ object PostgreSql {
     /**
      * Create a connection to AWS.
      */
-    fun getConnection(): Connection {
-        println("Got connection")
+    fun getConnection(label: String = "Mojor"): Connection {
+        Mojor.APP.logger.debug("Got connection: Label = $label")
 
         if (connection.isValid(5))
             return connection

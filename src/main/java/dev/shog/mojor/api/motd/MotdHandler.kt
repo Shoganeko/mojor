@@ -30,16 +30,8 @@ object MotdHandler {
     suspend fun insertMotd(properMotd: Motd) {
         motds.add(properMotd)
 
-        PostgreSql.getConnection()
-                .prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?)")
-                .apply {
-                    setString(1, properMotd.data)
-                    setString(2, properMotd.owner.toString())
-                    setLong(3, properMotd.date)
-                }
-
         withContext(Dispatchers.Unconfined) {
-            PostgreSql.getConnection()
+            PostgreSql.getConnection("Insert a new MOTD")
                     .prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?)")
                     .apply {
                         setString(1, properMotd.data)
@@ -57,7 +49,7 @@ object MotdHandler {
             withContext(Dispatchers.Unconfined) {
                 motds.removeIf { it.date == motdDate }
 
-                PostgreSql.getConnection()
+                PostgreSql.getConnection("Deleting a MOTD")
                         .prepareStatement("DELETE FROM motd.motds WHERE date = ?")
                         .apply { setLong(1, motdDate) }
                         .executeUpdate()
@@ -66,7 +58,7 @@ object MotdHandler {
     init {
         runBlocking {
             val rs = withContext(Dispatchers.Unconfined) {
-                PostgreSql.getConnection()
+                PostgreSql.getConnection("Getting all MOTDs")
                         .prepareStatement("SELECT * FROM motd.motds")
                         .executeQuery()
             }

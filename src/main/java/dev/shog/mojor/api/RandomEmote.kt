@@ -3,7 +3,6 @@ package dev.shog.mojor.api
 import kong.unirest.Unirest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.html.currentTimeMillis
 import org.json.JSONObject
 import kotlin.system.measureTimeMillis
 import kotlin.time.measureTime

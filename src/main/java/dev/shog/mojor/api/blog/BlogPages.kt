@@ -6,16 +6,12 @@ import dev.shog.mojor.getUuid
 import dev.shog.mojor.handle.InvalidArguments
 import dev.shog.mojor.handle.auth.isAuthorized
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.handle.auth.user.handle.UserManager
+import dev.shog.mojor.api.users.handle.UserManager
 import io.ktor.application.call
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.*
 import org.json.JSONArray
-import java.util.*
-
-private val cachedResponses = mutableListOf<BlogResponse>()
-private val cachedEmoteResponses = mutableListOf<BlogResponse>()
 
 /**
  * Management for blogs.
@@ -26,37 +22,9 @@ fun Routing.blogPages() {
          * Get all blogs.
          */
         get {
-            val params = call.request.queryParameters
-
-            val includeEmotes = params["emotes"]
-
-            when {
-                includeEmotes == "true" && cachedEmoteResponses.isNotEmpty() ->
-                    call.respond(cachedEmoteResponses)
-
-                includeEmotes == "true" -> {
-                    val resp = BlogHandler.getBlogs().map { blog ->
-                        val emote = EmoteBlog.fromBlog(blog)
-
-                        BlogResponse(emote, UserManager.getUser(blog.creator))
-                    }
-
-                    cachedEmoteResponses.addAll(resp)
-
-                    call.respond(resp)
-                }
-
-                cachedResponses.isNotEmpty() ->
-                    call.respond(cachedResponses)
-
-                else -> {
-                    val resp = BlogHandler.getBlogs().map { blog -> BlogResponse(blog, UserManager.getUser(blog.creator)) }
-
-                    cachedResponses.addAll(resp)
-
-                    call.respond(resp)
-                }
-            }
+            call.respond(BlogHandler.getBlogs().map { blog ->
+                BlogResponse(blog, UserManager.getUser(blog.creator))
+            })
         }
 
         /**
@@ -73,12 +41,12 @@ fun Routing.blogPages() {
                 delete {
                     call.isAuthorized(Permission.MOJOR_ADMIN)
 
-                    val id = getUuid(call.parameters["id"]) ?: throw InvalidArguments("p_id")
+                    val id = getUuid(call.parameters["id"])
 
                     val params = call.receiveParameters()
                     val tagName = params["name"] ?: throw InvalidArguments("name")
 
-                    BlogHandler.removeTag(id, tagName)
+                    BlogHandler.getBlogById(id).tags.removeTag(tagName)
 
                     call.respond(Response("Successfully removed tag from $id"))
                 }
@@ -89,12 +57,12 @@ fun Routing.blogPages() {
                 post {
                     call.isAuthorized(Permission.MOJOR_ADMIN)
 
-                    val id = getUuid(call.parameters["id"]) ?: throw InvalidArguments("p_id")
+                    val id = getUuid(call.parameters["id"])
 
                     val params = call.receiveParameters()
                     val tagName = params["name"] ?: throw InvalidArguments("name")
 
-                    BlogHandler.addTag(id, tagName)
+                    BlogHandler.getBlogById(id).tags.addTag(tagName)
 
                     call.respond(Response("Successfully added tag to $id"))
                 }
@@ -105,16 +73,11 @@ fun Routing.blogPages() {
              */
             get {
                 val id = getUuid(call.parameters["id"])
-                        ?: throw InvalidArguments("p_id")
 
-                val includeEmotes = call.request.queryParameters["emotes"]
                 val blog = BlogHandler.getBlogById(id)
                 val owner = UserManager.getUser(blog.creator)
 
-                if (includeEmotes == "true")
-                    call.respond(BlogResponse(EmoteBlog.fromBlog(blog), owner))
-                else
-                    call.respond(BlogResponse(blog, owner))
+                call.respond(BlogResponse(blog, owner))
             }
 
             /**
@@ -124,7 +87,6 @@ fun Routing.blogPages() {
                 call.isAuthorized(Permission.MOJOR_ADMIN)
 
                 val id = getUuid(call.parameters["id"])
-                        ?: throw InvalidArguments("p_id")
 
                 BlogHandler.deleteBlog(id)
 

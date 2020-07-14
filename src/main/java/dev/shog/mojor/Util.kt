@@ -3,22 +3,17 @@ package dev.shog.mojor
 import dev.shog.lib.FileHandler
 import dev.shog.lib.util.asBytes
 import dev.shog.lib.util.asPercentage
-import dev.shog.mojor.handle.auth.obj.Session
-import io.ktor.application.ApplicationCall
-import io.ktor.sessions.get
-import io.ktor.sessions.sessions
-import kotlinx.html.TagConsumer
-import kotlinx.html.dom.createHTMLDocument
+import dev.shog.mojor.handle.InvalidArguments
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.w3c.dom.Document
 import java.lang.management.ManagementFactory
 import java.util.*
 
-fun getUuid(id: String?): UUID? {
+fun getUuid(id: String?): UUID {
     try {
-        return UUID.fromString(id ?: return null)
+        return UUID.fromString(id ?: throw InvalidArguments("id"))
     } catch (ex: Exception) {
-        return null
+        throw InvalidArguments("id")
     }
 }
 
@@ -26,10 +21,6 @@ fun getUuid(id: String?): UUID? {
 /** See what [first] is missing from [second] */
 public fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
         first.filter { !second.contains(it) }
-
-/** Creates an HTML document */
-fun html(html: TagConsumer<Document>.() -> Document): Document =
-        html.invoke(createHTMLDocument())
 
 /** Get system statistics */
 fun getStatisticsOfSystem(): String {
@@ -40,7 +31,7 @@ fun getStatisticsOfSystem(): String {
             "\nUsed Memory: ${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()).asBytes()}" +
             "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
-            "\nMojor Version: ${Mojor.APP.getVersion()}"
+            "\nMojor Version: ${Mojor.APP.version}"
 }
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */
@@ -50,10 +41,6 @@ fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String =
             append(ExceptionUtils.getStackTrace(throwable) + "```\n\n")
             append(getStatisticsOfSystem())
         }
-
-/** Get the session */
-fun ApplicationCall.getSession(): Session? =
-        sessions.get<Session>()
 
 /**
  * Clear all files in the cache.
