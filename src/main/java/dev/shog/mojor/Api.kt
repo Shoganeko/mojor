@@ -34,6 +34,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.event.Level
 import java.text.DateFormat
 
@@ -71,7 +72,10 @@ private fun Application.mainModule() {
 
         exception<Throwable> {
             it.printStackTrace()
-            it.logDiscord(Mojor.APP)
+            Mojor.WEBHOOK.sendBigMessage(
+                    ExceptionUtils.getStackTrace(it),
+                    "MOJOR\n`${ExceptionUtils.getMessage(it)}`"
+            )
 
             call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
         }
@@ -88,7 +92,7 @@ private fun Application.mainModule() {
     install(Locations)
 
     install(DefaultHeaders) {
-        header("Server", "Mojor/${Mojor.APP.version}")
+        header("Server", "Mojor")
     }
 
     install(CORS) {
@@ -118,10 +122,6 @@ private fun Application.mainModule() {
 private suspend fun Routing.root() {
     get("/") {
         call.respond(Response(RandomEmote.getEmote()))
-    }
-
-    get("/version") {
-        call.respond(Response(Mojor.APP.version))
     }
 
     get("/robots.txt") {

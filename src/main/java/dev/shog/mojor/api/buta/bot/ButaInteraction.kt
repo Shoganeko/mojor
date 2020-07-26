@@ -14,15 +14,8 @@ import kotlinx.coroutines.coroutineScope
 object ButaInteraction {
     private const val butaUrl = "http://localhost:8014"
 
-    private val username: String
-    private val password: String
-
-    init {
-        val cfg = Mojor.APP.getConfigObject<Config>()
-
-        username = cfg.postgre.username
-        password = cfg.postgre.password
-    }
+    private val username: String = Mojor.ENV["PG_USERNAME"]!!
+    private val password: String = Mojor.ENV["PG_PASSWORD"]!!
 
     /**
      * Get a [guild]'s roles.
@@ -39,7 +32,7 @@ object ButaInteraction {
         }.await()
 
         return if (!json.isSuccess) {
-            logTo(Mojor.APP, "FATAL: Failed to get roles from Buta!")
+            Mojor.WEBHOOK.sendMessage("FATAL: Failed to get roles from Buta!")
 
             JSONArray()
         } else {
@@ -63,6 +56,6 @@ object ButaInteraction {
         }.await()
 
         if (!json.isSuccess)
-            logTo(Mojor.APP, "FATAL: Failed to refresh guild to Buta! Reason: ${json.body}")
+            Mojor.WEBHOOK.sendMessage("FATAL: Failed to refresh guild to Buta! Reason: ${json.body}")
     }
 }

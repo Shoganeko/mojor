@@ -14,6 +14,7 @@ import dev.shog.mojor.api.motd.Motd
 import dev.shog.mojor.api.motd.MotdHandler
 import dev.shog.mojor.api.users.handle.UserManager
 import dev.shog.mojor.handle.file.Config
+import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.encodeBase64
@@ -30,11 +31,9 @@ object Mojor {
     var BASE = "http://localhost:8080"
     var FRONTEND_BASE = "http://localost:4000"
 
-    val APP = Application(
-            "mojor",
-            "1.7.0",
-            ConfigHandler.useConfig(ConfigType.YML, "mojor", Config())
-    ) { _, _, cfg -> DiscordWebhook(cfg.asObject<Config>().discordUrl, WebhookUser("Mojor", "https://shog.dev/favicon.png")) }
+    val ENV = Dotenv.load()
+
+    val WEBHOOK = DiscordWebhook(ENV["WEBHOOK"]!!, WebhookUser("Mojor", "https://shog.dev/favicon.png"))
 
     @KtorExperimentalAPI
     @KtorExperimentalLocationsAPI
@@ -57,7 +56,7 @@ object Mojor {
         // If they're blocking notifications
         ah.nHook("--block-init-notif") {
             runBlocking {
-                APP.sendMessage("Started at __${Instant.now().defaultFormat()}__.")
+                Mojor.WEBHOOK.sendMessage("Started at __${Instant.now().defaultFormat()}__.")
             }
         }
 

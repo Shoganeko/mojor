@@ -31,7 +31,7 @@ fun getStatisticsOfSystem(): String {
             "\nUsed Memory: ${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()).asBytes()}" +
             "\nProgram Cpu Load: ${bean.processCpuLoad.asPercentage()}" +
             "\nSys Cpu Load: ${bean.systemCpuLoad.asPercentage()}" +
-            "\nMojor Version: ${Mojor.APP.version}"
+            "\nMojor Version: I don't know man, ask Gradle"
 }
 
 /** Form [throwable] and [includeEveryone] into a Discord error message */

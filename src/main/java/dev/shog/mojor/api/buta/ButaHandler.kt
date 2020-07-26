@@ -18,11 +18,7 @@ object ButaHandler {
     /**
      * Get the client credentials.
      */
-    fun getClient(): Pair<String, String> {
-        val cfg = Mojor.APP.getConfigObject<Config>()
-
-        return cfg.discordId to cfg.discordSecret
-    }
+    fun getClient(): Pair<String, String> = Mojor.ENV["DISCORD_SECRET"]!! to Mojor.ENV["DISCORD_ID"]!!
 
     /**
      * Get a token from [code].
