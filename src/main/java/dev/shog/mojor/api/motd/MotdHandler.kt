@@ -1,13 +1,9 @@
 package dev.shog.mojor.api.motd
 
-import dev.shog.mojor.handle.db.PostgreSql
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import com.mongodb.client.model.Filters
+import dev.shog.mojor.handle.db.Mongo
+import org.bson.Document
 import java.util.*
-import javax.xml.ws.Dispatch
-import kotlin.collections.ArrayList
 
 /**
  * The MOTD
@@ -16,7 +12,20 @@ object MotdHandler {
     /**
      * All motds
      */
-    val motds = ArrayList<Motd>()
+    val motds: MutableList<Motd> by lazy {
+        Mongo.getClient()
+                .getDatabase("motd")
+                .getCollection("motd")
+                .find()
+                .map { doc ->
+                    Motd(
+                            doc.getString("data"),
+                            UUID.fromString(doc.getString("owner")),
+                            doc.getLong("date")
+                    )
+                }
+                .toMutableList()
+    }
 
     /**
      * Get a [Motd] by their [date].
@@ -27,49 +36,28 @@ object MotdHandler {
     /**
      * Insert a motd class into the database and [motds]
      */
-    suspend fun insertMotd(properMotd: Motd) {
-        motds.add(properMotd)
+    fun insertMotd(motd: Motd) {
+        motds.add(motd)
 
-        withContext(Dispatchers.Unconfined) {
-            PostgreSql.getConnection("Insert a new MOTD")
-                    .prepareStatement("INSERT INTO motd.motds (data, owner, date) VALUES (?, ?, ?)")
-                    .apply {
-                        setString(1, properMotd.data)
-                        setString(2, properMotd.owner.toString())
-                        setLong(3, properMotd.date)
-                    }
-                    .executeUpdate()
-        }
+        Mongo.getClient()
+                .getDatabase("motd")
+                .getCollection("motd")
+                .insertOne(Document(mapOf(
+                        "data" to motd.data,
+                        "owner" to motd.owner.toString(),
+                        "date" to motd.date
+                )))
     }
 
     /**
      * @param motdDate The date the MOTD was created.
      */
-    suspend fun deleteMotd(motdDate: Long) =
-            withContext(Dispatchers.Unconfined) {
-                motds.removeIf { it.date == motdDate }
+    fun deleteMotd(date: Long) {
+        motds.removeIf { it.date == date }
 
-                PostgreSql.getConnection("Deleting a MOTD")
-                        .prepareStatement("DELETE FROM motd.motds WHERE date = ?")
-                        .apply { setLong(1, motdDate) }
-                        .executeUpdate()
-            }
-
-    init {
-        runBlocking {
-            val rs = withContext(Dispatchers.Unconfined) {
-                PostgreSql.getConnection("Getting all MOTDs")
-                        .prepareStatement("SELECT * FROM motd.motds")
-                        .executeQuery()
-            }
-
-            while (rs.next()) {
-                motds.add(Motd(
-                        rs.getString("data"),
-                        UUID.fromString(rs.getString("owner")),
-                        rs.getLong("date")
-                ))
-            }
-        }
+        Mongo.getClient()
+                .getDatabase("motd")
+                .getCollection("motd")
+                .deleteOne(Filters.eq("date", date))
     }
 }

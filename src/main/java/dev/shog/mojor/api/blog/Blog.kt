@@ -1,9 +1,8 @@
 package dev.shog.mojor.api.blog
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import dev.shog.mojor.api.RandomEmote
-import dev.shog.mojor.handle.db.PostgreSql
-import org.json.JSONArray
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
+import dev.shog.mojor.handle.db.Mongo
 import java.util.*
 
 /**
@@ -15,20 +14,17 @@ class Blog(
         val date: Long,
         title: String,
         body: String,
-        tags: String
+        tags: List<String>
 ) {
     /**
      * The blog's title.
      */
     var title = title
         set(value) {
-            PostgreSql.getConnection("Set title for blog $id")
-                    .prepareStatement("UPDATE blogs.blogs SET title = ? WHERE id = ?")
-                    .apply {
-                        setString(1, value)
-                        setString(2, id.toString())
-                    }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("blogs")
+                    .getCollection("blogs")
+                    .updateOne(Filters.eq("id", id), Updates.set("title", value))
 
             field = value
         }
@@ -38,13 +34,10 @@ class Blog(
      */
     var body = body
         set(value) {
-            PostgreSql.getConnection("Set body for blog $id")
-                    .prepareStatement("UPDATE blogs.blogs SET body = ? WHERE id = ?")
-                    .apply {
-                        setString(1, value)
-                        setString(2, id.toString())
-                    }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("blogs")
+                    .getCollection("blogs")
+                    .updateOne(Filters.eq("id", id), Updates.set("body", value))
 
             field = value
         }
@@ -53,5 +46,13 @@ class Blog(
     /**
      * The tags.
      */
-    var tags = BlogTags(id, tags)
+    var tags = tags
+        set(value) {
+            Mongo.getClient()
+                    .getDatabase("blogs")
+                    .getCollection("blogs")
+                    .updateOne(Filters.eq("id", id), Updates.set("tags", value))
+
+            field = value
+        }
 }

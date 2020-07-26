@@ -60,4 +60,5 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark:0.15.0'
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.11.0'
+    implementation 'org.mongodb:mongodb-driver-sync:4.1.0-beta2'
 }

@@ -1,40 +1,34 @@
 package dev.shog.mojor.api.buta.data
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import dev.shog.mojor.api.buta.socket.ButaInteraction
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
+import dev.shog.mojor.api.buta.bot.ButaInteraction
 import dev.shog.mojor.handle.InvalidArguments
 import dev.shog.mojor.handle.NotFound
-import dev.shog.mojor.handle.db.PostgreSql
-import java.util.concurrent.ConcurrentHashMap
+import dev.shog.mojor.handle.db.Mongo
+import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 object ButaDataHandler {
-    private val guildCache: ConcurrentHashMap<Long, ButaGuild> by lazy {
-        val rs = PostgreSql.getConnection("Get all ButaGuild")
-                .prepareStatement("SELECT * FROM buta.guilds")
-                .executeQuery()
-
-        val mapper = ObjectMapper()
-        val list = ConcurrentHashMap<Long, ButaGuild>()
-
-        while (rs.next()) {
-            val guild = ButaGuild(
-                    rs.getLong("id").toString(),
-                    rs.getString("prefix"),
-                    rs.getString("join_message"),
-                    rs.getString("leave_message"),
-                    rs.getLong("join_role").toString(),
-                    rs.getString("swear_filter_msg"),
-                    mapper.readValue(
-                            rs.getString("disabled_categories"),
-                            mapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
-                    ),
-                    rs.getInt("swear_filter_on") == 1
-            )
-
-            list[rs.getLong("id")] = guild
-        }
-
-        list
+    private val guildCache: MutableMap<Long, ButaGuild> by lazy {
+        Mongo.getClient()
+                .getDatabase("buta")
+                .getCollection("guilds")
+                .find()
+                .map { doc ->
+                    doc.getLong("id") to ButaGuild(
+                            doc.getLong("id").toString(),
+                            doc.getString("prefix"),
+                            doc.getString("join_message"),
+                            doc.getString("leave_message"),
+                            doc.getLong("join_role").toString(),
+                            doc.getString("swear_filter_msg"),
+                            doc["disabled_categories"] as List<String>,
+                            doc.getBoolean("swear_filter_on")
+                    )
+                }
+                .toMap()
+                .toMutableMap()
     }
 
     @Throws(NotFound::class)
@@ -47,7 +41,7 @@ object ButaDataHandler {
     /**
      * Types that can be modified.
      */
-    private val validTypes = hashMapOf("prefix" to "", "swear_filter_msg" to "", "swear_filter_on" to 0, "join_role" to 0L)
+    private val validTypes = hashMapOf("prefix" to "", "swear_filter_msg" to "", "swear_filter_on" to false, "join_role" to 0L)
 
     /**
      * Set an object in the database for guild [id].
@@ -62,20 +56,21 @@ object ButaDataHandler {
                 throw InvalidArguments("type")
         }
 
-        PostgreSql.getConnection("Update $id set $type")
-                .prepareStatement("UPDATE buta.guilds SET $type = ? WHERE id = ?")
-                .apply {
-                    when (validTypes[type]!!) {
-                        is String -> setString(1, value)
-                        is Int -> setInt(1, value.toInt())
-                        is Long -> setLong(1, value.toLong())
-                        is Float -> setFloat(1, value.toFloat())
-                        is Double -> setDouble(1, value.toDouble())
-                    }
+        val parsedType: Any = when (validTypes[type]!!) {
+            is String -> value
+            is Boolean -> value.toBoolean()
+            is Int -> value.toInt()
+            is Long -> value.toLong()
+            is Float -> value.toFloat()
+            is Double -> value.toDouble()
 
-                    setLong(2, id)
-                }
-                .executeUpdate()
+            else -> throw InvalidArguments("value")
+        }
+
+        Mongo.getClient()
+                .getDatabase("buta")
+                .getCollection("guilds")
+                .updateOne(Filters.eq("id", id), Updates.set(type, parsedType))
 
         refreshObj(id)
     }
@@ -83,30 +78,26 @@ object ButaDataHandler {
     private suspend fun refreshObj(id: Long) {
         ButaInteraction.refreshGuild(id)
 
-        val rs = PostgreSql.getConnection("Get ButaGuild $id")
-                .prepareStatement("SELECT * FROM buta.guilds WHERE id = ?")
-                .apply { setLong(1, id) }
-                .executeQuery()
+        val guild = Mongo.getClient()
+                .getDatabase("buta")
+                .getCollection("guilds")
+                .find(Filters.eq("id", id))
+                .map { doc ->
+                    ButaGuild(
+                            doc.getLong("id").toString(),
+                            doc.getString("prefix"),
+                            doc.getString("join_message"),
+                            doc.getString("leave_message"),
+                            doc.getLong("join_role").toString(),
+                            doc.getString("swear_filter_msg"),
+                            doc["disabled_categories"] as List<String>,
+                            doc.getBoolean("swear_filter_on")
+                    )
+                }
+                .firstOrNull()
+                ?: throw NotFound("guild")
 
-        val mapper = ObjectMapper()
 
-        if (rs.next()) {
-            val guild = ButaGuild(
-                    rs.getLong("id").toString(),
-                    rs.getString("prefix"),
-                    rs.getString("join_message"),
-                    rs.getString("leave_message"),
-                    rs.getLong("join_role").toString(),
-                    rs.getString("swear_filter_msg"),
-                    mapper.readValue(
-                            rs.getString("disabled_categories"),
-                            mapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
-                    ),
-                    rs.getInt("swear_filter_on") == 1
-            )
-
-            guildCache[rs.getLong("id")] = guild
-        } else
-            throw NotFound("buta_guild")
+        guildCache[guild.id.toLong()] = guild
     }
 }

@@ -38,4 +38,9 @@ class Config {
      * The discord client ID
      */
     var discordId: String = ""
+
+    /**
+     * The Mongo DB password.
+     */
+    var mongoPass: String = ""
 }

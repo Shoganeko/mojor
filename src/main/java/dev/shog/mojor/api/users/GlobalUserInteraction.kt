@@ -1,18 +1,14 @@
 package dev.shog.mojor.api.users
 
-import dev.shog.mojor.api.notif.NotificationService
 import dev.shog.mojor.api.response.Response
-import dev.shog.mojor.getUuid
-import dev.shog.mojor.handle.NotFound
-import dev.shog.mojor.handle.auth.isAuthorized
-import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.api.users.handle.UserManager
 import dev.shog.mojor.api.users.obj.User
+import dev.shog.mojor.getUuid
+import dev.shog.mojor.handle.auth.isAuthorized
+import dev.shog.mojor.handle.auth.obj.Permission
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
-import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.*
 
@@ -44,10 +40,9 @@ fun Routing.globalUserInteractionPages() {
                 val id = call.parameters["id"]
                 val user = UserManager.getUser(getUuid(id))
 
-                if (user != null) {
-                    UserManager.deleteUser(user.id)
-                    call.respond(Response())
-                } else throw NotFound("user")
+
+                UserManager.deleteUser(user.id)
+                call.respond(Response())
             }
 
             /**
@@ -58,32 +53,7 @@ fun Routing.globalUserInteractionPages() {
                 val id = call.parameters["id"]
                 val user = UserManager.getUser(getUuid(id))
 
-                if (user == null)
-                    call.respond(HttpStatusCode.BadRequest, Response("Invalid User"))
-                else
-                    call.respond(Response(user))
-            }
-
-            /**
-             * Give a user a notification
-             */
-            put("/user/{id}/notif") {
-                call.isAuthorized(Permission.USER_MANAGER)
-
-                val id = call.parameters["id"]
-                val content = call.receiveParameters()["content"]
-                val user = UserManager.getUser(getUuid(id))
-
-                if (user == null)
-                    call.respond(HttpStatusCode.BadRequest, Response("Invalid User"))
-                else {
-                    if (content == null)
-                        call.respond(HttpStatusCode.BadRequest, Response("Invalid Data"))
-                    else {
-                        NotificationService.postNotification(content, user.id)
-                        call.respond(Response())
-                    }
-                }
+                call.respond(Response(user))
             }
         }
     }

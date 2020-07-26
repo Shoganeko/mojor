@@ -1,5 +1,8 @@
 package dev.shog.mojor.api.buta
 
+/**
+ * A discord token.
+ */
 data class DiscordToken(
         val tokenType: String,
         val expiresIn: Int,

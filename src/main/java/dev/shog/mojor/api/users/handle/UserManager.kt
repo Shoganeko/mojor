@@ -2,54 +2,45 @@ package dev.shog.mojor.api.users.handle
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.uuid.Generators
+import com.mongodb.client.model.Filters
 import dev.shog.mojor.handle.ArgumentDoesntMeet
 import dev.shog.mojor.handle.NotFound
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.api.users.obj.User
-import dev.shog.mojor.handle.db.PostgreSql
+import dev.shog.mojor.handle.db.Mongo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.bson.Document
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
+import javax.xml.ws.Dispatch
 
 /**
  * Manages users.
  */
 object UserManager {
-    private val cache: MutableList<User> = runBlocking { refreshCache() }
+    private val cache: MutableList<User> by lazy {
+        fun parsePermissions(permissions: List<String>): Collection<Permission> =
+                permissions.map { permission -> Permission.valueOf(permission) }
 
-    /**
-     * Get all users from the database.
-     */
-    private suspend fun refreshCache(): MutableList<User> {
-        val rs = PostgreSql.getConnection()
-                .prepareStatement("SELECT * FROM users.users")
-                .executeQuery()
+        Mongo.getClient()
+                .getDatabase("users")
+                .getCollection("users")
+                .find()
+                .map { doc ->
+                    val id = UUID.fromString(doc.getString("id"))
 
-        val users = mutableListOf<User>()
-
-        while (rs.next()) {
-            val mapper = ObjectMapper()
-            val id = UUID.fromString(rs.getString("id"))
-
-            users.add(User(
-                    rs.getString("name"),
-                    rs.getString("password"),
-                    mapper.readValue(
-                            rs.getString("permissions"),
-                            mapper.typeFactory.constructCollectionType(
-                                    Collection::class.java,
-                                    Permission::class.java
-                            )
-                    ),
-                    UserLoginManager.getMostRecentLoginAttempt(id),
-                    id,
-                    rs.getLong("createdon")
-            ))
-        }
-
-        return users
+                    User(
+                            doc.getString("name"),
+                            doc.getString("password"),
+                            parsePermissions(doc["permissions"] as List<String>),
+                            UserLoginManager.getMostRecentLoginAttempt(id),
+                            id,
+                            doc.getLong("createdon")
+                    )
+                }
+                .toMutableList()
     }
 
     /**
@@ -82,10 +73,10 @@ object UserManager {
         cache.removeIf { user -> user.id == id }
 
         withContext(Dispatchers.Unconfined) {
-            PostgreSql.getConnection("Delete user $id")
-                    .prepareStatement("DELETE FROM users.users WHERE id = ?")
-                    .apply { setString(1, id.toString()) }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("users")
+                    .deleteOne(Filters.eq("id", id.toString()))
         }
     }
 
@@ -135,17 +126,19 @@ object UserManager {
     /**
      * Upload [user] to the database.
      */
-    private fun uploadUser(user: User, password: String) {
-        PostgreSql.getConnection()
-                .prepareStatement("INSERT INTO users.users (id, name, password, permissions, createdon) VALUES (?, ?, ?, ?, ?)")
-                .apply {
-                    setString(1, user.id.toString())
-                    setString(2, user.username)
-                    setString(3, password)
-                    setString(4, ObjectMapper().writeValueAsString(user.permissions))
-                    setLong(5, user.createdOn)
-                }
-                .executeUpdate()
+    private suspend fun uploadUser(user: User, password: String) {
+        withContext(Dispatchers.Unconfined) {
+            Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("users")
+                    .insertOne(Document(mapOf(
+                            "id" to user.id.toString(),
+                            "name" to user.username,
+                            "password" to password,
+                            "permissions" to user.permissions.map { it.toString() },
+                            "createdon" to user.createdOn
+                    )))
+        }
     }
 
     /**

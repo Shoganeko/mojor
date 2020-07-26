@@ -1,37 +1,30 @@
 package dev.shog.mojor.api.users.handle
 
 import dev.shog.mojor.api.users.obj.UserLoginAttempt
-import dev.shog.mojor.handle.db.PostgreSql
+import dev.shog.mojor.handle.db.Mongo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.bson.Document
 import java.util.*
 
 /**
  * Manages user login attempts.
  */
 object UserLoginManager {
-    private val cache: MutableList<UserLoginAttempt> by lazy { refreshCache() }
-
-    /**
-     * Get all login attempts.
-     */
-    private fun refreshCache(): MutableList<UserLoginAttempt> {
-        val rs = PostgreSql.getConnection("Get all user login attempts")
-                .prepareStatement("SELECT id, ip, date, success FROM users.attempts")
-                .executeQuery()
-
-        val list = mutableListOf<UserLoginAttempt>()
-
-        while (rs.next()) {
-            list.add(UserLoginAttempt(
-                    UUID.fromString(rs.getString("id")),
-                    rs.getString("ip"),
-                    rs.getLong("date"),
-                    rs.getBoolean("success")
-            ))
-        }
-
-        return list
+    private val cache: MutableList<UserLoginAttempt> by lazy {
+        Mongo.getClient()
+                .getDatabase("users")
+                .getCollection("attempts")
+                .find()
+                .map { doc ->
+                    UserLoginAttempt(
+                            UUID.fromString(doc.getString("id")),
+                            doc.getString("ip"),
+                            doc.getLong("date"),
+                            doc.getBoolean("success")
+                    )
+                }
+                .toMutableList()
     }
 
     /**
@@ -41,15 +34,15 @@ object UserLoginManager {
         val time = System.currentTimeMillis()
 
         withContext(Dispatchers.Unconfined) {
-            PostgreSql.getConnection()
-                    .prepareStatement("INSERT INTO users.attempts (id, ip, success, date) VALUES (?, ?, ?, ?)")
-                    .apply {
-                        setString(1, id.toString())
-                        setString(2, ip)
-                        setBoolean(3, success)
-                        setLong(4, time)
-                    }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("attempts")
+                    .insertOne(Document(mapOf(
+                            "id" to id.toString(),
+                            "ip" to ip,
+                            "success" to success,
+                            "date" to time
+                    )))
         }
 
         val attempt = UserLoginAttempt(id, ip, time, success)

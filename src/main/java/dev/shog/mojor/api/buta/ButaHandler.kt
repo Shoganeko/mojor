@@ -62,8 +62,6 @@ object ButaHandler {
                 .field("redirect_uri", redirect)
                 .field("refresh_token", token.refreshToken)
                 .asJson()
-
-
     }
 
     private val rand = SecureRandom()

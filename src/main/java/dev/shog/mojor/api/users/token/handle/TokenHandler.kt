@@ -1,15 +1,15 @@
 package dev.shog.mojor.api.users.token.handle
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mongodb.client.model.Filters
 import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.api.users.token.obj.Token
 import dev.shog.mojor.api.users.obj.User
-import dev.shog.mojor.handle.db.PostgreSql
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import dev.shog.mojor.handle.db.Mongo
+import kotlinx.coroutines.*
 import org.apache.commons.codec.digest.DigestUtils
+import org.bson.Document
 import java.security.SecureRandom
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -19,7 +19,7 @@ import kotlin.concurrent.timerTask
  * Manages tokens.
  */
 object TokenHandler {
-    const val EXPIRE_AFTER = 1000L * 60L * 24L * 24L // 24 hours.
+    const val EXPIRE_AFTER = 1000L * 60L * 24L * 24L * 7L // A week.
 
     init {
         Timer().schedule(timerTask {
@@ -30,42 +30,29 @@ object TokenHandler {
     /**
      * The cache of token. This initializes by getting all tokens from the database.
      */
-    private val cache: MutableList<Token> = refreshCache()
+    private val cache: MutableList<Token> by lazy {
+        fun parsePermissions(permissions: List<String>): Collection<Permission> =
+                permissions.map { permission -> Permission.valueOf(permission) }
 
-    /**
-     * Get all tokens.
-     */
-    private fun refreshCache(): MutableList<Token> {
-        val rs = PostgreSql
-                .getConnection()
-                .prepareStatement("SELECT * FROM token.tokens")
-                .executeQuery()
-
-        val mapper = ObjectMapper()
-
-        val list = mutableListOf<Token>()
-
-        while (rs.next()) {
-            val perms = mapper.readValue<Collection<Permission>>(
-                    rs.getString("permissions"),
-                    mapper.typeFactory.constructCollectionType(Collection::class.java, Permission::class.java)
-            )
-
-            val token = Token(
-                    rs.getString("token"),
-                    UUID.fromString(rs.getString("owner")),
-                    perms,
-                    rs.getLong("createdOn")
-            )
-
-            list.add(token)
-        }
-
-        return list
+        Mongo.getClient()
+                .getDatabase("user")
+                .getCollection("tokens")
+                .find()
+                .map { doc ->
+                    Token(
+                            doc.getString("token"),
+                            UUID.fromString(doc.getString("owner")),
+                            parsePermissions(doc["permissions"] as List<String>),
+                            doc.getLong("createdon")
+                    )
+                }
+                .toMutableList()
     }
 
     /**
      * Get all of the expired tokens from [TOKEN_CACHE] and remove them.
+     *
+     * TODO use deletemany
      */
     private suspend fun clearExpired() {
         val expired = cache.filter { token -> isTokenExpired(token) }
@@ -77,16 +64,16 @@ object TokenHandler {
      * Remove [token] from [TOKEN_CACHE] and the DB.
      */
     suspend fun removeTokens(tokens: List<Token>) {
-        val pre = PostgreSql.getConnection("Token cleaning")
-                .prepareStatement("DELETE FROM token.tokens WHERE token = ?")
-
         coroutineScope {
+            val collection = Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("users")
             tokens.forEach { token ->
                 cache.removeIf { cacheToken -> cacheToken.token == token.token }
 
-                pre.setString(1, token.token)
-
-                launch { pre.executeUpdate() }
+                launch {
+                    collection.deleteOne(Filters.eq("token", token.token))
+                }
             }
         }
     }
@@ -118,12 +105,13 @@ object TokenHandler {
         SEC_RAND.nextBytes(bytes)
         val token = DigestUtils.sha256Hex(String(bytes))
 
-        val query = PostgreSql.getConnection("Checking if token already exists")
-                .prepareStatement("SELECT * FROM token.tokens WHERE token = ?")
-                .apply { setString(1, token) }
-                .executeQuery()
+        val exists = Mongo.getClient()
+                .getDatabase("users")
+                .getCollection("tokens")
+                .find(Filters.eq("token", token))
+                .any()
 
-        return if (query.next()) getTokenIdentifier() else token
+        return if (exists) getTokenIdentifier() else token
     }
 
     /**
@@ -135,15 +123,15 @@ object TokenHandler {
 
         cache.add(token)
 
-        val prepared = PostgreSql.getConnection("Creating token")
-                .prepareStatement("INSERT INTO token.tokens (token, owner, createdon, permissions) VALUES (?, ?, ?, ?)")
-
-        prepared.setString(1, token.token)
-        prepared.setString(2, token.owner.toString())
-        prepared.setLong(3, token.createdOn)
-        prepared.setString(4, ObjectMapper().writeValueAsString(token.permissions))
-
-        prepared.execute()
+        Mongo.getClient()
+                .getDatabase("users")
+                .getCollection("tokens")
+                .insertOne(Document(mapOf(
+                        "token" to token.token,
+                        "owner" to token.owner.toString(),
+                        "createdon" to token.createdOn,
+                        "permissions" to token.permissions.map(Permission::toString)
+                )))
 
         return token
     }

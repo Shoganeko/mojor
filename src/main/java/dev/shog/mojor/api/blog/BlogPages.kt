@@ -46,7 +46,11 @@ fun Routing.blogPages() {
                     val params = call.receiveParameters()
                     val tagName = params["name"] ?: throw InvalidArguments("name")
 
-                    BlogHandler.getBlogById(id).tags.removeTag(tagName)
+                    val blog = BlogHandler.getBlogById(id)
+
+                    val tags = blog.tags.toMutableList()
+                    tags.remove(tagName)
+                    blog.tags = tags
 
                     call.respond(Response("Successfully removed tag from $id"))
                 }
@@ -62,7 +66,11 @@ fun Routing.blogPages() {
                     val params = call.receiveParameters()
                     val tagName = params["name"] ?: throw InvalidArguments("name")
 
-                    BlogHandler.getBlogById(id).tags.addTag(tagName)
+                    val blog = BlogHandler.getBlogById(id)
+
+                    val tags = blog.tags.toMutableList()
+                    tags.add(tagName)
+                    blog.tags = tags
 
                     call.respond(Response("Successfully added tag to $id"))
                 }
@@ -104,10 +112,10 @@ fun Routing.blogPages() {
 
             val title = params["title"]
             val body = params["body"]
-            val tags = JSONArray(params["tags"] ?: "[]")
+            val tags = JSONArray(params["tags"] ?: "[]").toList() as? List<String>
 
-            if (title == null || body == null)
-                throw InvalidArguments("title", "body")
+            if (title == null || body == null || tags == null)
+                throw InvalidArguments("title", "body", "tags")
 
             call.respond(BlogHandler.createBlog(token.owner, title, body, tags))
         }

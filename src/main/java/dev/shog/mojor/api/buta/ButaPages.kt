@@ -3,7 +3,7 @@ package dev.shog.mojor.api.buta
 import dev.shog.mojor.api.buta.api.DiscordApi
 import dev.shog.mojor.api.buta.data.ButaDataHandler
 import dev.shog.mojor.api.buta.response.GetGuildResponse
-import dev.shog.mojor.api.buta.socket.ButaInteraction
+import dev.shog.mojor.api.buta.bot.ButaInteraction
 import dev.shog.mojor.api.response.Response
 import dev.shog.mojor.handle.InvalidArguments
 import dev.shog.mojor.handle.InvalidAuthorization

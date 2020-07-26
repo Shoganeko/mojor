@@ -1,5 +1,7 @@
 package dev.shog.mojor
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.LoggerContext
 import dev.shog.lib.app.Application
 import dev.shog.lib.app.cfg.ConfigHandler
 import dev.shog.lib.app.cfg.ConfigType
@@ -8,11 +10,15 @@ import dev.shog.lib.discord.WebhookUser
 import dev.shog.lib.util.ArgsHandler
 import dev.shog.lib.util.defaultFormat
 import dev.shog.mojor.api.blog.BlogHandler
+import dev.shog.mojor.api.motd.Motd
+import dev.shog.mojor.api.motd.MotdHandler
+import dev.shog.mojor.api.users.handle.UserManager
 import dev.shog.mojor.handle.file.Config
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
@@ -30,6 +36,11 @@ object Mojor {
     @KtorExperimentalLocationsAPI
     @ExperimentalStdlibApi
     internal fun main(args: Array<String>) = runBlocking<Unit> {
+        // mute mongodb
+        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+        val rootLogger = loggerContext.getLogger("org.mongodb.driver")
+        rootLogger.level = Level.OFF
+
         val ah = ArgsHandler()
 
         ah.hook("--cc", ::clearCache)

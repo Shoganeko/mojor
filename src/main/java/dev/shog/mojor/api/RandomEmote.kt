@@ -5,7 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import kotlin.system.measureTimeMillis
-import kotlin.time.measureTime
 
 /**
  * Random emotes

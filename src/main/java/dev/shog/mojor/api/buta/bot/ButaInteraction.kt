@@ -1,4 +1,4 @@
-package dev.shog.mojor.api.buta.socket
+package dev.shog.mojor.api.buta.bot
 
 import dev.shog.lib.util.logTo
 import dev.shog.mojor.Mojor

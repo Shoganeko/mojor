@@ -1,9 +1,10 @@
 package dev.shog.mojor.api.users.token.obj
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
 import dev.shog.mojor.handle.auth.obj.Permission
 import dev.shog.mojor.api.users.token.handle.TokenHandler
-import dev.shog.mojor.handle.db.PostgreSql
+import dev.shog.mojor.handle.db.Mongo
 import java.util.*
 
 /**
@@ -30,13 +31,10 @@ class Token(
      */
     var permissions = permissions
         set(value) {
-            PostgreSql.getConnection("Updating permissions for token")
-                    .prepareStatement("UPDATE token.tokens SET permissions = ? WHERE token = ?")
-                    .apply {
-                        setString(1, ObjectMapper().writeValueAsString(value))
-                        setString(2, token)
-                    }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("tokens")
+                    .updateOne(Filters.eq("token", token), Updates.set("permissions", value))
 
             field = value
         }
@@ -46,13 +44,10 @@ class Token(
      */
     var createdOn = createdOn
         set(value) {
-            PostgreSql.getConnection("Updating createdOn for token")
-                    .prepareStatement("UPDATE token.tokens SET createdon = ? WHERE token = ?")
-                    .apply {
-                        setLong(1, value)
-                        setString(2, token)
-                    }
-                    .executeUpdate()
+            Mongo.getClient()
+                    .getDatabase("users")
+                    .getCollection("tokens")
+                    .updateOne(Filters.eq("token", token), Updates.set("createdon", value))
 
             field = value
         }
