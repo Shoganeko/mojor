@@ -16,6 +16,7 @@ import dev.shog.mojor.api.users.handle.UserManager
 import dev.shog.mojor.handle.file.Config
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.encodeBase64
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.slf4j.LoggerFactory
@@ -26,6 +27,9 @@ import java.util.*
  * Mojor
  */
 object Mojor {
+    var BASE = "http://localhost:8080"
+    var FRONTEND_BASE = "http://localost:4000"
+
     val APP = Application(
             "mojor",
             "1.7.0",
@@ -44,6 +48,11 @@ object Mojor {
         val ah = ArgsHandler()
 
         ah.hook("--cc", ::clearCache)
+
+        ah.hook("--prod") {
+            BASE = "https://api.shog.dev"
+            FRONTEND_BASE = "https://shog.dev"
+        }
 
         // If they're blocking notifications
         ah.nHook("--block-init-notif") {

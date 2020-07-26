@@ -1,5 +1,6 @@
 package dev.shog.mojor.api.buta
 
+import dev.shog.mojor.Mojor
 import dev.shog.mojor.api.buta.api.DiscordApi
 import dev.shog.mojor.api.buta.data.ButaDataHandler
 import dev.shog.mojor.api.buta.response.GetGuildResponse
@@ -18,17 +19,26 @@ import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.*
 
+/**
+ * Pages for utilizing Buta.
+ */
 fun Routing.butaPages() {
     route("buta") {
+        /**
+         * Callback a token, generate a proper token then redirect to the frontend.
+         */
         get("/callback") {
             val params = call.request.queryParameters
             val code = params["code"] ?: throw InvalidArguments("code")
 
             val token = ButaHandler.getToken(code)
 
-            call.respondRedirect("http://localhost:4000/buta/login?token=${token.id}")
+            call.respondRedirect("${Mojor.FRONTEND_BASE}/buta/login?token=${token.id}")
         }
 
+        /**
+         * Get a Discord user's guilds. These are guilds they're administrator in.
+         */
         get("/guilds") {
             val discord = call.isDiscordAuthenticated()
 
@@ -38,13 +48,22 @@ fun Routing.butaPages() {
             call.respond(guilds)
         }
 
+        /**
+         * Get the Discord user's profile.
+         */
         get("/self") {
             val discord = call.isDiscordAuthenticated()
 
             call.respond(DiscordApi.getIdentity(discord))
         }
 
+        /**
+         * Manage a specific guild.
+         */
         route("/guild") {
+            /**
+             * Get a specific guild.
+             */
             get {
                 val discord = call.isDiscordAuthenticated()
 
@@ -61,6 +80,9 @@ fun Routing.butaPages() {
                 ))
             }
 
+            /**
+             * Get a guild's roles.
+             */
             get("/roles") {
                 val discord = call.isDiscordAuthenticated()
 
@@ -80,6 +102,9 @@ fun Routing.butaPages() {
                 )
             }
 
+            /**
+             * Set something in a guild.
+             */
             patch {
                 val discord = call.isDiscordAuthenticated()
 

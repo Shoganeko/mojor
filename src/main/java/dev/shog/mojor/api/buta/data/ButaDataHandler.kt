@@ -10,6 +10,9 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 object ButaDataHandler {
+    /**
+     * Cached Buta guilds.
+     */
     private val guildCache: MutableMap<Long, ButaGuild> by lazy {
         Mongo.getClient()
                 .getDatabase("buta")
@@ -31,10 +34,16 @@ object ButaDataHandler {
                 .toMutableMap()
     }
 
+    /**
+     * Get a guild by it's [id] from the [guildCache]
+     */
     @Throws(NotFound::class)
     fun getGuild(id: Long): ButaGuild =
             guildCache[id] ?: throw NotFound("buta_guild")
 
+    /**
+     * If [id] exists in the [guildCache]
+     */
     fun exists(id: Long): Boolean =
             guildCache.containsKey(id)
 

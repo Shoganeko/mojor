@@ -10,16 +10,25 @@ import org.json.JSONObject
 import java.security.SecureRandom
 
 object ButaHandler {
+    /**
+     * The scopes for Discord.
+     */
     private val scopes = listOf("identify", "guilds")
 
+    /**
+     * Get the client credentials.
+     */
     fun getClient(): Pair<String, String> {
         val cfg = Mojor.APP.getConfigObject<Config>()
 
         return cfg.discordId to cfg.discordSecret
     }
 
+    /**
+     * Get a token from [code].
+     */
     @Throws(InvalidAuthorization::class)
-    fun getToken(code: String, redirect: String = "http://localhost:8080/buta/callback"): DiscordToken { // TODO
+    fun getToken(code: String, redirect: String = "${Mojor.BASE}/buta/callback"): DiscordToken { // TODO
         val client = getClient()
 
         val json = Unirest.post("https://discord.com/api/v6/oauth2/token")
@@ -50,22 +59,14 @@ object ButaHandler {
             throw InvalidAuthorization("failed callback")
     }
 
-    @Throws(InvalidAuthorization::class)
-    fun refreshToken(token: DiscordToken, redirect: String = "http://localhost:8080/buta/callback") {
-        val client = getClient()
-
-        val json = Unirest.post("https://discord.com/api/v6/oauth2/token")
-                .field("client_id", client.first)
-                .field("client_secret", client.second)
-                .field("grant_type", "refresh_token")
-                .field("scope", scopes.joinToString(" "))
-                .field("redirect_uri", redirect)
-                .field("refresh_token", token.refreshToken)
-                .asJson()
-    }
-
+    /**
+     * Used in the [genId]
+     */
     private val rand = SecureRandom()
 
+    /**
+     * Generate a (hopefully) more secure code utilizing the [access] token granted from Discord.
+     */
     private fun genId(access: String): String {
         val bytes = ByteArray(32)
 
