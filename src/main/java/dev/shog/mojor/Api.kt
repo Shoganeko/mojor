@@ -72,10 +72,6 @@ private fun Application.mainModule() {
 
         exception<Throwable> {
             it.printStackTrace()
-            Mojor.WEBHOOK.sendBigMessage(
-                    ExceptionUtils.getStackTrace(it),
-                    "MOJOR\n`${ExceptionUtils.getMessage(it)}`"
-            )
 
             call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
         }

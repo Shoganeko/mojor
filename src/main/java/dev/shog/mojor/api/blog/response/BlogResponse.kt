@@ -7,6 +7,6 @@ import dev.shog.mojor.api.users.obj.User
  * A response to getting a blog.
  */
 data class BlogResponse(
-        val blog: Blog,
-        val owner: User
+    val blog: Blog,
+    val user: User
 )

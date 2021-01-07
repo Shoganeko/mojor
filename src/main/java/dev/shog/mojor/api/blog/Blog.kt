@@ -9,12 +9,11 @@ import java.util.*
  * A blog.
  */
 class Blog(
-        val id: UUID,
-        val creator: UUID,
-        val date: Long,
-        title: String,
-        body: String,
-        tags: List<String>
+    val id: UUID,
+    val creator: UUID,
+    val date: Long,
+    title: String,
+    body: String
 ) {
     /**
      * The blog's title.
@@ -22,9 +21,9 @@ class Blog(
     var title = title
         set(value) {
             Mongo.getClient()
-                    .getDatabase("blogs")
-                    .getCollection("blogs")
-                    .updateOne(Filters.eq("id", id), Updates.set("title", value))
+                .getDatabase("blogs")
+                .getCollection("blogs")
+                .updateOne(Filters.eq("id", id), Updates.set("title", value))
 
             field = value
         }
@@ -35,23 +34,9 @@ class Blog(
     var body = body
         set(value) {
             Mongo.getClient()
-                    .getDatabase("blogs")
-                    .getCollection("blogs")
-                    .updateOne(Filters.eq("id", id), Updates.set("body", value))
-
-            field = value
-        }
-
-
-    /**
-     * The tags.
-     */
-    var tags = tags
-        set(value) {
-            Mongo.getClient()
-                    .getDatabase("blogs")
-                    .getCollection("blogs")
-                    .updateOne(Filters.eq("id", id), Updates.set("tags", value))
+                .getDatabase("blogs")
+                .getCollection("blogs")
+                .updateOne(Filters.eq("id", id), Updates.set("body", value))
 
             field = value
         }

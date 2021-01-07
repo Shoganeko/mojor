@@ -1,13 +1,14 @@
 package dev.shog.mojor.api.users.token.handle
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.mongodb.client.model.Filters
+import dev.shog.mojor.api.users.obj.User
+import dev.shog.mojor.api.users.token.obj.Token
 import dev.shog.mojor.handle.InvalidAuthorization
 import dev.shog.mojor.handle.auth.obj.Permission
-import dev.shog.mojor.api.users.token.obj.Token
-import dev.shog.mojor.api.users.obj.User
 import dev.shog.mojor.handle.db.Mongo
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.codec.digest.DigestUtils
 import org.bson.Document
 import java.security.SecureRandom
@@ -35,7 +36,7 @@ object TokenHandler {
                 permissions.map { permission -> Permission.valueOf(permission) }
 
         Mongo.getClient()
-                .getDatabase("user")
+                .getDatabase("users")
                 .getCollection("tokens")
                 .find()
                 .map { doc ->

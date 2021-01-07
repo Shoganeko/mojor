@@ -2,27 +2,15 @@ package dev.shog.mojor
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
-import dev.shog.lib.app.Application
-import dev.shog.lib.app.cfg.ConfigHandler
-import dev.shog.lib.app.cfg.ConfigType
 import dev.shog.lib.discord.DiscordWebhook
 import dev.shog.lib.discord.WebhookUser
 import dev.shog.lib.util.ArgsHandler
-import dev.shog.lib.util.defaultFormat
-import dev.shog.mojor.api.blog.BlogHandler
-import dev.shog.mojor.api.motd.Motd
-import dev.shog.mojor.api.motd.MotdHandler
-import dev.shog.mojor.api.users.handle.UserManager
-import dev.shog.mojor.handle.file.Config
 import io.github.cdimascio.dotenv.Dotenv
-import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.encodeBase64
+import io.ktor.locations.*
+import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import org.json.JSONArray
+import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.util.*
 
 /**
  * Mojor
@@ -56,7 +44,7 @@ object Mojor {
         // If they're blocking notifications
         ah.nHook("--block-init-notif") {
             runBlocking {
-                Mojor.WEBHOOK.sendMessage("Started at __${Instant.now().defaultFormat()}__.")
+//                Mojor.WEBHOOK.sendMessage("Started at __${Instant.now().defaultFormat()}__.")
             }
         }
 

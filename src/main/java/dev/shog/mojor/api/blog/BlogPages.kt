@@ -32,51 +32,6 @@ fun Routing.blogPages() {
          */
         route("/{id}") {
             /**
-             * Manage a [Blog]'s tags.
-             */
-            route("/tags") {
-                /**
-                 * Delete a tag from an existing blog.
-                 */
-                delete {
-                    call.isAuthorized(Permission.MOJOR_ADMIN)
-
-                    val id = getUuid(call.parameters["id"])
-
-                    val params = call.receiveParameters()
-                    val tagName = params["name"] ?: throw InvalidArguments("name")
-
-                    val blog = BlogHandler.getBlogById(id)
-
-                    val tags = blog.tags.toMutableList()
-                    tags.remove(tagName)
-                    blog.tags = tags
-
-                    call.respond(Response("Successfully removed tag from $id"))
-                }
-
-                /**
-                 * Add a tag to an existing blog.
-                 */
-                post {
-                    call.isAuthorized(Permission.MOJOR_ADMIN)
-
-                    val id = getUuid(call.parameters["id"])
-
-                    val params = call.receiveParameters()
-                    val tagName = params["name"] ?: throw InvalidArguments("name")
-
-                    val blog = BlogHandler.getBlogById(id)
-
-                    val tags = blog.tags.toMutableList()
-                    tags.add(tagName)
-                    blog.tags = tags
-
-                    call.respond(Response("Successfully added tag to $id"))
-                }
-            }
-
-            /**
              * Get an existing blog.
              */
             get {
@@ -117,7 +72,7 @@ fun Routing.blogPages() {
             if (title == null || body == null || tags == null)
                 throw InvalidArguments("title", "body", "tags")
 
-            call.respond(BlogHandler.createBlog(token.owner, title, body, tags))
+            call.respond(BlogHandler.createBlog(token.owner, title, body))
         }
     }
 }

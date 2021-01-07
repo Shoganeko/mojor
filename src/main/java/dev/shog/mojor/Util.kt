@@ -18,11 +18,15 @@ fun getUuid(id: String?): UUID {
 }
 
 
-/** See what [first] is missing from [second] */
+/**
+ * See what [first] is missing from [second]
+ */
 public fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
         first.filter { !second.contains(it) }
 
-/** Get system statistics */
+/**
+ * Get system statistics
+ */
 fun getStatisticsOfSystem(): String {
     val bean = ManagementFactory.getOperatingSystemMXBean() as com.sun.management.OperatingSystemMXBean
 
@@ -34,7 +38,9 @@ fun getStatisticsOfSystem(): String {
             "\nMojor Version: I don't know man, ask Gradle"
 }
 
-/** Form [throwable] and [includeEveryone] into a Discord error message */
+/**
+ * Form [throwable] and [includeEveryone] into a Discord error message
+ */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String =
         buildString {
             append(if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```")
