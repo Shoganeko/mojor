@@ -18,7 +18,7 @@ object ButaHandler {
     /**
      * Get the client credentials.
      */
-    fun getClient(): Pair<String, String> = Mojor.ENV["DISCORD_SECRET"]!! to Mojor.ENV["DISCORD_ID"]!!
+    fun getClient(): Pair<String, String> = System.getenv("DISCORD_SECRET") to System.getenv("DISCORD_ID")
 
     /**
      * Get a token from [code].

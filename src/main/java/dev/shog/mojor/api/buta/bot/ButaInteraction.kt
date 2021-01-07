@@ -14,8 +14,8 @@ import kotlinx.coroutines.coroutineScope
 object ButaInteraction {
     private const val butaUrl = "http://localhost:8014"
 
-    private val username: String = Mojor.ENV["PG_USERNAME"]!!
-    private val password: String = Mojor.ENV["PG_PASSWORD"]!!
+    private val username: String = System.getenv("PG_USERNAME")
+    private val password: String = System.getenv("PG_PASSWORD")
 
     /**
      * Get a [guild]'s roles.

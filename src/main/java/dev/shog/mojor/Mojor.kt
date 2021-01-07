@@ -5,11 +5,9 @@ import ch.qos.logback.classic.LoggerContext
 import dev.shog.lib.discord.DiscordWebhook
 import dev.shog.lib.discord.WebhookUser
 import dev.shog.lib.util.ArgsHandler
-import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.locations.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import org.mindrot.jbcrypt.BCrypt
 import org.slf4j.LoggerFactory
 
 /**
@@ -19,9 +17,7 @@ object Mojor {
     var BASE = "http://localhost:8080"
     var FRONTEND_BASE = "http://localost:4000"
 
-    val ENV = Dotenv.load()
-
-    val WEBHOOK = DiscordWebhook(ENV["WEBHOOK"]!!, WebhookUser("Mojor", "https://shog.dev/favicon.png"))
+    val WEBHOOK = DiscordWebhook(System.getenv("webhook"), WebhookUser("Mojor", "https://shog.dev/favicon.png"))
 
     @KtorExperimentalAPI
     @KtorExperimentalLocationsAPI

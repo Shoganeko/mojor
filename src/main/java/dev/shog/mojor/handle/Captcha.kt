@@ -25,7 +25,7 @@ object Captcha {
     suspend fun verifyReCaptcha(captcha: String): Boolean = coroutineScope {
         val resp = withContext(Dispatchers.Unconfined) {
             Unirest.post("https://www.google.com/recaptcha/api/siteverify")
-                .field("secret", Mojor.ENV["CAPTCHA"]!!)
+                .field("secret", System.getenv("CAPTCHA"))
                 .field("response", captcha)
                 .asJson()
         }

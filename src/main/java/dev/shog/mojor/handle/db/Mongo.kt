@@ -10,7 +10,7 @@ object Mongo {
     private var client: MongoClient? = null
 
     private fun makeClient() {
-        val password = Mojor.ENV["MONGO"]!!
+        val password = System.getenv("MONGO")
 
         client =
             MongoClients.create("mongodb+srv://mojor:${password}@shogdev.uytz5.mongodb.net/users?retryWrites=true&w=majority")
