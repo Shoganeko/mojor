@@ -12,12 +12,12 @@ import java.util.*
  * A user.
  */
 class User(
-        username: String,
-        password: String,
-        permissions: Collection<Permission>,
-        lastLogin: UserLoginAttempt?,
-        val id: UUID,
-        val createdOn: Long
+    username: String,
+    password: String,
+    permissions: Collection<Permission>,
+    lastLogin: UserLoginAttempt?,
+    val id: UUID,
+    val createdOn: Long
 ) {
     /**
      * A user's username
@@ -25,9 +25,9 @@ class User(
     var username = username
         set(value) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("users")
-                    .updateOne(Filters.eq("id", id), Updates.set("name", value))
+                .getDatabase("users")
+                .getCollection("users")
+                .updateOne(Filters.eq("id", id), Updates.set("name", value))
 
             field = value
         }
@@ -39,9 +39,9 @@ class User(
     var password = password
         set(value) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("users")
-                    .updateOne(Filters.eq("id", id), Updates.set("password", value))
+                .getDatabase("users")
+                .getCollection("users")
+                .updateOne(Filters.eq("id", id), Updates.set("password", value))
 
             field = value
         }
@@ -52,9 +52,9 @@ class User(
     var permissions = permissions
         set(value) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("users")
-                    .updateOne(Filters.eq("id", id), Updates.set("permissions", value))
+                .getDatabase("users")
+                .getCollection("users")
+                .updateOne(Filters.eq("id", id), Updates.set("permissions", value))
 
             field = value
         }
@@ -63,5 +63,5 @@ class User(
      * If the hashed [password] is correct.
      */
     fun isCorrectPassword(password: String) =
-            BCrypt.checkpw(password, this.password)
+        BCrypt.checkpw(password, this.password)
 }

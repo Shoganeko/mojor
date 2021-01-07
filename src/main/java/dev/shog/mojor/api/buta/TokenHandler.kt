@@ -8,12 +8,12 @@ import org.bson.Document
 object TokenHandler {
     private val tokenCache: MutableMap<String, DiscordToken> by lazy {
         Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("tokens")
-                .find()
-                .map { doc -> doc.getString("id") to getToken(doc) }
-                .toMap()
-                .toMutableMap()
+            .getDatabase("buta")
+            .getCollection("tokens")
+            .find()
+            .map { doc -> doc.getString("id") to getToken(doc) }
+            .toMap()
+            .toMutableMap()
     }
 
     /**
@@ -21,7 +21,7 @@ object TokenHandler {
      */
     @Throws(NotFound::class)
     fun getToken(token: String): DiscordToken =
-            tokenCache[token] ?: throw NotFound("buta_token")
+        tokenCache[token] ?: throw NotFound("buta_token")
 
     /**
      * Upload [token] to the database.
@@ -30,27 +30,31 @@ object TokenHandler {
         tokenCache[token.id] = token
 
         Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("tokens")
-                .insertOne(Document(mapOf(
+            .getDatabase("buta")
+            .getCollection("tokens")
+            .insertOne(
+                Document(
+                    mapOf(
                         "token_type" to token.tokenType,
                         "expires_in" to token.expiresIn,
                         "refresh_token" to token.refreshToken,
                         "scope" to token.scope,
                         "access_token" to token.accessToken,
                         "id" to token.id
-                )))
+                    )
+                )
+            )
     }
 
     private fun getToken(doc: Document): DiscordToken =
-            DiscordToken(
-                    doc.getString("token_type"),
-                    doc.getInteger("expires_in"),
-                    doc.getString("refresh_token"),
-                    doc.getString("scope"),
-                    doc.getString("access_token"),
-                    doc.getString("id")
-            )
+        DiscordToken(
+            doc.getString("token_type"),
+            doc.getInteger("expires_in"),
+            doc.getString("refresh_token"),
+            doc.getString("scope"),
+            doc.getString("access_token"),
+            doc.getString("id")
+        )
 
     @Throws(NotFound::class)
     fun deleteToken(token: String) {
@@ -59,8 +63,8 @@ object TokenHandler {
         tokenCache.remove(token)
 
         Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("token")
-                .deleteOne(Filters.eq("id", obj.id))
+            .getDatabase("buta")
+            .getCollection("token")
+            .deleteOne(Filters.eq("id", obj.id))
     }
 }

@@ -24,10 +24,10 @@ object ButaInteraction {
         val json = coroutineScope {
             async {
                 Unirest.post("$butaUrl/roles")
-                        .field("username", username)
-                        .field("password", password)
-                        .field("id", guild.toString())
-                        .asJson()
+                    .field("username", username)
+                    .field("password", password)
+                    .field("id", guild.toString())
+                    .asJson()
             }
         }.await()
 
@@ -47,11 +47,11 @@ object ButaInteraction {
         val json = coroutineScope {
             async {
                 Unirest.post("$butaUrl/refresh")
-                        .field("username", username)
-                        .field("password", password)
-                        .field("type", "guild")
-                        .field("id", guild.toString())
-                        .asJson()
+                    .field("username", username)
+                    .field("password", password)
+                    .field("type", "guild")
+                    .field("id", guild.toString())
+                    .asJson()
             }
         }.await()
 

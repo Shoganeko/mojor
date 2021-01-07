@@ -40,7 +40,7 @@ fun Routing.userInteractionPages() {
             val params = receiveParameters()
 
             val parm = params[param]
-                    ?: throw InvalidArguments(param)
+                ?: throw InvalidArguments(param)
 
             return UserManager.getUser(token.owner) to parm
         }
@@ -82,7 +82,7 @@ fun Routing.userInteractionPages() {
 
             if (params.contains("limit")) {
                 val limit = params["limit"]?.toIntOrNull()
-                        ?: throw InvalidArguments("limit")
+                    ?: throw InvalidArguments("limit")
 
                 if (limit > 500)
                     throw ArgumentDoesntMeet("limit")

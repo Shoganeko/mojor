@@ -9,7 +9,8 @@ import io.ktor.response.respond
 
 class TokenExpiredException : Exception()
 
-class TokenMissingPermissions(val tokenPerms: Collection<Permission>, val requiredPerms: Collection<Permission>) : Exception()
+class TokenMissingPermissions(val tokenPerms: Collection<Permission>, val requiredPerms: Collection<Permission>) :
+    Exception()
 
 class InvalidAuthorization(val reason: String) : Exception()
 
@@ -48,11 +49,17 @@ fun StatusPages.Configuration.registerExceptions() {
     exception<TokenMissingPermissions> { ex ->
         val missingPerms = ex.tokenPerms.filterNot { ex.requiredPerms.contains(it) }
 
-        call.respond(HttpStatusCode.BadRequest, Response(response = "Token is missing permissions: ${missingPerms.joinToString()}"))
+        call.respond(
+            HttpStatusCode.BadRequest,
+            Response(response = "Token is missing permissions: ${missingPerms.joinToString()}")
+        )
     }
 
     exception<InvalidArguments> {
-        call.respond(HttpStatusCode.BadRequest, Response(response = "Invalid arguments, requires ${it.args.joinToString()}"))
+        call.respond(
+            HttpStatusCode.BadRequest,
+            Response(response = "Invalid arguments, requires ${it.args.joinToString()}")
+        )
     }
 
     exception<AlreadyLoggedInException> {

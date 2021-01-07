@@ -43,7 +43,7 @@ fun Routing.butaPages() {
             val discord = call.isDiscordAuthenticated()
 
             val guilds = DiscordApi.getGuilds(discord)
-                    .filter { guild -> guild.administrator }
+                .filter { guild -> guild.administrator }
 
             call.respond(guilds)
         }
@@ -71,13 +71,15 @@ fun Routing.butaPages() {
                 val guild = params["guild"] ?: throw InvalidArguments("guild")
 
                 val discordGuild = DiscordApi.getGuilds(discord)
-                        .singleOrNull { discordGuild -> discordGuild.id == guild }
-                        ?: throw InvalidArguments("guild")
+                    .singleOrNull { discordGuild -> discordGuild.id == guild }
+                    ?: throw InvalidArguments("guild")
 
-                call.respond(GetGuildResponse(
+                call.respond(
+                    GetGuildResponse(
                         discordGuild,
                         ButaDataHandler.getGuild(guild.toLong())
-                ))
+                    )
+                )
             }
 
             /**
@@ -90,15 +92,15 @@ fun Routing.butaPages() {
                 val guild = params["guild"] ?: throw InvalidArguments("guild")
 
                 val discordGuild = DiscordApi.getGuilds(discord)
-                        .singleOrNull { discordGuild -> discordGuild.id == guild }
-                        ?: throw InvalidArguments("guild")
+                    .singleOrNull { discordGuild -> discordGuild.id == guild }
+                    ?: throw InvalidArguments("guild")
 
                 val roles = ButaInteraction.getRoles(discordGuild.id.toLong())
 
                 call.respondText(
-                        roles.toString(),
-                        ContentType.Application.Json,
-                        HttpStatusCode.OK
+                    roles.toString(),
+                    ContentType.Application.Json,
+                    HttpStatusCode.OK
                 )
             }
 
@@ -114,8 +116,8 @@ fun Routing.butaPages() {
                 val value = params["value"] ?: throw InvalidArguments("value")
 
                 val discordGuild = DiscordApi.getGuilds(discord)
-                        .singleOrNull { discordGuild -> discordGuild.id == guild }
-                        ?: throw InvalidArguments("guild")
+                    .singleOrNull { discordGuild -> discordGuild.id == guild }
+                    ?: throw InvalidArguments("guild")
 
                 ButaDataHandler.setObject(discordGuild.id.toLong(), type, value)
 
@@ -128,8 +130,8 @@ fun Routing.butaPages() {
 @Throws(InvalidAuthorization::class)
 private fun ApplicationCall.isDiscordAuthenticated(): DiscordToken {
     val header = request.parseAuthorizationHeader()
-            ?.render()
-            ?.split(" ")
+        ?.render()
+        ?.split(" ")
 
     if (header == null || header[0] != "Bearer")
         throw InvalidAuthorization("Header or token type is invalid.")

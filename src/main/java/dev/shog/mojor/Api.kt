@@ -58,8 +58,8 @@ private fun Application.mainModule() {
         register(ContentType.Application.Json, JacksonConverter())
 
         serialization(
-                contentType = ContentType.Application.Json,
-                json = Json(DefaultJsonConfiguration)
+            contentType = ContentType.Application.Json,
+            json = Json(DefaultJsonConfiguration)
         )
     }
 
@@ -73,7 +73,10 @@ private fun Application.mainModule() {
         exception<Throwable> {
             it.printStackTrace()
 
-            call.respond(HttpStatusCode.InternalServerError, Response("There was an internal error processing that request."))
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                Response("There was an internal error processing that request.")
+            )
         }
 
         status(HttpStatusCode.NotFound) {

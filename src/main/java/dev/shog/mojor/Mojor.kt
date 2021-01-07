@@ -41,13 +41,6 @@ object Mojor {
             FRONTEND_BASE = "https://shog.dev"
         }
 
-        // If they're blocking notifications
-        ah.nHook("--block-init-notif") {
-            runBlocking {
-//                Mojor.WEBHOOK.sendMessage("Started at __${Instant.now().defaultFormat()}__.")
-            }
-        }
-
         ah.initWith(args)
 
         apiServer.start(wait = true)

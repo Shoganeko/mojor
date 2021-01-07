@@ -13,18 +13,18 @@ import java.util.*
 object UserLoginManager {
     private val cache: MutableList<UserLoginAttempt> by lazy {
         Mongo.getClient()
-                .getDatabase("users")
-                .getCollection("attempts")
-                .find()
-                .map { doc ->
-                    UserLoginAttempt(
-                            UUID.fromString(doc.getString("id")),
-                            doc.getString("ip"),
-                            doc.getLong("date"),
-                            doc.getBoolean("success")
-                    )
-                }
-                .toMutableList()
+            .getDatabase("users")
+            .getCollection("attempts")
+            .find()
+            .map { doc ->
+                UserLoginAttempt(
+                    UUID.fromString(doc.getString("id")),
+                    doc.getString("ip"),
+                    doc.getLong("date"),
+                    doc.getBoolean("success")
+                )
+            }
+            .toMutableList()
     }
 
     /**
@@ -35,14 +35,18 @@ object UserLoginManager {
 
         withContext(Dispatchers.Unconfined) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("attempts")
-                    .insertOne(Document(mapOf(
+                .getDatabase("users")
+                .getCollection("attempts")
+                .insertOne(
+                    Document(
+                        mapOf(
                             "id" to id.toString(),
                             "ip" to ip,
                             "success" to success,
                             "date" to time
-                    )))
+                        )
+                    )
+                )
         }
 
         val attempt = UserLoginAttempt(id, ip, time, success)
@@ -56,13 +60,13 @@ object UserLoginManager {
      * Get [id]'s most recent login attempt.
      */
     fun getMostRecentLoginAttempt(id: UUID): UserLoginAttempt =
-            cache.first { attempt -> attempt.id == id }
+        cache.first { attempt -> attempt.id == id }
 
     /**
      * Get a user's login attempts
      */
     fun getLoginAttempts(id: UUID, limit: Int = 100): List<UserLoginAttempt> =
-            cache
-                    .filter { attempt -> attempt.id == id }
-                    .take(limit)
+        cache
+            .filter { attempt -> attempt.id == id }
+            .take(limit)
 }

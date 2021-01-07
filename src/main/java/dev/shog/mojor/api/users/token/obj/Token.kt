@@ -14,10 +14,10 @@ import java.util.*
  * [permissions] gives the
  */
 class Token(
-        val token: String,
-        val owner: UUID,
-        permissions: Collection<Permission>,
-        createdOn: Long
+    val token: String,
+    val owner: UUID,
+    permissions: Collection<Permission>,
+    createdOn: Long
 ) {
     /**
      * Renew the token. It does this by setting the creation date to when this is invoked.
@@ -32,9 +32,9 @@ class Token(
     var permissions = permissions
         set(value) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("tokens")
-                    .updateOne(Filters.eq("token", token), Updates.set("permissions", value))
+                .getDatabase("users")
+                .getCollection("tokens")
+                .updateOne(Filters.eq("token", token), Updates.set("permissions", value))
 
             field = value
         }
@@ -45,9 +45,9 @@ class Token(
     var createdOn = createdOn
         set(value) {
             Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("tokens")
-                    .updateOne(Filters.eq("token", token), Updates.set("createdon", value))
+                .getDatabase("users")
+                .getCollection("tokens")
+                .updateOne(Filters.eq("token", token), Updates.set("createdon", value))
 
             field = value
         }

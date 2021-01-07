@@ -8,14 +8,14 @@ object UserRequirements {
      * If [password] meets the password requirements.
      */
     fun passwordMeets(password: String): Boolean =
-            128 >= password.length
+        128 >= password.length
 
     /**
      * If the [username] meets the username requirements.
      * This also checks if [username] already exists
      */
     fun usernameMeets(username: String): Boolean =
-            (3..16).contains(username.length)
-                    && USERNAME_REGEX.matches(username)
-                    && !UserManager.nameExists(username)
+        (3..16).contains(username.length)
+                && USERNAME_REGEX.matches(username)
+                && !UserManager.nameExists(username)
 }

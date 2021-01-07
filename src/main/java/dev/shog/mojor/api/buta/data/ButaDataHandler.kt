@@ -15,23 +15,23 @@ object ButaDataHandler {
      */
     private val guildCache: MutableMap<Long, ButaGuild> by lazy {
         Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("guilds")
-                .find()
-                .map { doc ->
-                    doc.getLong("id") to ButaGuild(
-                            doc.getLong("id").toString(),
-                            doc.getString("prefix"),
-                            doc.getString("join_message"),
-                            doc.getString("leave_message"),
-                            doc.getLong("join_role").toString(),
-                            doc.getString("swear_filter_msg"),
-                            doc["disabled_categories"] as List<String>,
-                            doc.getBoolean("swear_filter_on")
-                    )
-                }
-                .toMap()
-                .toMutableMap()
+            .getDatabase("buta")
+            .getCollection("guilds")
+            .find()
+            .map { doc ->
+                doc.getLong("id") to ButaGuild(
+                    doc.getLong("id").toString(),
+                    doc.getString("prefix"),
+                    doc.getString("join_message"),
+                    doc.getString("leave_message"),
+                    doc.getLong("join_role").toString(),
+                    doc.getString("swear_filter_msg"),
+                    doc["disabled_categories"] as List<String>,
+                    doc.getBoolean("swear_filter_on")
+                )
+            }
+            .toMap()
+            .toMutableMap()
     }
 
     /**
@@ -39,18 +39,19 @@ object ButaDataHandler {
      */
     @Throws(NotFound::class)
     fun getGuild(id: Long): ButaGuild =
-            guildCache[id] ?: throw NotFound("buta_guild")
+        guildCache[id] ?: throw NotFound("buta_guild")
 
     /**
      * If [id] exists in the [guildCache]
      */
     fun exists(id: Long): Boolean =
-            guildCache.containsKey(id)
+        guildCache.containsKey(id)
 
     /**
      * Types that can be modified.
      */
-    private val validTypes = hashMapOf("prefix" to "", "swear_filter_msg" to "", "swear_filter_on" to false, "join_role" to 0L)
+    private val validTypes =
+        hashMapOf("prefix" to "", "swear_filter_msg" to "", "swear_filter_on" to false, "join_role" to 0L)
 
     /**
      * Set an object in the database for guild [id].
@@ -77,9 +78,9 @@ object ButaDataHandler {
         }
 
         Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("guilds")
-                .updateOne(Filters.eq("id", id), Updates.set(type, parsedType))
+            .getDatabase("buta")
+            .getCollection("guilds")
+            .updateOne(Filters.eq("id", id), Updates.set(type, parsedType))
 
         refreshObj(id)
     }
@@ -88,23 +89,23 @@ object ButaDataHandler {
         ButaInteraction.refreshGuild(id)
 
         val guild = Mongo.getClient()
-                .getDatabase("buta")
-                .getCollection("guilds")
-                .find(Filters.eq("id", id))
-                .map { doc ->
-                    ButaGuild(
-                            doc.getLong("id").toString(),
-                            doc.getString("prefix"),
-                            doc.getString("join_message"),
-                            doc.getString("leave_message"),
-                            doc.getLong("join_role").toString(),
-                            doc.getString("swear_filter_msg"),
-                            doc["disabled_categories"] as List<String>,
-                            doc.getBoolean("swear_filter_on")
-                    )
-                }
-                .firstOrNull()
-                ?: throw NotFound("guild")
+            .getDatabase("buta")
+            .getCollection("guilds")
+            .find(Filters.eq("id", id))
+            .map { doc ->
+                ButaGuild(
+                    doc.getLong("id").toString(),
+                    doc.getString("prefix"),
+                    doc.getString("join_message"),
+                    doc.getString("leave_message"),
+                    doc.getLong("join_role").toString(),
+                    doc.getString("swear_filter_msg"),
+                    doc["disabled_categories"] as List<String>,
+                    doc.getBoolean("swear_filter_on")
+                )
+            }
+            .firstOrNull()
+            ?: throw NotFound("guild")
 
 
         guildCache[guild.id.toLong()] = guild

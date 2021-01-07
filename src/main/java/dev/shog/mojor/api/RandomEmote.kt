@@ -18,7 +18,7 @@ object RandomEmote {
 
         val timeTook = measureTimeMillis {
             (1..pages)
-                    .forEach { getPage(it) }
+                .forEach { getPage(it) }
         }
 
         println(">> Complete 5 pages! Took $timeTook ms")
@@ -32,29 +32,29 @@ object RandomEmote {
                 println("Requesting FFZ API...")
 
                 Unirest.get("https://api.frankerfacez.com/v1/emoticons?sort=count&per_page=200&page=$page")
-                        .asJson()
+                    .asJson()
             }
 
             println("FFZ API request complete.")
 
             val ar = JSONObject(json.body.toString())
-                    .getJSONArray("emoticons")
+                .getJSONArray("emoticons")
 
             (0 until ar.length())
-                    .map {
-                        val obj = ar.getJSONObject(it)
+                .map {
+                    val obj = ar.getJSONObject(it)
 
-                        val imgObj = obj.getJSONObject("urls")
-                        val image = imgObj.getString(imgObj.keys().asSequence().last() as String)
+                    val imgObj = obj.getJSONObject("urls")
+                    val image = imgObj.getString(imgObj.keys().asSequence().last() as String)
 
-                        Emote(
-                                obj.getString("name"),
-                                image,
-                                obj.getInt("height"),
-                                obj.getInt("width")
-                        )
-                    }
-                    .forEach { emotes.add(it) }
+                    Emote(
+                        obj.getString("name"),
+                        image,
+                        obj.getInt("height"),
+                        obj.getInt("width")
+                    )
+                }
+                .forEach { emotes.add(it) }
         }
 
         println("> Complete page NO. $page, took $timeTook ms.")
@@ -66,10 +66,10 @@ object RandomEmote {
     private val emotes: ArrayList<Emote> = arrayListOf()
 
     data class Emote(
-            val name: String,
-            val icon: String,
-            val height: Int,
-            val width: Int
+        val name: String,
+        val icon: String,
+        val height: Int,
+        val width: Int
     )
 
     /**

@@ -28,24 +28,24 @@ object ButaHandler {
         val client = getClient()
 
         val json = Unirest.post("https://discord.com/api/v6/oauth2/token")
-                .field("client_id", client.first)
-                .field("client_secret", client.second)
-                .field("grant_type", "authorization_code")
-                .field("scope", scopes.joinToString(" "))
-                .field("redirect_uri", redirect)
-                .field("code", code)
-                .asJson()
+            .field("client_id", client.first)
+            .field("client_secret", client.second)
+            .field("grant_type", "authorization_code")
+            .field("scope", scopes.joinToString(" "))
+            .field("redirect_uri", redirect)
+            .field("code", code)
+            .asJson()
 
         if (json.isSuccess) {
             val content = json.body.`object`
 
             val token = DiscordToken(
-                    content.getString("token_type"),
-                    content.getInt("expires_in"),
-                    content.getString("refresh_token"),
-                    content.getString("scope"),
-                    content.getString("access_token"),
-                    genId(content.getString("access_token"))
+                content.getString("token_type"),
+                content.getInt("expires_in"),
+                content.getString("refresh_token"),
+                content.getString("scope"),
+                content.getString("access_token"),
+                genId(content.getString("access_token"))
             )
 
             TokenHandler.uploadToken(token)

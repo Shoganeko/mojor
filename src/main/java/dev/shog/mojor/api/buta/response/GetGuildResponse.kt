@@ -7,6 +7,6 @@ import dev.shog.mojor.api.buta.data.ButaGuild
  * Responsed when you get a guild.
  */
 data class GetGuildResponse(
-        val discordGuild: PartialGuild,
-        val butaGuild: ButaGuild
+    val discordGuild: PartialGuild,
+    val butaGuild: ButaGuild
 )

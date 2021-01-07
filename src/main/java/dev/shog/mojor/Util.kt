@@ -17,13 +17,6 @@ fun getUuid(id: String?): UUID {
     }
 }
 
-
-/**
- * See what [first] is missing from [second]
- */
-public fun <T> getMissing(first: Collection<T>, second: Collection<T>): Collection<T> =
-        first.filter { !second.contains(it) }
-
 /**
  * Get system statistics
  */
@@ -42,16 +35,16 @@ fun getStatisticsOfSystem(): String {
  * Form [throwable] and [includeEveryone] into a Discord error message
  */
 fun getErrorMessage(throwable: Throwable, includeEveryone: Boolean): String =
-        buildString {
-            append(if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```")
-            append(ExceptionUtils.getStackTrace(throwable) + "```\n\n")
-            append(getStatisticsOfSystem())
-        }
+    buildString {
+        append(if (includeEveryone) "(@everyone) : **ERROR**```" else "**ERROR**```")
+        append(ExceptionUtils.getStackTrace(throwable) + "```\n\n")
+        append(getStatisticsOfSystem())
+    }
 
 /**
  * Clear all files in the cache.
  */
 fun clearCache() {
     FileHandler.getApplicationFolder("mojor").listFiles()
-            ?.forEach { file -> file.delete() }
+        ?.forEach { file -> file.delete() }
 }

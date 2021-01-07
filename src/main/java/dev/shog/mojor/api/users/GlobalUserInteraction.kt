@@ -61,8 +61,8 @@ fun Routing.globalUserInteractionPages() {
 
 /** Receive a user's data from the call. */
 suspend fun ApplicationCall.getUser(): User? =
-        try {
-            receive()
-        } catch (ex: Exception) {
-            null
-        }
+    try {
+        receive()
+    } catch (ex: Exception) {
+        null
+    }

@@ -16,8 +16,8 @@ fun Routing.motdPages() {
     route("/motd") {
         get {
             call.respond(
-                    MotdHandler.motds
-                            .map { MotdResponse(it, UserManager.getUser(it.owner)) }
+                MotdHandler.motds
+                    .map { MotdResponse(it, UserManager.getUser(it.owner)) }
             )
         }
 
@@ -29,10 +29,10 @@ fun Routing.motdPages() {
 
         get("/{motd}") {
             val date = call.parameters["motd"]?.toLongOrNull()
-                    ?: throw InvalidArguments("p_motd")
+                ?: throw InvalidArguments("p_motd")
 
             val motd = MotdHandler.getMotdByDate(date)
-                    ?: throw NotFound("motd")
+                ?: throw NotFound("motd")
 
             call.respond(MotdResponse(motd, UserManager.getUser(motd.owner)))
         }
@@ -41,10 +41,10 @@ fun Routing.motdPages() {
             call.isAuthorized(Permission.MOTD_MANAGER)
 
             val date = call.parameters["motd"]?.toLongOrNull()
-                    ?: throw InvalidArguments("p_motd")
+                ?: throw InvalidArguments("p_motd")
 
             val motd = MotdHandler.getMotdByDate(date)
-                    ?: throw NotFound("motd")
+                ?: throw NotFound("motd")
 
             MotdHandler.deleteMotd(motd.date)
 

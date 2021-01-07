@@ -33,21 +33,21 @@ object TokenHandler {
      */
     private val cache: MutableList<Token> by lazy {
         fun parsePermissions(permissions: List<String>): Collection<Permission> =
-                permissions.map { permission -> Permission.valueOf(permission) }
+            permissions.map { permission -> Permission.valueOf(permission) }
 
         Mongo.getClient()
-                .getDatabase("users")
-                .getCollection("tokens")
-                .find()
-                .map { doc ->
-                    Token(
-                            doc.getString("token"),
-                            UUID.fromString(doc.getString("owner")),
-                            parsePermissions(doc["permissions"] as List<String>),
-                            doc.getLong("createdon")
-                    )
-                }
-                .toMutableList()
+            .getDatabase("users")
+            .getCollection("tokens")
+            .find()
+            .map { doc ->
+                Token(
+                    doc.getString("token"),
+                    UUID.fromString(doc.getString("owner")),
+                    parsePermissions(doc["permissions"] as List<String>),
+                    doc.getLong("createdon")
+                )
+            }
+            .toMutableList()
     }
 
     /**
@@ -67,8 +67,9 @@ object TokenHandler {
     suspend fun removeTokens(tokens: List<Token>) {
         coroutineScope {
             val collection = Mongo.getClient()
-                    .getDatabase("users")
-                    .getCollection("users")
+                .getDatabase("users")
+                .getCollection("users")
+
             tokens.forEach { token ->
                 cache.removeIf { cacheToken -> cacheToken.token == token.token }
 
@@ -84,14 +85,14 @@ object TokenHandler {
      * It is expired if the token's creation time minus the current time is greater than or equal to [EXPIRE_AFTER].
      */
     fun isTokenExpired(token: Token): Boolean =
-            System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
+        System.currentTimeMillis() - token.createdOn >= EXPIRE_AFTER
 
     /**
      * Get a token by it's [token]/
      */
     fun getToken(token: String): Token =
-            cache.singleOrNull { cacheToken -> cacheToken.token == token }
-                    ?: throw InvalidAuthorization("invalid token")
+        cache.singleOrNull { cacheToken -> cacheToken.token == token }
+            ?: throw InvalidAuthorization("invalid token")
 
     /**
      * The secure random used for token string generation.
@@ -101,16 +102,16 @@ object TokenHandler {
     /**
      * Create an unused token identifier.
      */
-    private suspend fun getTokenIdentifier(): String {
+    private fun getTokenIdentifier(): String {
         val bytes = ByteArray(64)
         SEC_RAND.nextBytes(bytes)
         val token = DigestUtils.sha256Hex(String(bytes))
 
         val exists = Mongo.getClient()
-                .getDatabase("users")
-                .getCollection("tokens")
-                .find(Filters.eq("token", token))
-                .any()
+            .getDatabase("users")
+            .getCollection("tokens")
+            .find(Filters.eq("token", token))
+            .any()
 
         return if (exists) getTokenIdentifier() else token
     }
@@ -125,14 +126,18 @@ object TokenHandler {
         cache.add(token)
 
         Mongo.getClient()
-                .getDatabase("users")
-                .getCollection("tokens")
-                .insertOne(Document(mapOf(
+            .getDatabase("users")
+            .getCollection("tokens")
+            .insertOne(
+                Document(
+                    mapOf(
                         "token" to token.token,
                         "owner" to token.owner.toString(),
                         "createdon" to token.createdOn,
                         "permissions" to token.permissions.map(Permission::toString)
-                )))
+                    )
+                )
+            )
 
         return token
     }
